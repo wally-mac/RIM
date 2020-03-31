@@ -1,0 +1,29 @@
+{
+  "name": "web_riverscapes",
+  "version": "1.0.0",
+  "description": "The riverscapes theme",
+  "main": "index.js",
+  "dependencies": {},
+  "devDependencies": {
+    "font-awesome": "4.7.0",
+    "foundation-sites": "6.6.1",
+    "jquery": "3.4.1",
+    "motion-ui": "1.2.3",
+    "what-input": "5.2.6"
+  },
+  "scripts": {
+    "build": "script/build.sh",
+    "start": "script/server.sh",
+    "update": "script/foundation.sh"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/NorthArrowResearch/web_anabranch.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/NorthArrowResearch/web_anabranch/issues"
+  },
+  "homepage": "https://github.com/NorthArrowResearch/web_anabranch#readme"
+}

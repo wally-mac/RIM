@@ -1,0 +1,83 @@
+# Site title will be used everywhere
+# DON'T USE THIS YML FILE IN YOUR SITE. IT'S FOR TESTING ONLY
+title: SITE TITLE HERE
+description: > # this means to ignore newlines until "baseurl:"
+  Online help and documentation site for the site
+
+port: 4002
+google_analytics: UA-XXXXXXXXXXX-X
+
+# Markdown style
+markdown: kramdown
+# Syntax highlighter.
+highlighter: rouge
+
+# front matter
+defaults:
+  -
+    scope:
+      path: "" # an empty string here means all files in the project
+    values:
+      layout: "default"
+
+# Files/Folders to exclude from publishing
+exclude:
+  - src
+  - LICENSE
+  - README.md
+  - _config.yml
+  - package.json
+  - yarn.lock
+  - script
+  - js
+  - TEMPLATE
+  - docs
+
+
+# These are theme settings that will be used to turn features on and off
+# They are not part of Jekyll, they are entirely custom.
+settings:
+  # Turn the automatically generated page contents on and off
+  autoPageContents:
+    active: true
+    onHome: false
+  # Options for the sidebar menu      
+  sideMenu:
+    homeItem: true
+    startExpanded: false
+  # Arbitrary multi-level topbar menu
+  # IF you don't need this just comment out everything below
+  # ----------------------------------
+  topmenu:
+    - title: "Riverscapes"
+      childern:
+        - title: "Model Home"
+          url: index
+        - title: "Riverscapes Home"
+          url: http://riverscapes.xyz
+        - title: "About Riverscapes"
+          url: http://riverscapes.xyz/about.html
+        - title: "Who We Are"
+          url: http://riverscapes.xyz/who-we-are.html
+        - title: "News"
+          url: http://riverscapes.xyz/news.html
+    - title: "RC Tools"
+      url: http://riverscapes.xyz/rc-tools.html
+    - title: "RC Science"
+      url: http://riverscapes.xyz/rc-science.html
+    - title: "RC Data"
+      url: http://riverscapes.xyz/rc-data.html
+    - title: "RC Help"
+      url: http://riverscapes.xyz/rc-help.html
+
+# Redirecting from apps can be tricky so we use a key-value system
+# key: must be in the set [A-Za-z0-9_] (no spaces, no dashes)
+# url: must be relative url, no leading slash.
+# 
+# The url you have to call is: http://siteurl.com/baseurl/?APPKEY=KEY1
+# ---------------------------------------------------------------
+AppRedirects:
+  - key: KEY1
+    url: ThingsA
+  - key: KEY2
+    url: ThingsB/subpageB.html
