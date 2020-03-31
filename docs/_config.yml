@@ -1,8 +1,8 @@
 # Site title will be used everywhere
 # DON'T USE THIS YML FILE IN YOUR SITE. IT'S FOR TESTING ONLY
-title: SITE TITLE HERE
+title: Riverscape Inundation Mapper
 description: > # this means to ignore newlines until "baseurl:"
-  Online help and documentation site for the site
+  Karen Bartelt's template for innundation mapping in riverscapes
 
 port: 4002
 google_analytics: UA-XXXXXXXXXXX-X
