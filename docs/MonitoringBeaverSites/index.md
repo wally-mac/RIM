@@ -1,5 +1,5 @@
 ---
-title: ThingsA Riverscapes Consortium
+title: Monitoring Beaver Sites
 weight: 1
 ---
 
