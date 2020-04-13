@@ -1,5 +1,5 @@
 ---
-title: My Homepage
+title: Home
 weight: 1
 ---
 
