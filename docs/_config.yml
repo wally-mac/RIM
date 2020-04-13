@@ -67,13 +67,13 @@ settings:
         - title: "News"
           url: http://riverscapes.xyz/news.html
     - title: "RC Tools"
-      url: http://riverscapes.xyz/rc-tools.html
+      url: https://riverscapes.xyz/Tools/
     - title: "RC Science"
-      url: http://riverscapes.xyz/rc-science.html
+      url: http://riverscapes.xyz/Science/
     - title: "RC Data"
-      url: http://riverscapes.xyz/rc-data.html
+      url: https://riverscapes.xyz/Data_Warehouses/
     - title: "RC Help"
-      url: http://riverscapes.xyz/rc-help.html
+      url: http://riverscapes.xyz/support.html
 
 # Redirecting from apps can be tricky so we use a key-value system
 # key: must be in the set [A-Za-z0-9_] (no spaces, no dashes)
