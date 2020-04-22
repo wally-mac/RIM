@@ -32,9 +32,13 @@ spatial_reference = arcpy.Describe(srs_template).spatialReference
 
 # inundation
 arcpy.CreateFeatureclass_management(out_path, "inundation.shp", "POLYGON", "",has_m, has_z, spatial_reference)
+#add field for inundation type
+arcpy.management.AddFields(os.path.join(out_path, 'inundation.shp'), ['type', 'TEXT'])
 
 # dam crests
 arcpy.CreateFeatureclass_management(out_path, "dam_crests.shp", "POLYLINE", "", has_m, has_z, spatial_reference)
+#add fields for dam state and crest type
+arcpy.management.AddFields(os.path.join(out_path, 'inundation.shp'), [['dam_state', 'TEXT'], ['crest_type', 'TEXT"]])
 
 # valley bottom
 arcpy.CreateFeatureclass_management(out_path, "valley_bottom.shp", "POLYGON", "", has_m, has_z, spatial_reference)
