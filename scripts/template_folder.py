@@ -26,7 +26,7 @@ def main():
     parser.add_argument('output_path', help='folder path with template shapefiles', type=str)
     args = parser.parse_args()
     
-    template_folder(args.output_path)
+    folder(args.output_path)
     
 if __name__ == "__main__":
    main()     
