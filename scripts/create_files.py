@@ -51,7 +51,7 @@ def create_files(srs_template, project_path):
     # inundation
     arcpy.CreateFeatureclass_management(os.path.join(map_path, 'DCE_01'), "inundation.shp", "POLYGON", "",has_m, has_z, spatial_reference)
     #add field for inundation type
-    arcpy.AddField_management(os.path.join(map_path, 'DCE_01', 'inundation.shp'), type, "TEXT")
+    arcpy.AddField_management(os.path.join(map_path, 'DCE_01', 'inundation.shp'), 'type', "TEXT")
 
     # dam crests
     arcpy.CreateFeatureclass_management(os.path.join(map_path, 'DCE_01'), "dam_crests.shp", "POLYLINE", "", has_m, has_z, spatial_reference)
@@ -77,4 +77,9 @@ def main():
 
     create_files(args.srs_template, args.project_path)
 
-#create_files(srs_template, project_path)
+
+# path to a shapefile with the desired output coordinate system
+srs_template = r"C:\Users\karen\Box\0_ET_AL\NonProject\etal_Drone\2019\Inundation_sites\Utah\Mill_Creek\08042019\GIS\dam_crests.shp"
+# path to project folder
+project_path = r"C:\Users\karen\Box\0_ET_AL\NonProject\etal_Drone\2019\Inundation_sites\Utah\Mill_Creek\test"
+create_files(srs_template, project_path)
