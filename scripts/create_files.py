@@ -15,9 +15,9 @@ import os
 import argparse
 
 
-# define folder with a template file in the desired coordinate system and output folder
-srs_template = 
-out_path = 
+# provide a shapefile with the desired output coordinate system and define the output folder
+#srs_template = 
+#out_path = 
 
 # Set local variables
 has_m = "DISABLED"
