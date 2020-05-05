@@ -13,6 +13,7 @@ import arcpy
 from arcpy import env
 import os
 import argparse
+from loghelper import Logger
 
 
 # define inputs to the create_files function
@@ -24,18 +25,24 @@ import argparse
 #function for create files
 def create_files(srs_template, project_path):
 
+    log = Logger('create_files')
+
     # Set local variables
     has_m = "DISABLED"
     has_z = "DISABLED"
 
+    log.info('before getting spatial reference')
     # Use Describe to get a SpatialReference object
     spatial_reference = arcpy.Describe(srs_template).spatialReference
 
+    log.info('checking if project folders exist')
     #check if Inputs, Mapping, and Analysis folders exist, if not create them
     folder_list = ['01_Inputs', '02_Mapping', '03_Analysis']
     for folder in folder_list:
         if not os.path.exists(os.path.join(project_path, folder)):
             os.makedirs(os.path.join(project_path, folder))
+
+    log.info('Inputs, Mapping, Analysis folders exist')    
     
     # set pathway to mapping folder
     map_path = os.path.join(project_path, '02_Mapping')
