@@ -12,3 +12,11 @@ config script to set pathways and inputs
    currently: 
     project path
     file with desired coordinate system
+
+R script
+    to do
+        - pull site name from folder path
+        - calculate valley slope and channel slope
+
+Create project script
+- add a place to provide paths to input files (imagery, DEM, etc) and put these in correct folders
