@@ -4,8 +4,6 @@ import os
 import arcpy
 import sys
 
-# path to a shapefile with the desired output coordinate system
-#srs_template = r"C:\Users\karen\Box\0_ET_AL\NonProject\etal_Drone\2019\Inundation_sites\Utah\Mill_Creek\08042019\GIS\dam_crests.shp"
 
 # Make folder function 
 # copied from pyBRAT SupportingFunctions.py
@@ -93,11 +91,9 @@ def main():
 
     make_project(project_path)
 
-project_path = r"C:\Users\karen\Box\0_ET_AL\NonProject\etal_Drone\2019\Inundation_sites\Utah\rock_creek_b\rock_creek_b"
-# path to a shapefile with the desired output coordinate system
-srs_template = r"C:\Users\karen\Box\0_ET_AL\NonProject\etal_Drone\2019\Inundation_sites\Utah\Mill_Creek\08042019\GIS\dam_crests.shp"
 
-make_project(project_path, srs_template)
+
+#make_project(project_path, srs_template)
 
 
 

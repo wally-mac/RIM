@@ -4,7 +4,9 @@ from arcpy import env
 import os
 import argparse
 from loghelper import Logger
-from create_files import create_files
+from create_DCE import new_DCE
+from create_project import make_project
+from create_project import make_folder
 
 
 ## Inputs
@@ -14,10 +16,13 @@ srs_template = r"C:\Users\karen\Box\0_ET_AL\NonProject\etal_Drone\2019\Inundatio
 
 ### path to project folder
 
-project_path = r"C:\Users\karen\Box\0_ET_AL\NonProject\etal_Drone\2019\Inundation_sites\Utah\Mill_Creek\test"
+project_path = r"C:\Users\karen\Box\0_ET_AL\NonProject\etal_Drone\2019\Inundation_sites\Utah\rock_creek_b\rock_creek_b"
 
 #########################
 
-# create project folders and empty mapping shapefiles
-create_files(srs_template=srs_template, project_path=project_path)
+# create project folders and empty mapping shapefiles for first DCE
+make_project(project_path, srs_template)
+
+# create new DCE
+new_DCE(srs_template=srs_template, project_path=project_path)
 

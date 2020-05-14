@@ -5,7 +5,7 @@ Created on Sat Mar 14 15:04:43 2020
 @author: karen
 """
 
-# Name: create_files.py
+# Name: new_DCE.py
 # Description: Create shapefiles for inundation work
 
 # Import system modules
@@ -16,16 +16,16 @@ import argparse
 from loghelper import Logger
 
 
-# define inputs to the create_files function
+# define inputs to the create_DCE function
 # path to a shapefile with the desired output coordinate system
 #srs_template = r"C:\Users\karen\Box\0_ET_AL\NonProject\etal_Drone\2019\Inundation_sites\Utah\Mill_Creek\08042019\GIS\dam_crests.shp"
 # path to project folder
 #project_path = r"C:\Users\karen\Box\0_ET_AL\NonProject\etal_Drone\2019\Inundation_sites\Utah\Mill_Creek\test"
 
 #function for create files
-def create_files(srs_template, project_path):
+def new_DCE(srs_template, project_path):
 
-    log = Logger('create_files')
+    log = Logger('new_DCE')
 
     # Set local variables
     has_m = "DISABLED"
@@ -52,28 +52,22 @@ def create_files(srs_template, project_path):
         os.makedirs(os.path.join(map_path, 'RS_01'))
 
     #create new DCE folder
-    if not os.path.exists(os.path.join(map_path, 'DCE_01')):
-        os.makedirs(os.path.join(map_path, 'DCE_01')) 
+    if not os.path.exists(os.path.join(map_path, 'DCE_02')):
+        os.makedirs(os.path.join(map_path, 'DCE_02')) 
 
     # inundation
-    arcpy.CreateFeatureclass_management(os.path.join(map_path, 'DCE_01'), "inundation.shp", "POLYGON", "",has_m, has_z, spatial_reference)
+    arcpy.CreateFeatureclass_management(os.path.join(map_path, 'DCE_02'), "inundation.shp", "POLYGON", "",has_m, has_z, spatial_reference)
     #add field for inundation type
-    arcpy.AddField_management(os.path.join(map_path, 'DCE_01', 'inundation.shp'), 'type', "TEXT")
+    arcpy.AddField_management(os.path.join(map_path, 'DCE_02', 'inundation.shp'), 'type', "TEXT")
 
     # dam crests
-    arcpy.CreateFeatureclass_management(os.path.join(map_path, 'DCE_01'), "dam_crests.shp", "POLYLINE", "", has_m, has_z, spatial_reference)
+    arcpy.CreateFeatureclass_management(os.path.join(map_path, 'DCE_02'), "dam_crests.shp", "POLYLINE", "", has_m, has_z, spatial_reference)
     #add fields for dam state and crest type
-    arcpy.AddField_management(os.path.join(map_path, 'DCE_01', 'dam_crests.shp'), 'dam_state', "TEXT")
-    arcpy.AddField_management(os.path.join(map_path, 'DCE_01', 'dam_crests.shp'), 'crest_type', "TEXT")
-
-    # valley bottom
-    arcpy.CreateFeatureclass_management(os.path.join(map_path, 'RS_01'), "valley_bottom.shp", "POLYGON", "", has_m, has_z, spatial_reference)
-
-    # valley bottom centerline
-    arcpy.CreateFeatureclass_management(os.path.join(map_path, 'RS_01'), "vb_centerline.shp", "POLYLINE", "", has_m, has_z, spatial_reference)
+    arcpy.AddField_management(os.path.join(map_path, 'DCE_02', 'dam_crests.shp'), 'dam_state', "TEXT")
+    arcpy.AddField_management(os.path.join(map_path, 'DCE_02', 'dam_crests.shp'), 'crest_type', "TEXT")
 
     # thalwegs
-    arcpy.CreateFeatureclass_management(os.path.join(map_path, 'DCE_01'), "thalwegs.shp", "POLYLINE", "", has_m, has_z, spatial_reference)
+    arcpy.CreateFeatureclass_management(os.path.join(map_path, 'DCE_02'), "thalwegs.shp", "POLYLINE", "", has_m, has_z, spatial_reference)
 
 def main():
     
@@ -82,11 +76,11 @@ def main():
     parser.add_argument('project_path', help='path to output folder', type=str)
     args = parser.parse_args()
 
-    create_files(args.srs_template, args.project_path)
+    new_DCE(args.srs_template, args.project_path)
 
 
 # path to a shapefile with the desired output coordinate system
-srs_template = r"C:\Users\karen\Box\0_ET_AL\NonProject\etal_Drone\2019\Inundation_sites\Utah\Mill_Creek\08042019\GIS\dam_crests.shp"
+#srs_template = r"C:\Users\karen\Box\0_ET_AL\NonProject\etal_Drone\2019\Inundation_sites\Utah\Mill_Creek\08042019\GIS\dam_crests.shp"
 # path to project folder
-project_path = r"C:\Users\karen\Box\0_ET_AL\NonProject\etal_Drone\2019\Inundation_sites\Utah\Mill_Creek\test"
-create_files(srs_template, project_path)
+#project_path = r"C:\Users\karen\Box\0_ET_AL\NonProject\etal_Drone\2019\Inundation_sites\Utah\Mill_Creek\test"
+#create_files(srs_template, project_path)
