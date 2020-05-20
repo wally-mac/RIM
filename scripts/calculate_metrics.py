@@ -1,13 +1,13 @@
-
 # Import system modules
 import arcpy
 from arcpy import env
 import os
 import argparse
-#from loghelper import Logger
+from loghelper import Logger
 from create_project import make_folder
 arcpy.env.overwriteOutput = True
-arcpy.CheckOutExtension("spatial")
+#from arcpy.sa import *
+arcpy.CheckOutExtension("Spatial")
 
 
 # Set project path
@@ -22,17 +22,24 @@ DCE2_name = "DCE_02"
 
 ########
 
-#log = Logger('set paths')
+log = Logger('set paths')
 
 # Set internal paths
 map_folder = os.path.join(project_path, '02_Mapping')
 RS_folder = os.path.join(map_folder, RS_folder_name)
 DCE1 = os.path.join(map_folder, DCE1_name)
-DCE1 = os.path.join(map_folder, DCE1_name)
+DCE2 = os.path.join(map_folder, DCE2_name)
+DEM = os.path.join(project_path, '01_Inputs', '02_Topo', 'DEM_01', 'DEM.tif')
 
-#log.info('paths set for DCEs of interest')
+
+# Create a list of DCEs 1 and 2
+DCE_list = [DCE1, DCE2]
+
+
+log.info('paths set for DCEs of interest and DEM')
 
 #######
+
 # Calculate reach and valley slope with DEM, Thalweg, and VB_Centerline
 
 def CL_attributes(polyline, DEM, scratch):
@@ -45,7 +52,7 @@ def CL_attributes(polyline, DEM, scratch):
     """
     # if fields lready exist, delete them
     fields = [f.name for f in arcpy.ListFields(polyline)]
-    drop = ["el_max", "el_min", "length", "slope"]
+    drop = ["el_1", "el_2", "length", "slope"]
     for field in fields:
         if field in drop:
             arcpy.DeleteField_management(polyline, field)
@@ -57,44 +64,61 @@ def CL_attributes(polyline, DEM, scratch):
         arcpy.FeatureVerticesToPoints_management(polyline, tmp_pts, vertex_type)
         # create 20 meter buffer around each start/end point
         tmp_buff = os.path.join(scratch, 'tmp_buff.shp')
-        arcpy.Buffer_analysis(tmp_pts, tmp_buff, '10 Meters')
+        arcpy.Buffer_analysis(tmp_pts, tmp_buff, '20 Meters')
         # get min dem z value within each buffer
         arcpy.AddField_management(polyline, out_field, "DOUBLE")
         out_ZS = arcpy.sa.ZonalStatistics(tmp_buff, "FID", DEM, "MINIMUM", "NODATA")
         out_ZS.save(os.path.join(scratch, "out_ZS"))
         tmp_pts2 = os.path.join(scratch, 'tmp_pts2.shp')
         arcpy.sa.ExtractValuesToPoints(tmp_pts, os.path.join(scratch, "out_ZS"), tmp_pts2)
-        # populate polyline with elevation value
-        with arcpy.da.UpdateCursor(polyline, ["FID", "RASTERVALU"]) as cursor:
-            for row in cursor
-        
+        # populate polyline with elevation value from out_ZS
+        with arcpy.da.UpdateCursor(polyline, out_field) as Ucursor:
+            for Urow in Ucursor:
+                with arcpy.da.SearchCursor(tmp_pts2, 'RASTERVALU') as Scursor:
+                    for Srow in Scursor:
+                        Urow[0] = Srow[0]
+                        Ucursor.updateRow(Urow)
+
 
         # delete temp fcs, tbls, etc.
-        items = [tmp_pts, tmp_buff]
-        #for item in items:
-            #arcpy.Delete_management(item)
+        items = [tmp_pts, tmp_pts2, tmp_buff, out_ZS]
+        for item in items:
+            arcpy.Delete_management(item)
 
     # run zSeg function for start/end of each network segment
-    zSeg('START', 'el_max')
-    zSeg('END', 'el_min')
+    zSeg('START', 'el_1')
+    log.info('after zseg 1')
+    zSeg('END', 'el_2')
+    log.info('after zseg 2')
 
     # calculate slope
     arcpy.AddField_management(polyline, "length", "DOUBLE")
     arcpy.CalculateField_management(polyline, "length", '!shape.length@meters!', "PYTHON_9.3")
     arcpy.AddField_management(polyline, "slope", "DOUBLE")
-    with arcpy.da.UpdateCursor(polyline, ["el_max", "el_min", "length", "slope"]) as cursor:
+    with arcpy.da.UpdateCursor(polyline, ["el_1", "el_2", "length", "slope"]) as cursor:
         for row in cursor:
             row[3] = (abs(row[0] - row[1]))/row[2]
             if row[3] == 0.0:
                 row[3] = 0.0001
             cursor.updateRow(row)
 
+# Run CL_attributes for thalweg to get channel slope and valley bottom centerline to get valley slope 
+# thalwegs for DCEs
+for DCE in DCE_list:
+    CL_attributes(os.path.join(DCE, 'thalwegs.shp'), DEM, project_path)
+log.info('after CL_attributes for thalwegs')
+# vb_centerline
+CL_attributes(os.path.join(RS_folder, "vb_centerline.shp"), DEM, project_path)
+log.info('after CL_attributes for vb_centerline')
 
-polyline=r"C:\Users\A02295870\Box\0_ET_AL\NonProject\etal_Drone\2019\Inundation_sites\Utah\Mill_Creek\mill_test_2020_05_07\02_Mapping\RS_01\vb_centerline.shp"
-DEM=r"C:\Users\A02295870\Box\0_ET_AL\NonProject\etal_Drone\2019\Inundation_sites\Utah\Mill_Creek\mill_test_2020_05_07\01_Inputs\02_Topo\DEM_01\DEM.tif"
-scratch=r"C:\Users\A02295870\Box\0_ET_AL\NonProject\etal_Drone\2019\Inundation_sites\Utah\Mill_Creek\mill_test_2020_05_07"
 
-CL_attributes(polyline, DEM, scratch)
+
+
+
+
+
+
+
 
 
 
