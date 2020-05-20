@@ -6,12 +6,13 @@ import argparse
 from loghelper import Logger
 from create_project import make_folder
 arcpy.env.overwriteOutput = True
-#from arcpy.sa import *
-arcpy.CheckOutExtension("Spatial")
+from arcpy.sa import *
+arcpy.CheckOutExtension('Spatial')
+
 
 
 # Set project path
-project_path = r"C:\Users\A02295870\Box\0_ET_AL\NonProject\etal_Drone\2019\Inundation_sites\Utah\Mill_Creek\mill_test_2020_05_07"
+project_path = r"C:\Users\karen\Box\0_ET_AL\NonProject\etal_Drone\2019\Inundation_sites\Utah\Mill_Creek\mill_test_2020_05_07"
 
 # Input the name of the folder of the desired RS Context shapefiles (the folder with the Valley Bottom polygon)
 RS_folder_name = "RS_01"
@@ -41,7 +42,7 @@ log.info('paths set for DCEs of interest and DEM')
 #######
 
 # Calculate reach and valley slope with DEM, Thalweg, and VB_Centerline
-
+log = Logger('CL_attributes')
 def CL_attributes(polyline, DEM, scratch):
     """
     calculates min and max elevation, length, slope for each flowline segment
@@ -87,13 +88,15 @@ def CL_attributes(polyline, DEM, scratch):
 
     # run zSeg function for start/end of each network segment
     zSeg('START', 'el_1')
-    log.info('after zseg 1')
+    log.info('found elevation for start of polyline')
     zSeg('END', 'el_2')
-    log.info('after zseg 2')
+    log.info('found elevation for end of polyline')
 
     # calculate slope
+    log.info('calculating length...')
     arcpy.AddField_management(polyline, "length", "DOUBLE")
     arcpy.CalculateField_management(polyline, "length", '!shape.length@meters!', "PYTHON_9.3")
+    log.info('calculating slope...')
     arcpy.AddField_management(polyline, "slope", "DOUBLE")
     with arcpy.da.UpdateCursor(polyline, ["el_1", "el_2", "length", "slope"]) as cursor:
         for row in cursor:
@@ -101,15 +104,17 @@ def CL_attributes(polyline, DEM, scratch):
             if row[3] == 0.0:
                 row[3] = 0.0001
             cursor.updateRow(row)
-
+    log.info('added min and max elevation, length, and slope to polyline')
 # Run CL_attributes for thalweg to get channel slope and valley bottom centerline to get valley slope 
 # thalwegs for DCEs
+log = Logger('DCE CL_attributes')
 for DCE in DCE_list:
     CL_attributes(os.path.join(DCE, 'thalwegs.shp'), DEM, project_path)
-log.info('after CL_attributes for thalwegs')
+    log.info('channel slope and length calculated')
 # vb_centerline
+log = Logger('RS CL_attributes')
 CL_attributes(os.path.join(RS_folder, "vb_centerline.shp"), DEM, project_path)
-log.info('after CL_attributes for vb_centerline')
+log.info('valley slope and length calculated')
 
 
 
