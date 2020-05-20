@@ -3,7 +3,7 @@ import arcpy
 from arcpy import env
 import os
 import argparse
-#from loghelper import Logger
+from loghelper import Logger
 from create_project import make_folder
 arcpy.env.overwriteOutput = True
 #from arcpy.sa import *
@@ -22,7 +22,7 @@ DCE2_name = "DCE_02"
 
 ########
 
-#log = Logger('set paths')
+log = Logger('set paths')
 
 # Set internal paths
 map_folder = os.path.join(project_path, '02_Mapping')
@@ -36,7 +36,7 @@ DEM = os.path.join(project_path, '01_Inputs', '02_Topo', 'DEM_01', 'DEM.tif')
 DCE_list = [DCE1, DCE2]
 
 
-#log.info('paths set for DCEs of interest')
+log.info('paths set for DCEs of interest and DEM')
 
 #######
 
@@ -87,7 +87,9 @@ def CL_attributes(polyline, DEM, scratch):
 
     # run zSeg function for start/end of each network segment
     zSeg('START', 'el_1')
+    log.info('after zseg 1')
     zSeg('END', 'el_2')
+    log.info('after zseg 2')
 
     # calculate slope
     arcpy.AddField_management(polyline, "length", "DOUBLE")
@@ -104,9 +106,10 @@ def CL_attributes(polyline, DEM, scratch):
 # thalwegs for DCEs
 for DCE in DCE_list:
     CL_attributes(os.path.join(DCE, 'thalwegs.shp'), DEM, project_path)
+log.info('after CL_attributes for thalwegs')
 # vb_centerline
 CL_attributes(os.path.join(RS_folder, "vb_centerline.shp"), DEM, project_path)
-
+log.info('after CL_attributes for vb_centerline')
 
 
 
