@@ -1,4 +1,3 @@
-
 # Import system modules
 import arcpy
 from arcpy import env
@@ -7,7 +6,8 @@ import argparse
 #from loghelper import Logger
 from create_project import make_folder
 arcpy.env.overwriteOutput = True
-arcpy.CheckOutExtension("spatial")
+#from arcpy.sa import *
+arcpy.CheckOutExtension("Spatial")
 
 
 # Set project path
@@ -28,11 +28,18 @@ DCE2_name = "DCE_02"
 map_folder = os.path.join(project_path, '02_Mapping')
 RS_folder = os.path.join(map_folder, RS_folder_name)
 DCE1 = os.path.join(map_folder, DCE1_name)
-DCE1 = os.path.join(map_folder, DCE1_name)
+DCE2 = os.path.join(map_folder, DCE2_name)
+DEM = os.path.join(project_path, '01_Inputs', '02_Topo', 'DEM_01', 'DEM.tif')
+
+
+# Create a list of DCEs 1 and 2
+DCE_list = [DCE1, DCE2]
+
 
 #log.info('paths set for DCEs of interest')
 
 #######
+
 # Calculate reach and valley slope with DEM, Thalweg, and VB_Centerline
 
 def CL_attributes(polyline, DEM, scratch):
@@ -72,10 +79,9 @@ def CL_attributes(polyline, DEM, scratch):
                         Urow[0] = Srow[0]
                         Ucursor.updateRow(Urow)
 
-        
 
         # delete temp fcs, tbls, etc.
-        items = [tmp_pts, tmp_buff, out_ZS]
+        items = [tmp_pts, tmp_pts2, tmp_buff, out_ZS]
         for item in items:
             arcpy.Delete_management(item)
 
@@ -94,12 +100,22 @@ def CL_attributes(polyline, DEM, scratch):
                 row[3] = 0.0001
             cursor.updateRow(row)
 
+# Run CL_attributes for thalweg to get channel slope and valley bottom centerline to get valley slope 
+# thalwegs for DCEs
+for DCE in DCE_list:
+    CL_attributes(os.path.join(DCE, 'thalwegs.shp'), DEM, project_path)
+# vb_centerline
+CL_attributes(os.path.join(RS_folder, "vb_centerline.shp"), DEM, project_path)
 
-polyline=r"C:\Users\A02295870\Box\0_ET_AL\NonProject\etal_Drone\2019\Inundation_sites\Utah\Mill_Creek\mill_test_2020_05_07\02_Mapping\DCE_01\thalwegs.shp"
-DEM=r"C:\Users\A02295870\Box\0_ET_AL\NonProject\etal_Drone\2019\Inundation_sites\Utah\Mill_Creek\mill_test_2020_05_07\01_Inputs\02_Topo\DEM_01\DEM.tif"
-scratch=r"C:\Users\A02295870\Box\0_ET_AL\NonProject\etal_Drone\2019\Inundation_sites\Utah\Mill_Creek\mill_test_2020_05_07"
 
-CL_attributes(polyline, DEM, scratch)
+
+
+
+
+
+
+
+
 
 
 
