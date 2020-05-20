@@ -87,10 +87,10 @@ def CL_attributes(polyline, DEM, scratch):
             arcpy.Delete_management(item)
 
     # run zSeg function for start/end of each network segment
+    log.info('extracting elevation at start of polyline...')
     zSeg('START', 'el_1')
-    log.info('found elevation for start of polyline')
+    log.info('extracting elevation at end of polyline...')
     zSeg('END', 'el_2')
-    log.info('found elevation for end of polyline')
 
     # calculate slope
     log.info('calculating length...')
