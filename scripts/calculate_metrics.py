@@ -159,7 +159,8 @@ def intWidth_fn(polygon, polyline):
     arrCL = arcpy.da.FeatureClassToNumPyArray(polyline, ['SHAPE@LENGTH'])
     arrCLLength = arrCL['SHAPE@LENGTH'].sum()
     intWidth = round(arrPolyArea / arrCLLength, 1)
-    return intWidth
+    print(intWidth)
+    arcpy.AddField_management(polygon, 'intWidth', 'DOUBLE')
     with arcpy.da.UpdateCursor(polygon, ['intWidth']) as cursor:
         for row in cursor:
             row[0] = intWidth
