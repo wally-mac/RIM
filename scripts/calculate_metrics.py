@@ -118,6 +118,55 @@ log.info('valley slope and length calculated')
 
 
 
+log = Logger('calculate attributes')
+# Add and calculate fields for valley bottom shapefile
+valley_bottom = os.path.join(RS_folder, 'valley_bottom.shp')
+log.info('calculating valley area...')
+arcpy.AddField_management(valley_bottom, 'area', 'DOUBLE')
+fields = ['area', 'SHAPE@AREA']
+with arcpy.da.UpdateCursor(valley_bottom, fields) as cursor:
+    for row in cursor:
+        row[0] = row[1]
+        cursor.updateRow(row)
+
+# Add and calculate fields for DCE shapefiles
+for DCE in DCE_list:
+    # inundation
+    log.info('calculating inundatioin areas and perimeters...')
+    inundation = os.path.join(DCE, 'inundation.shp')
+    arcpy.AddField_management(inundation, 'area', 'DOUBLE')
+    arcpy.AddField_management(inundation, 'perimeter', 'DOUBLE')
+    fields = ['area', 'perimeter', 'SHAPE@AREA', 'SHAPE@LENGTH']
+    with arcpy.da.UpdateCursor(inundation, fields) as cursor:
+        for row in cursor:
+            row[0] = row[2]
+            row[1] = row[3]
+            cursor.updateRow(row)
+    # dam crests
+    log.info('calculating dam crest lengths...')
+    dam_crests = os.path.join(DCE, 'dam_crests.shp')
+    arcpy.AddField_management(dam_crests, 'length', 'DOUBLE')
+    fields = ['length', 'SHAPE@LENGTH']
+    with arcpy.da.UpdateCursor(dam_crests, fields) as cursor:
+        for row in cursor:
+            row[0] = row[1]
+            cursor.updateRow(row)
+
+
+
+
+
+
+
+
+# Calculate integrated valley width and integrated wetted width
+#def intWidth_fn(polygon, polyline):
+    #arrPoly = arcpy.da.FeatureClassToNumPyArray(polygon, ['SHAPE@AREA'])
+    #arrPolyArea = arrPoly['SHAPE@AREA'].sum()
+    #arrCL = arcpy.da.FeatureClassToNumPyArray(polyline, ['SHAPE@LENGTH'])
+    #arrCLLength = arrCL['SHAPE@LENGTH'].sum()
+    #intWidth = round(arrPolyArea / arrCLLength, 1)
+    #return intWidth
 
 
 
