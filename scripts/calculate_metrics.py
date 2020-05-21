@@ -152,21 +152,24 @@ for DCE in DCE_list:
             row[0] = row[1]
             cursor.updateRow(row)
 
-
-
-
-
-
-
-
 # Calculate integrated valley width and integrated wetted width
-#def intWidth_fn(polygon, polyline):
-    #arrPoly = arcpy.da.FeatureClassToNumPyArray(polygon, ['SHAPE@AREA'])
-    #arrPolyArea = arrPoly['SHAPE@AREA'].sum()
-    #arrCL = arcpy.da.FeatureClassToNumPyArray(polyline, ['SHAPE@LENGTH'])
-    #arrCLLength = arrCL['SHAPE@LENGTH'].sum()
-    #intWidth = round(arrPolyArea / arrCLLength, 1)
-    #return intWidth
+def intWidth_fn(polygon, polyline):
+    arrPoly = arcpy.da.FeatureClassToNumPyArray(polygon, ['SHAPE@AREA'])
+    arrPolyArea = arrPoly['SHAPE@AREA'].sum()
+    arrCL = arcpy.da.FeatureClassToNumPyArray(polyline, ['SHAPE@LENGTH'])
+    arrCLLength = arrCL['SHAPE@LENGTH'].sum()
+    intWidth = round(arrPolyArea / arrCLLength, 1)
+    return intWidth
+    with arcpy.da.UpdateCursor(polygon, ['intWidth']) as cursor:
+        for row in cursor:
+            row[0] = intWidth
+            cursor.updateRow(row)
+
+log.info('calculating integrated valley width...')
+intWidth_fn(valley_bottom, os.path.join(RS_folder, "vb_centerline.shp"))
+for DCE in DCE_list:
+    log.info('calculating integrated wetted width...')
+    intWidth_fn(os.path.join(DCE, 'inundation.shp'), os.path.join(DCE, 'thalwegs.shp'))
 
 
 
