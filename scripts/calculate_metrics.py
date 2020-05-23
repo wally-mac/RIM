@@ -172,10 +172,49 @@ for DCE in DCE_list:
     log.info('calculating integrated wetted width...')
     intWidth_fn(os.path.join(DCE, 'inundation.shp'), os.path.join(DCE, 'thalwegs.shp'))
 
+# Calculate total inundated area and percent and inundated area and percent by inundation type
+def inun_fn(inun_poly, site_poly):
+    # calculate inundation areas
+    tot_arrPoly = arcpy.da.FeatureClassToNumPyArray(inun_poly, ['SHAPE@AREA', 'type'])
+    tot_Area = tot_arrPoly['SHAPE@AREA'].sum()
+    ff_arrPoly = arcpy.da.FeatureClassToNumPyArray(inun_poly, ['SHAPE@AREA', 'type'], "type = 'free_flowing'")
+    ff_Area = ff_arrPoly['SHAPE@AREA'].sum()
+    pd_arrPoly = arcpy.da.FeatureClassToNumPyArray(inun_poly, ['SHAPE@AREA', 'type'], "type = \'ponded'")
+    pd_Area = pd_arrPoly['SHAPE@AREA'].sum()
+    ov_arrPoly = arcpy.da.FeatureClassToNumPyArray(inun_poly, ['SHAPE@AREA', 'type'], "type = \'overflow'")
+    ov_Area = ov_arrPoly['SHAPE@AREA'].sum()
+    vb_arrArea = arcpy.da.FeatureClassToNumPyArray(site_poly, 'SHAPE@AREA')
+    vb_Area = vb_arrArea['SHAPE@AREA'].sum()
+    # calculate inundation percents
+    tot_pct = round((tot_Area / vb_Area) * 100, 1)
+    print(tot_pct)
+    ff_pct = round((ff_Area / vb_Area) * 100, 1)
+    print(ff_pct)
+    pd_pct = round((pd_Area / vb_Area) * 100, 1)
+    print(pd_pct)
+    ov_pct = round((ov_Area / vb_Area) * 100, 1)
+    print(ov_pct)
+
+for DCE in DCE_list:
+    log.info('calculating inundation area and percent...')
+    inun_fn(os.path.join(DCE, 'inundation.shp'), os.path.join(RS_folder, 'valley_bottom.shp'))
 
 
 
+    
+    #arrCL = arcpy.da.FeatureClassToNumPyArray(polyline, ['SHAPE@LENGTH'])
+    #arrCLLength = arrCL['SHAPE@LENGTH'].sum()
+    #intWidth = round(arrPolyArea / arrCLLength, 1)
+    #print(intWidth)
+    #arcpy.AddField_management(polygon, 'intWidth', 'DOUBLE')
+    #with arcpy.da.UpdateCursor(polygon, ['intWidth']) as cursor:
+        #for row in cursor:
+            #row[0] = intWidth
+            #cursor.updateRow(row)
 
+
+
+print('sdf')
 
 
 
