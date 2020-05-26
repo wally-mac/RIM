@@ -203,7 +203,7 @@ def inun_fn(inun_poly, site_poly):
     arcpy.AddField_management(inun_poly, 'ff_pct', 'DOUBLE')
     arcpy.AddField_management(inun_poly, 'pd_pct', 'DOUBLE')
     arcpy.AddField_management(inun_poly, 'ov_pct', 'DOUBLE')
-    with arcpy.da.UpdateCursor(polygon, ['tot_area', 'ff_area', 'pd_area', 'ov_area', 'vb_area', 'tot_pct', 'ff_pct', 'pd_pct', 'ov_pct']) as cursor:
+    with arcpy.da.UpdateCursor(inun_poly, ['tot_area', 'ff_area', 'pd_area', 'ov_area', 'vb_area', 'tot_pct', 'ff_pct', 'pd_pct', 'ov_pct']) as cursor:
         for row in cursor:
             row[0] = tot_area
             row[1] = ff_area
@@ -222,17 +222,6 @@ for DCE in DCE_list:
     inun_fn(os.path.join(DCE, 'inundation.shp'), os.path.join(RS_folder, 'valley_bottom.shp'))
 
 
-
-    
-    #arrCL = arcpy.da.FeatureClassToNumPyArray(polyline, ['SHAPE@LENGTH'])
-    #arrCLLength = arrCL['SHAPE@LENGTH'].sum()
-    #intWidth = round(arrPolyArea / arrCLLength, 1)
-    #print(intWidth)
-    #arcpy.AddField_management(polygon, 'intWidth', 'DOUBLE')
-    #with arcpy.da.UpdateCursor(polygon, ['intWidth']) as cursor:
-        #for row in cursor:
-            #row[0] = intWidth
-            #cursor.updateRow(row)
 
 
 
