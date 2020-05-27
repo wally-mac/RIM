@@ -227,6 +227,7 @@ def dam_crests_fn(crests_line, CL_line):
     # Calculate valley length
     arrCL = arcpy.da.FeatureClassToNumPyArray(CL_line, ['SHAPE@LENGTH'])
     arrCL_len = arrCL['SHAPE@LENGTH'].sum()
+    
     # Calculate dam crest to valley length ratio
     crestArr = arcpy.da.FeatureClassToNumPyArray(crests_line, ['SHAPE@LENGTH'])
     crest_lenArr = crestArr['SHAPE@LENGTH'].sum()
@@ -243,37 +244,6 @@ def dam_crests_fn(crests_line, CL_line):
     intact_crest_rat = round(intact_crest_len / arrCL_len, 1)
     print "intact dam crest length : valley length =", intact_crest_rat
 
-    # attempt 1
-    # create dictionary to store unique values
-    CountDi = {}
-    with arcpy.da.SearchCursor (crests_line, 'dam_id') as cursor:
-        for row in cursor:
-            if not row[0] in CountDi.keys():
-                CountDi[row[0]] = 1
-            else:
-                CountDi[row[0]] += 1
-    dam_num = len(CountDi)
-    print "dam number =", dam_num
-    for key in CountDi.keys():
-        print str(key) + ":", CountDi[key], "features"
-    
-    # attempt 2
-
-    # Run the Summary Statistics tool with the stats list
-    #out_sum = os.path.join(project_path, 'out_sum')
-    #out_sum = arcpy.Statistics_analysis(crests_line, out_sum, [['dam_state', 'FIRST']], 'dam_id')
-    #dam_num = len(out_sum)
-    #print "number of dams =", dam_num
-
-    # attempt 3
-
-    # array select by dam state
-    # then get count of unique dam id for each dam state
-    # add for each dam state to get total num dams
-    # OR
-    # first get all the active/ inactive length measurements
-    # then make a copy of the dam crests and join by dam_id field and get density and number of each dam state that way
-    
     # Calculate number of dams and dam density
     # Make a layer from the feature class
     arcpy.MakeFeatureLayer_management(crests_line, os.path.join(project_path, 'damsCount_lyr'))
@@ -297,18 +267,22 @@ def dam_crests_fn(crests_line, CL_line):
     arcpy.SelectLayerByAttribute_management(os.path.join(project_path, 'damsCount_lyr'), 'NEW_SELECTION', "dam_state = 'blown-out'")
     blown_out_num = int(arcpy.GetCount_management(os.path.join(project_path, 'damsCount_lyr')).getOutput(0))
     print "number of blown out dams =", blown_out_num
-    # dam density
 
+    # Add values to dam_crests attribute table
+    with arcpy.da.UpdateCursor(crests_line, ['dams_num', 'dam_dens', 'intact_num', 'breached_num', 'blown_num', 'len_rat_all', 'len_rat_act', 'len_rat_int']) as cursor:
+        for row in cursor:
+            row[0] = dams_num
+            row[1] = dam_dens
+            row[2] = intact_num
+            row[3] = breached_num
+            row[4] = blown_out_num
+            row[5] = len_rat_all
+            row[6] = len_rat_act
+            row[7] = len_rat_int
+            cursor.updateRow(row)
 
-    # Get number of intact dams
-    # arcpy.SelectLayerByAttribute_management(os.path.join(project_path, 'damsCount_lyr'), 'NEW_SELECTION', "dam_state = 'intact'")
-    # intact_num = len(os.path.join(project_path, 'damsCount_lyr')) 
-    # Write the selected features to a new featureclass
-    # arcpy.CopyFeatures_management(os.path.join(project_path, 'damsCount_lyr', 'tmp_intact')
-    #damsArr = arcpy.da.FeatureClassToNumPyArray(crests_line, ['dam_id', 'dam_state', 'crest_type', 'SHAPE@LENGTH'])
-
-#for DCE in DCE_list:
-dam_crests_fn(os.path.join(DCE1, 'dam_crests.shp'), os.path.join(RS_folder, 'valley_bottom.shp'))
+for DCE in DCE_list:
+    dam_crests_fn(os.path.join(DCE, 'dam_crests.shp'), os.path.join(RS_folder, 'vb_centerline.shp'))
 
 # Pull attributes from BRAT table
 
