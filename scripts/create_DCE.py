@@ -18,12 +18,15 @@ from loghelper import Logger
 
 # define inputs to the create_DCE function
 # path to a shapefile with the desired output coordinate system
-#srs_template = r"C:\Users\karen\Box\0_ET_AL\NonProject\etal_Drone\2019\Inundation_sites\Utah\Mill_Creek\08042019\GIS\dam_crests.shp"
+srs_template = r"C:\Users\karen\Box\0_ET_AL\NonProject\etal_Drone\2019\Inundation_sites\Utah\Mill_Creek\08042019\GIS\dam_crests.shp"
 # path to project folder
-#project_path = r"C:\Users\karen\Box\0_ET_AL\NonProject\etal_Drone\2019\Inundation_sites\Utah\Mill_Creek\test"
+project_path = r"C:\Users\karen\Box\0_ET_AL\NonProject\etal_Drone\2019\Inundation_sites\Utah\Mill_Creek\test"
+
+# name of desired new DCE folder
+DCE_fold = 'DCE_02'
 
 #function for create files
-def new_DCE(srs_template, project_path):
+def new_DCE(srs_template, project_path, DCE_fold):
 
     log = Logger('new_DCE')
 
@@ -52,22 +55,23 @@ def new_DCE(srs_template, project_path):
         os.makedirs(os.path.join(map_path, 'RS_01'))
 
     #create new DCE folder
-    if not os.path.exists(os.path.join(map_path, 'DCE_02')):
-        os.makedirs(os.path.join(map_path, 'DCE_02')) 
+    if not os.path.exists(os.path.join(map_path, DCE_fold)):
+        os.makedirs(os.path.join(map_path, DCE_fold)) 
 
     # inundation
-    arcpy.CreateFeatureclass_management(os.path.join(map_path, 'DCE_02'), "inundation.shp", "POLYGON", "",has_m, has_z, spatial_reference)
+    arcpy.CreateFeatureclass_management(os.path.join(map_path, DCE_fold), "inundation.shp", "POLYGON", "",has_m, has_z, spatial_reference)
     #add field for inundation type
-    arcpy.AddField_management(os.path.join(map_path, 'DCE_02', 'inundation.shp'), 'type', "TEXT")
+    arcpy.AddField_management(os.path.join(map_path, DCE_fold, 'inundation.shp'), 'type', "TEXT")
 
     # dam crests
-    arcpy.CreateFeatureclass_management(os.path.join(map_path, 'DCE_02'), "dam_crests.shp", "POLYLINE", "", has_m, has_z, spatial_reference)
+    arcpy.CreateFeatureclass_management(os.path.join(map_path, DCE_fold), "dam_crests.shp", "POLYLINE", "", has_m, has_z, spatial_reference)
     #add fields for dam state and crest type
-    arcpy.AddField_management(os.path.join(map_path, 'DCE_02', 'dam_crests.shp'), 'dam_state', "TEXT")
-    arcpy.AddField_management(os.path.join(map_path, 'DCE_02', 'dam_crests.shp'), 'crest_type', "TEXT")
+    arcpy.AddField_management(os.path.join(map_path, DCE_fold, 'dam_crests.shp'), 'dam_state', "TEXT")
+    arcpy.AddField_management(os.path.join(map_path, DCE_fold, 'dam_crests.shp'), 'crest_type', "TEXT")
+    arcpy.AddField_management(os.path.join(map_path, DCE_fold, 'dam_crests.shp'), 'dam_id', "DOUBLE")
 
     # thalwegs
-    arcpy.CreateFeatureclass_management(os.path.join(map_path, 'DCE_02'), "thalwegs.shp", "POLYLINE", "", has_m, has_z, spatial_reference)
+    arcpy.CreateFeatureclass_management(os.path.join(map_path, DCE_fold), "thalwegs.shp", "POLYLINE", "", has_m, has_z, spatial_reference)
 
 def main():
     
@@ -76,11 +80,11 @@ def main():
     parser.add_argument('project_path', help='path to output folder', type=str)
     args = parser.parse_args()
 
-    new_DCE(args.srs_template, args.project_path)
+    new_DCE(args.srs_template, args.project_path, DCE_fold)
 
 
 # path to a shapefile with the desired output coordinate system
 #srs_template = r"C:\Users\karen\Box\0_ET_AL\NonProject\etal_Drone\2019\Inundation_sites\Utah\Mill_Creek\08042019\GIS\dam_crests.shp"
 # path to project folder
 #project_path = r"C:\Users\karen\Box\0_ET_AL\NonProject\etal_Drone\2019\Inundation_sites\Utah\Mill_Creek\test"
-#create_files(srs_template, project_path)
+new_DCE(srs_template, project_path, DCE_fold)
