@@ -4,6 +4,7 @@ from arcpy import env
 import os
 import argparse
 import numpy
+import csv
 from loghelper import Logger
 from create_project import make_folder
 arcpy.env.overwriteOutput = True
@@ -11,7 +12,7 @@ from arcpy.sa import *
 arcpy.CheckOutExtension('Spatial')
 
 
-
+# User Inputs
 # Set project path
 project_path = r"C:\Users\karen\Box\0_ET_AL\NonProject\etal_Drone\2019\Inundation_sites\Utah\Mill_Creek\mill_test_2020_05_07"
 
@@ -29,6 +30,7 @@ log = Logger('set paths')
 # Set internal paths
 map_folder = os.path.join(project_path, '02_Mapping')
 RS_folder = os.path.join(map_folder, RS_folder_name)
+out_folder = os.path.join(project_path, '03_Analysis')
 DCE1 = os.path.join(map_folder, DCE1_name)
 DCE2 = os.path.join(map_folder, DCE2_name)
 DEM = os.path.join(project_path, '01_Inputs', '02_Topo', 'DEM_01', 'DEM.tif')
@@ -246,7 +248,9 @@ def dam_crests_fn(crests_line, CL_line):
 
     # Calculate number of dams and dam density
     # Make a layer from the feature class
-    arcpy.MakeFeatureLayer_management(crests_line, os.path.join(project_path, 'damsCount_lyr'))
+    arcpy.CopyFeatures_management(crests_line, os.path.join(project_path, 'tmp_dams.shp'))
+    tmp_dams = os.path.join(project_path, 'tmp_dams.shp')
+    arcpy.MakeFeatureLayer_management(tmp_dams, os.path.join(project_path, 'damsCount_lyr'))
     # Delete identical dam_ID so there is just 1 row per dam
     arcpy.DeleteIdentical_management(os.path.join(project_path, 'damsCount_lyr'), 'dam_id')
     # all dams
@@ -267,18 +271,31 @@ def dam_crests_fn(crests_line, CL_line):
     arcpy.SelectLayerByAttribute_management(os.path.join(project_path, 'damsCount_lyr'), 'NEW_SELECTION', "dam_state = 'blown-out'")
     blown_out_num = int(arcpy.GetCount_management(os.path.join(project_path, 'damsCount_lyr')).getOutput(0))
     print "number of blown out dams =", blown_out_num
+    # delete temporary dams layer
+    arcpy.Delete_management(tmp_dams)
 
     # Add values to dam_crests attribute table
-    with arcpy.da.UpdateCursor(crests_line, ['dams_num', 'dam_dens', 'intact_num', 'breached_num', 'blown_num', 'len_rat_all', 'len_rat_act', 'len_rat_int']) as cursor:
+    arcpy.AddField_management(crests_line, 'width', 'DOUBLE')
+    arcpy.AddField_management(crests_line, 'dams_num', 'DOUBLE')
+    arcpy.AddField_management(crests_line, 'dam_dens', 'DOUBLE')
+    arcpy.AddField_management(crests_line, 'intact_num', 'DOUBLE')
+    arcpy.AddField_management(crests_line, 'breach_num', 'DOUBLE')
+    arcpy.AddField_management(crests_line, 'blown_num', 'DOUBLE')
+    arcpy.AddField_management(crests_line, 'ratio_all', 'DOUBLE')
+    arcpy.AddField_management(crests_line, 'ratio_act', 'DOUBLE')
+    arcpy.AddField_management(crests_line, 'ratio_int', 'DOUBLE')
+    
+    with arcpy.da.UpdateCursor(crests_line, ['width', 'dams_num', 'dam_dens', 'intact_num', 'breach_num', 'blown_num', 'ratio_all', 'ratio_act', 'ratio_int', 'SHAPE@LENGTH']) as cursor:
         for row in cursor:
-            row[0] = dams_num
-            row[1] = dam_dens
-            row[2] = intact_num
-            row[3] = breached_num
-            row[4] = blown_out_num
-            row[5] = len_rat_all
-            row[6] = len_rat_act
-            row[7] = len_rat_int
+            row[0] = row[9]
+            row[1] = dams_num
+            row[2] = dam_dens
+            row[3] = intact_num
+            row[4] = breached_num
+            row[5] = blown_out_num
+            row[6] = crest_CL_rat
+            row[7] = act_crest_rat
+            row[8] = intact_crest_rat
             cursor.updateRow(row)
 
 for DCE in DCE_list:
@@ -291,11 +308,43 @@ for DCE in DCE_list:
 # Estimate Error for inundation area
 
 # Add data to csv
+for DCE in DCE_list:
+    # create output folder
+    split = os.path.split(DCE)
+    tail = split[1]
+    print tail
+    output = os.path.join(out_folder, tail)
+
+    # valley bottom 
+    nparr = arcpy.da.FeatureClassToNumPyArray(os.path.join(RS_folder, 'valley_bottom.shp'), ['*'])
+    field_names = [f.name for f in arcpy.ListFields(os.path.join(RS_folder, 'valley_bottom.shp'))]
+    fields_str = ','.join(str(i) for i in field_names)
+    numpy.savetxt(output + '/' + '01_Metrics' + '/' + 'valley_bottom' + '_metrics.csv', nparr, fmt="%s", delimiter=",", header=str(fields_str), comments='')
+    # valley bottom centerline
+    nparr = arcpy.da.FeatureClassToNumPyArray(os.path.join(RS_folder, 'vb_centerline.shp'), ['*'])
+    field_names = [f.name for f in arcpy.ListFields(os.path.join(RS_folder, 'vb_centerline.shp'))]
+    fields_str = ','.join(str(i) for i in field_names)
+    numpy.savetxt(output + '/' + '01_Metrics' + '/' + 'vb_centerline' + '_metrics.csv', nparr, fmt="%s", delimiter=",", header=str(fields_str), comments='')
+    # thalweg
+    nparr = arcpy.da.FeatureClassToNumPyArray(os.path.join(DCE, 'thalwegs.shp'), ['*'])
+    field_names = [f.name for f in arcpy.ListFields(os.path.join(DCE, 'thalwegs.shp'))]
+    fields_str = ','.join(str(i) for i in field_names)
+    numpy.savetxt(output + '/' + '01_Metrics' + '/' + 'thalwegs' + '_metrics.csv', nparr, fmt="%s", delimiter=",", header=str(fields_str), comments='')
+    # inundation
+    nparr = arcpy.da.FeatureClassToNumPyArray(os.path.join(DCE, 'inundation.shp'), ['*'])
+    field_names = [f.name for f in arcpy.ListFields(os.path.join(DCE, 'inundation.shp'))]
+    fields_str = ','.join(str(i) for i in field_names)
+    numpy.savetxt(output + '/' + '01_Metrics' + '/' + 'inundation' + '_metrics.csv', nparr, fmt="%s", delimiter=",", header=str(fields_str), comments='')
+    # dam crests
+    nparr = arcpy.da.FeatureClassToNumPyArray(os.path.join(DCE, 'dam_crests.shp'), ['*'])
+    field_names = [f.name for f in arcpy.ListFields(os.path.join(DCE, 'dam_crests.shp'))]
+    fields_str = ','.join(str(i) for i in field_names)
+    numpy.savetxt(output + '/' + '01_Metrics' + '/' + 'dam_crests' + '_metrics.csv', nparr, fmt="%s", delimiter=",", header=str(fields_str), comments='')
 
 # Make plots
 
 # Make table 
-print('sdf')
+
 
 
 
