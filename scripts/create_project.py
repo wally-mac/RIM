@@ -3,7 +3,17 @@
 import os
 import arcpy
 import sys
-
+# User Inputs
+# Project path and srs template
+#project_path = 
+#srs_template = 
+# imagery paths
+#AP01_path = 
+#AP02_path = 
+# Context layer paths
+#DEM_path = 
+#BRAT_path =
+#VBET_path = 
 
 # Make folder function 
 # copied from pyBRAT SupportingFunctions.py
@@ -64,6 +74,7 @@ def make_project(project_path, srs_template):
     #add fields for dam state and crest type
     arcpy.AddField_management(os.path.join(DCE01_folder, 'dam_crests.shp'), 'dam_state', "TEXT")
     arcpy.AddField_management(os.path.join(DCE01_folder, 'dam_crests.shp'), 'crest_type', "TEXT")
+    arcpy.AddField_management(os.path.join(DCE01_folder, 'dam_crests.shp'), 'dam_id', "DOUBLE")
     # thalwegs
     arcpy.CreateFeatureclass_management(DCE01_folder, "thalwegs.shp", "POLYLINE", "", "DISABLED", "DISABLED", spatial_reference)
     #add fields for thalweg type
