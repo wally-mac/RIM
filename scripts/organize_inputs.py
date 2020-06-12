@@ -22,3 +22,9 @@ def project_rasters(in_folder, out_folder, srs_template):
     arcpy.ProjectRaster_management(os.path.join(in_folder, 'NDVI.tif'), os.path.join(out_folder, 'NDVI.tif'), srs_template, 'NEAREST', '.02')
 
 
+# pull files from RS_context folder
+def gather_RSinputs(context_folder, huc8, project_path):
+    arcpy.CopyRaster_management(os.path.join(context_folder, huc8, 'topography/dem.tif'), os.path.join(project_path, '01_Inputs/02_Topo/DEM_01/DEM.tif'))
+    arcpy.CopyRaster_management(os.path.join(context_folder, huc8, 'topography/dem_hillshade.tif'), os.path.join(project_path, '01_Inputs/02_Topo/DEM_01/hlsd.tif'))
+    arcpy.CopyRaster_management(os.path.join(context_folder, huc8, 'topography/hand.tif'), os.path.join(project_path, '01_Inputs/02_Topo/DEM_01/hand.tif'))
+    arcpy.CopyRaster_management(os.path.join(context_folder, huc8, 'topography/slope.tif'), os.path.join(project_path, '01_Inputs/02_Topo/DEM_01/slope.tif'))
