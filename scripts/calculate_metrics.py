@@ -133,14 +133,14 @@ for DCE in DCE_list:
     log.info('channel slope and length calculated')
 # vb_centerline
 log = Logger('RS CL_attributes')
-CL_attributes(os.path.join(RS_folder, "vb_centerline.shp"), DEM, project_path)
+CL_attributes(os.path.join(DCE, "vb_centerline.shp"), DEM, project_path)
 log.info('valley slope and length calculated')
 
 
 
 log = Logger('calculate attributes')
 # Add and calculate fields for valley bottom shapefile
-valley_bottom = os.path.join(RS_folder, 'valley_bottom.shp')
+valley_bottom = os.path.join(DCE, 'valley_bottom.shp')
 log.info('calculating valley area...')
 arcpy.AddField_management(valley_bottom, 'area', 'DOUBLE')
 fields = ['area', 'SHAPE@AREA']
@@ -187,7 +187,7 @@ def intWidth_fn(polygon, polyline):
             cursor.updateRow(row)
 
 log.info('calculating integrated valley width...')
-intWidth_fn(valley_bottom, os.path.join(RS_folder, "vb_centerline.shp"))
+intWidth_fn(valley_bottom, os.path.join(DCE, "vb_centerline.shp"))
 for DCE in DCE_list:
     log.info('calculating integrated wetted width...')
     intWidth_fn(os.path.join(DCE, 'inundation.shp'), os.path.join(DCE, 'thalwegs.shp'))
@@ -239,7 +239,7 @@ def inun_fn(inun_poly, site_poly):
 for DCE in DCE_list:
     log.info('calculating inundation area and percent...')
     print "calculating inundation percents for", DCE, "..."
-    inun_fn(os.path.join(DCE, 'inundation.shp'), os.path.join(RS_folder, 'valley_bottom.shp'))
+    inun_fn(os.path.join(DCE, 'inundation.shp'), os.path.join(DCE, 'valley_bottom.shp'))
 
 # Calculate dam crest metrics
 def dam_crests_fn(crests_line, CL_line):
@@ -316,13 +316,22 @@ def dam_crests_fn(crests_line, CL_line):
             cursor.updateRow(row)
 
 for DCE in DCE_list:
-    dam_crests_fn(os.path.join(DCE, 'dam_crests.shp'), os.path.join(RS_folder, 'vb_centerline.shp'))
+    dam_crests_fn(os.path.join(DCE, 'dam_crests.shp'), os.path.join(DCE, 'vb_centerline.shp'))
 
 # Pull attributes from BRAT table
 
 # Estimate bankfull with Beechie equation
 
 # Estimate Error for inundation area
+def poly_error_buf(polygon, error_val, out_folder):
+    buf_pos = float(error_val)
+    buf_neg = (buf_pos * -1)
+    arcpy.Buffer_analysis(polygon, os.path.join(out_folder, 'error_max'), buf_pos)
+    arcpy.Buffer_analysis(polygon, os.path.join(out_folder, 'error_min'), buf_neg)
+
+# Create min and max extent polygons
+for DCE in DCE_list:
+    poly_error_buf(os.path.join(DCE, 'inundation'), '0.5 METERS', DCE)
 
 # Add desired site scale variables to valley bottom shapefile
 ## thalwegs
@@ -408,13 +417,13 @@ for DCE in DCE_list:
     output = os.path.join(out_folder, tail)
 
     # valley bottom 
-    nparr = arcpy.da.FeatureClassToNumPyArray(os.path.join(RS_folder, 'valley_bottom.shp'), ['*'])
-    field_names = [f.name for f in arcpy.ListFields(os.path.join(RS_folder, 'valley_bottom.shp'))]
+    nparr = arcpy.da.FeatureClassToNumPyArray(os.path.join(DCE, 'valley_bottom.shp'), ['*'])
+    field_names = [f.name for f in arcpy.ListFields(os.path.join(DCE, 'valley_bottom.shp'))]
     fields_str = ','.join(str(i) for i in field_names)
     numpy.savetxt(output + '/' + '01_Metrics' + '/' + 'valley_bottom' + '_metrics.csv', nparr, fmt="%s", delimiter=",", header=str(fields_str), comments='')
     # valley bottom centerline
-    nparr = arcpy.da.FeatureClassToNumPyArray(os.path.join(RS_folder, 'vb_centerline.shp'), ['*'])
-    field_names = [f.name for f in arcpy.ListFields(os.path.join(RS_folder, 'vb_centerline.shp'))]
+    nparr = arcpy.da.FeatureClassToNumPyArray(os.path.join(DCE, 'vb_centerline.shp'), ['*'])
+    field_names = [f.name for f in arcpy.ListFields(os.path.join(DCE, 'vb_centerline.shp'))]
     fields_str = ','.join(str(i) for i in field_names)
     numpy.savetxt(output + '/' + '01_Metrics' + '/' + 'vb_centerline' + '_metrics.csv', nparr, fmt="%s", delimiter=",", header=str(fields_str), comments='')
     # thalweg
