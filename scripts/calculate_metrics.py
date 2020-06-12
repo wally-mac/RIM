@@ -324,6 +324,19 @@ for DCE in DCE_list:
 
 # Estimate Error for inundation area
 
+# Add desired site scale variables to valley bottom shapefile
+## thalwegs
+for DCE in DCE_list:
+    arcpy.AddField_management(os.path.join(DCE, 'valley_bottom.shp'), 'grad_chan', 'DOUBLE')
+    arcpy.AddField_management(os.path.join(DCE, 'valley_bottom.shp'), 'len_chan', 'DOUBLE')
+    with arcpy.da.UpdateCursor(os.path.join(DCE, 'valley_bottom.shp'), ['grad_chan', 'len_chan']) as Ucursor:
+        for Urow in Ucursor:
+            with arcpy.da.SearchCursor(os.path.join(DCE, 'thalwegs.shp'), ['slope', 'length']) as Scursor:
+                for Srow in Scursor:
+                    Urow[0] = Srow[0]
+                    Urow[1] = Srow[1]
+                    Ucursor.updateRow(Urow)
+
 # Add data to csv
 for DCE in DCE_list:
     # create output folder
