@@ -23,21 +23,38 @@ RS_folder_name = "RS_01"
 DCE1_name = "DCE_01"
 DCE2_name = "DCE_02"
 
+# Select which DEM should be used to calculate slopes
+DEM = os.path.join(project_path, '01_Inputs', '02_Topo', 'DEM_01', 'DEM.tif')
+
 ########
 
 log = Logger('set paths')
 
-# Set internal paths
+# Set internal paths 
 map_folder = os.path.join(project_path, '02_Mapping')
 RS_folder = os.path.join(map_folder, RS_folder_name)
 out_folder = os.path.join(project_path, '03_Analysis')
+
+# Copy all RS and DCE mapped shapefiles and save copy to output folder for analysis
 DCE1 = os.path.join(map_folder, DCE1_name)
 DCE2 = os.path.join(map_folder, DCE2_name)
-DEM = os.path.join(project_path, '01_Inputs', '02_Topo', 'DEM_01', 'DEM.tif')
-
+DCE1_out = make_folder(os.path.join(out_folder, DCE1_name), 'shapefiles')
+DCE2_out = make_folder(os.path.join(out_folder, DCE2_name), 'shapefiles')
+# DCE1
+arcpy.CopyFeatures_management(os.path.join(RS_folder, 'valley_bottom.shp'), os.path.join(DCE1_out, 'valley_bottom.shp'))
+arcpy.CopyFeatures_management(os.path.join(RS_folder, 'vb_centerline.shp'), os.path.join(DCE1_out, 'vb_centerline.shp'))
+arcpy.CopyFeatures_management(os.path.join(DCE1, 'thalwegs.shp'), os.path.join(DCE1_out, 'thalwegs.shp'))
+arcpy.CopyFeatures_management(os.path.join(DCE1, 'dam_crests.shp'), os.path.join(DCE1_out, 'dam_crests.shp'))
+arcpy.CopyFeatures_management(os.path.join(DCE1, 'inundation.shp'), os.path.join(DCE1_out, 'inundation.shp'))
+# DCE2
+arcpy.CopyFeatures_management(os.path.join(RS_folder, 'valley_bottom.shp'), os.path.join(DCE2_out, 'valley_bottom.shp'))
+arcpy.CopyFeatures_management(os.path.join(RS_folder, 'vb_centerline.shp'), os.path.join(DCE2_out, 'vb_centerline.shp'))
+arcpy.CopyFeatures_management(os.path.join(DCE2, 'thalwegs.shp'), os.path.join(DCE2_out, 'thalwegs.shp'))
+arcpy.CopyFeatures_management(os.path.join(DCE2, 'dam_crests.shp'), os.path.join(DCE2_out, 'dam_crests.shp'))
+arcpy.CopyFeatures_management(os.path.join(DCE2, 'inundation.shp'), os.path.join(DCE2_out, 'inundation.shp'))
 
 # Create a list of DCEs 1 and 2
-DCE_list = [DCE1, DCE2]
+DCE_list = [DCE1_out, DCE2_out]
 
 
 log.info('paths set for DCEs of interest and DEM')
