@@ -331,7 +331,7 @@ def poly_error_buf(polygon, error_val, out_folder):
 
 # Create min and max extent polygons
 for DCE in DCE_list:
-    poly_error_buf(os.path.join(DCE, 'inundation'), '0.5 METERS', DCE)
+    poly_error_buf(os.path.join(DCE, 'inundation.shp'), '0.5', DCE)
 
 # Add desired site scale variables to valley bottom shapefile
 ## thalwegs
@@ -359,7 +359,7 @@ for DCE in DCE_list:
 ## dam crests
 for DCE in DCE_list:
     arcpy.AddField_management(os.path.join(DCE, 'valley_bottom.shp'), 'dams_num', 'DOUBLE')
-    arcpy.AddField_management(os.path.join(DCE, 'valley_bottom.shp'), 'dams_dens', 'DOUBLE')
+    arcpy.AddField_management(os.path.join(DCE, 'valley_bottom.shp'), 'dam_dens', 'DOUBLE')
     arcpy.AddField_management(os.path.join(DCE, 'valley_bottom.shp'), 'intact_num', 'DOUBLE')
     arcpy.AddField_management(os.path.join(DCE, 'valley_bottom.shp'), 'breach_num', 'DOUBLE')
     arcpy.AddField_management(os.path.join(DCE, 'valley_bottom.shp'), 'blown_num', 'DOUBLE')
@@ -367,9 +367,9 @@ for DCE in DCE_list:
     arcpy.AddField_management(os.path.join(DCE, 'valley_bottom.shp'), 'ratio_act', 'DOUBLE')
     arcpy.AddField_management(os.path.join(DCE, 'valley_bottom.shp'), 'ratio_int', 'DOUBLE')
 
-    with arcpy.da.UpdateCursor(os.path.join(DCE, 'valley_bottom.shp'), ['dams_num', 'dams_dens', 'intact_num', 'breach_num', 'blown_num', 'ratio_all', 'ratio_act', 'ratio_int']) as Ucursor:
+    with arcpy.da.UpdateCursor(os.path.join(DCE, 'valley_bottom.shp'), ['dams_num', 'dam_dens', 'intact_num', 'breach_num', 'blown_num', 'ratio_all', 'ratio_act', 'ratio_int']) as Ucursor:
         for Urow in Ucursor:
-            with arcpy.da.SearchCursor(os.path.join(DCE, 'dam_crests.shp'), ['dams_num', 'dams_dens', 'intact_num', 'breach_num', 'blown_num', 'ratio_all', 'ratio_act', 'ratio_int']) as Scursor:
+            with arcpy.da.SearchCursor(os.path.join(DCE, 'dam_crests.shp'), ['dams_num', 'dam_dens', 'intact_num', 'breach_num', 'blown_num', 'ratio_all', 'ratio_act', 'ratio_int']) as Scursor:
                 for Srow in Scursor:
                     Urow[0] = Srow[0]
                     Urow[1] = Srow[1]
@@ -394,7 +394,7 @@ for DCE in DCE_list:
     
     with arcpy.da.UpdateCursor(os.path.join(DCE, 'valley_bottom.shp'), ['intWid_wet', 'tot_area', 'ff_area', 'pd_area', 'ov_area', 'tot_pct', 'ff_pct', 'pd_pct', 'ov_pct']) as Ucursor:
         for Urow in Ucursor:
-            with arcpy.da.SearchCursor(os.path.join(DCE, 'thalwegs.shp'), ['intWidth', 'tot_area', 'ff_area', 'pd_area', 'ov_area', 'tot_pct', 'ff_pct', 'pd_pct', 'ov_pct']) as Scursor:
+            with arcpy.da.SearchCursor(os.path.join(DCE, 'inundation.shp'), ['intWidth', 'tot_area', 'ff_area', 'pd_area', 'ov_area', 'tot_pct', 'ff_pct', 'pd_pct', 'ov_pct']) as Scursor:
                 for Srow in Scursor:
                     Urow[0] = Srow[0]
                     Urow[1] = Srow[1]
@@ -410,11 +410,7 @@ for DCE in DCE_list:
 # Add data to csv
 for DCE in DCE_list:
     # create output folder
-    split = os.path.split(DCE)
-    split_1 = split[0]
-    tail = os.path.split(split_1)
-    print tail
-    output = os.path.join(out_folder, tail)
+    output = os.path.dirname(DCE)
 
     # valley bottom 
     nparr = arcpy.da.FeatureClassToNumPyArray(os.path.join(DCE, 'valley_bottom.shp'), ['*'])
