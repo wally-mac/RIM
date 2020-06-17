@@ -326,6 +326,10 @@ for DCE in DCE_list:
     dam_crests_fn(os.path.join(DCE, 'dam_crests.shp'), os.path.join(DCE, 'vb_centerline.shp'))
 
 # Pull attributes from BRAT table
+# Create a BRAT output file clipped to VB poly
+for DCE in DCE_list:
+    arcpy.Clip_analysis(os.path.join(project_path, '01_Inputs', '03_Context', 'BRAT_01', 'BRAT.shp'), os.path.join(DCE, 'valley_bottom.shp'), os.path.join(DCE, 'BRAT_clip.shp'))
+    arcpy.Dissolve_management(os.path.join(DCE, 'BRAT_clip'), os.path.join(DCE, 'BRAT_diss'), "", "MEAN")
 
 # Estimate bankfull with Beechie equation
 
@@ -345,6 +349,23 @@ for DCE in DCE_list:
     inun_fn(os.path.join(DCE, 'error_max'), os.path.join(DCE, 'valley_bottom.shp'))
 
 # Add desired site scale variables to valley bottom shapefile
+## BRAT
+for DCE in DCE_list:
+    arcpy.AddField_management(os.path.join(DCE, 'valley_bottom.shp'), 'iGeo_DA', 'DOUBLE')
+    arcpy.AddField_management(os.path.join(DCE, 'valley_bottom.shp'), 'iHyd_QLow', 'DOUBLE')
+    arcpy.AddField_management(os.path.join(DCE, 'valley_bottom.shp'), 'iHyd_Q2', 'DOUBLE')
+    arcpy.AddField_management(os.path.join(DCE, 'valley_bottom.shp'), 'iHyd_SPLow', 'DOUBLE')
+    arcpy.AddField_management(os.path.join(DCE, 'valley_bottom.shp'), 'iHyd_SP2', 'DOUBLE')
+    with arcpy.da.UpdateCursor(os.path.join(DCE, 'valley_bottom.shp'), ['iGeo_DA', 'iHyd_QLow', 'iHyd_Q2', 'iHyd_SPLow', 'iHyd_SP2']) as Ucursor:
+        for Urow in Ucursor:
+            with arcpy.da.SearchCursor(os.path.join(DCE, 'BRAT_diss.shp'), ['iGeo_DA', 'iHyd_QLow', 'iHyd_Q2', 'iHyd_SPLow', 'iHyd_SP2']) as Scursor:
+                for Srow in Scursor:
+                    Urow[0] = Srow[0]
+                    Urow[1] = Srow[1]
+                    Urow[2] = Srow[2]
+                    Urow[3] = Srow[3]
+                    Urow[4] = Srow[4]
+                    Ucursor.updateRow(Urow)
 ## main thalweg/ channel slope and length
 for DCE in DCE_list:
     arcpy.AddField_management(os.path.join(DCE, 'valley_bottom.shp'), 'grad_chan', 'DOUBLE')
