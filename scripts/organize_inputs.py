@@ -28,3 +28,8 @@ def gather_RSinputs(context_folder, huc8, project_path):
     arcpy.CopyRaster_management(os.path.join(context_folder, huc8, 'topography/dem_hillshade.tif'), os.path.join(project_path, '01_Inputs/02_Topo/DEM_01/hlsd.tif'))
     arcpy.CopyRaster_management(os.path.join(context_folder, huc8, 'topography/hand.tif'), os.path.join(project_path, '01_Inputs/02_Topo/DEM_01/hand.tif'))
     arcpy.CopyRaster_management(os.path.join(context_folder, huc8, 'topography/slope.tif'), os.path.join(project_path, '01_Inputs/02_Topo/DEM_01/slope.tif'))
+    arcpy.CopyFeatures_management(os.path.join(context_folder, huc8, 'BRAT'), os.path.join(project_path, '01_Inputs/03_Context/BRAT_01/BRAT.shp'))
+    arcpy.CopyFeatures_management(os.path.join(context_folder, huc8, 'BRAT'), os.path.join(project_path, '01_Inputs/03_Context/BRAT_01/BRAT.shp'))
+    arcpy.CopyFeatures_management(os.path.join(context_folder, huc8, 'hydrology/WBDHU8.shp'), os.path.join(project_path, '01_Inputs/03_Context/WBD/HUC8.shp'))
+    arcpy.CopyFeatures_management(os.path.join(context_folder, huc8, 'hydrology/WBDHU10.shp'), os.path.join(project_path, '01_Inputs/03_Context/WBD/HUC10.shp'))
+    arcpy.CopyFeatures_management(os.path.join(context_folder, huc8, 'hydrology/WBDHU12.shp'), os.path.join(project_path, '01_Inputs/03_Context/WBD/HUC12.shp'))
