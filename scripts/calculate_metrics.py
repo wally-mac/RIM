@@ -14,7 +14,7 @@ arcpy.CheckOutExtension('Spatial')
 
 # User Inputs
 # Set project path
-project_path = r"C:\Users\karen\Box\0_ET_AL\NonProject\etal_Drone\2019\Inundation_sites\Utah\Mill_Creek\mill_test_2020_05_07"
+project_path = r"C:\Users\karen\Box\0_ET_AL\NonProject\etal_Drone\2019\Inundation_sites\Utah\Mill_Creek\mill_creek"
 
 # Input the name of the folder of the desired RS Context shapefiles (the folder with the Valley Bottom polygon)
 RS_folder_name = "RS_01"
@@ -53,6 +53,7 @@ arcpy.CopyFeatures_management(os.path.join(DCE2, 'thalwegs.shp'), os.path.join(D
 arcpy.CopyFeatures_management(os.path.join(DCE2, 'dam_crests.shp'), os.path.join(DCE2_out, 'dam_crests.shp'))
 arcpy.CopyFeatures_management(os.path.join(DCE2, 'inundation.shp'), os.path.join(DCE2_out, 'inundation.shp'))
 
+
 # Create a list of DCEs 1 and 2
 DCE_list = [DCE1_out, DCE2_out]
 
@@ -63,6 +64,11 @@ log.info('paths set for DCEs of interest and DEM')
 
 # Calculate reach and valley slope with DEM, Thalweg, and VB_Centerline
 log = Logger('CL_attributes')
+# Create a thalweg file with just the main thalweg
+for DCE in DCE_list:
+    arcpy.MakeFeatureLayer_management(os.path.join(DCE, 'thalwegs.shp'), 'twg_main', "type = 'main'")
+    arcpy.CopyFeatures_management('twg_main', os.path.join(DCE, 'twg_main.shp'))
+
 def CL_attributes(polyline, DEM, scratch):
     """
     calculates min and max elevation, length, slope for each flowline segment
@@ -124,30 +130,30 @@ def CL_attributes(polyline, DEM, scratch):
             if row[3] == 0.0:
                 row[3] = 0.0001
             cursor.updateRow(row)
+
     log.info('added min and max elevation, length, and slope to polyline')
 # Run CL_attributes for thalweg to get channel slope and valley bottom centerline to get valley slope 
-# thalwegs for DCEs
-log = Logger('DCE CL_attributes')
 for DCE in DCE_list:
-    CL_attributes(os.path.join(DCE, 'thalwegs.shp'), DEM, project_path)
+    log = Logger('DCE CL_attributes')
+    CL_attributes(os.path.join(DCE, 'twg_main.shp'), DEM, project_path)
     log.info('channel slope and length calculated')
-# vb_centerline
-log = Logger('RS CL_attributes')
-CL_attributes(os.path.join(DCE, "vb_centerline.shp"), DEM, project_path)
-log.info('valley slope and length calculated')
-
-
+    log = Logger('RS CL_attributes')
+    CL_attributes(os.path.join(DCE, "vb_centerline.shp"), DEM, project_path)
+    log.info('valley slope and length calculated')
 
 log = Logger('calculate attributes')
 # Add and calculate fields for valley bottom shapefile
-valley_bottom = os.path.join(DCE, 'valley_bottom.shp')
-log.info('calculating valley area...')
-arcpy.AddField_management(valley_bottom, 'area', 'DOUBLE')
-fields = ['area', 'SHAPE@AREA']
-with arcpy.da.UpdateCursor(valley_bottom, fields) as cursor:
-    for row in cursor:
-        row[0] = row[1]
-        cursor.updateRow(row)
+for DCE in DCE_list:
+    log.info('calculating valley area...')
+    arcpy.AddField_management(os.path.join(DCE, 'valley_bottom.shp'), 'area', 'DOUBLE')
+    fields = ['area', 'SHAPE@AREA']
+    with arcpy.da.UpdateCursor(os.path.join(DCE, 'valley_bottom.shp'), fields) as cursor:
+        for row in cursor:
+            row[0] = row[1]
+            cursor.updateRow(row)
+
+# Add and calculate fields for thalwegs lengths
+
 
 # Add and calculate fields for DCE shapefiles
 for DCE in DCE_list:
@@ -186,11 +192,12 @@ def intWidth_fn(polygon, polyline):
             row[0] = intWidth
             cursor.updateRow(row)
 
-log.info('calculating integrated valley width...')
-intWidth_fn(valley_bottom, os.path.join(DCE, "vb_centerline.shp"))
+
 for DCE in DCE_list:
+    log.info('calculating integrated valley width...')
+    intWidth_fn(os.path.join(DCE, 'valley_bottom.shp'), os.path.join(DCE, "vb_centerline.shp"))
     log.info('calculating integrated wetted width...')
-    intWidth_fn(os.path.join(DCE, 'inundation.shp'), os.path.join(DCE, 'thalwegs.shp'))
+    intWidth_fn(os.path.join(DCE, 'inundation.shp'), os.path.join(DCE, 'twg_main.shp'))
 
 # Calculate total inundated area and percent and inundated area and percent by inundation type
 def inun_fn(inun_poly, site_poly):
@@ -332,15 +339,19 @@ def poly_error_buf(polygon, error_val, out_folder):
 # Create min and max extent polygons
 for DCE in DCE_list:
     poly_error_buf(os.path.join(DCE, 'inundation.shp'), '0.5', DCE)
+    log.info('calculating inundation area and percent error...')
+    print "calculating inundation error calcs for", DCE, "..."
+    inun_fn(os.path.join(DCE, 'error_min'), os.path.join(DCE, 'valley_bottom.shp'))
+    inun_fn(os.path.join(DCE, 'error_max'), os.path.join(DCE, 'valley_bottom.shp'))
 
 # Add desired site scale variables to valley bottom shapefile
-## thalwegs
+## main thalweg/ channel slope and length
 for DCE in DCE_list:
     arcpy.AddField_management(os.path.join(DCE, 'valley_bottom.shp'), 'grad_chan', 'DOUBLE')
     arcpy.AddField_management(os.path.join(DCE, 'valley_bottom.shp'), 'len_chan', 'DOUBLE')
     with arcpy.da.UpdateCursor(os.path.join(DCE, 'valley_bottom.shp'), ['grad_chan', 'len_chan']) as Ucursor:
         for Urow in Ucursor:
-            with arcpy.da.SearchCursor(os.path.join(DCE, 'thalwegs.shp'), ['slope', 'length']) as Scursor:
+            with arcpy.da.SearchCursor(os.path.join(DCE, 'twg_main.shp'), ['slope', 'length']) as Scursor:
                 for Srow in Scursor:
                     Urow[0] = Srow[0]
                     Urow[1] = Srow[1]
@@ -422,11 +433,11 @@ for DCE in DCE_list:
     field_names = [f.name for f in arcpy.ListFields(os.path.join(DCE, 'vb_centerline.shp'))]
     fields_str = ','.join(str(i) for i in field_names)
     numpy.savetxt(output + '/' + '01_Metrics' + '/' + 'vb_centerline' + '_metrics.csv', nparr, fmt="%s", delimiter=",", header=str(fields_str), comments='')
-    # thalweg
-    nparr = arcpy.da.FeatureClassToNumPyArray(os.path.join(DCE, 'thalwegs.shp'), ['*'])
-    field_names = [f.name for f in arcpy.ListFields(os.path.join(DCE, 'thalwegs.shp'))]
+    # main thalweg - channel slope and length
+    nparr = arcpy.da.FeatureClassToNumPyArray(os.path.join(DCE, 'twg_main.shp'), ['*'])
+    field_names = [f.name for f in arcpy.ListFields(os.path.join(DCE, 'twg_main.shp'))]
     fields_str = ','.join(str(i) for i in field_names)
-    numpy.savetxt(output + '/' + '01_Metrics' + '/' + 'thalwegs' + '_metrics.csv', nparr, fmt="%s", delimiter=",", header=str(fields_str), comments='')
+    numpy.savetxt(output + '/' + '01_Metrics' + '/' + 'twg_main' + '_metrics.csv', nparr, fmt="%s", delimiter=",", header=str(fields_str), comments='')
     # inundation
     nparr = arcpy.da.FeatureClassToNumPyArray(os.path.join(DCE, 'inundation.shp'), ['*'])
     field_names = [f.name for f in arcpy.ListFields(os.path.join(DCE, 'inundation.shp'))]
