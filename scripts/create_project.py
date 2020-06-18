@@ -57,6 +57,7 @@ def make_project(project_path, srs_template):
     context_folder = make_folder(inputs_folder, "03_Context")
     make_folder(context_folder, "BRAT_01")
     make_folder(context_folder, "VBET_01")
+    make_folder(context_folder, 'WBD')
 
     # mapping folder
     # subsequent DCE and RS folders are created when a new DCE is made using new dce script
