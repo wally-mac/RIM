@@ -5,6 +5,7 @@ import os
 import argparse
 import numpy
 import csv
+import pandas as pd
 from loghelper import Logger
 from create_project import make_folder
 arcpy.env.overwriteOutput = True
@@ -329,7 +330,6 @@ for DCE in DCE_list:
 # Create a BRAT output file clipped to VB poly
 for DCE in DCE_list:
     arcpy.Clip_analysis(os.path.join(project_path, '01_Inputs', '03_Context', 'BRAT_01', 'BRAT.shp'), os.path.join(DCE, 'valley_bottom.shp'), os.path.join(DCE, 'BRAT_clip.shp'))
-    arcpy.Dissolve_management(os.path.join(DCE, 'BRAT_clip'), os.path.join(DCE, 'BRAT_diss'), "", "MEAN")
 
 # Estimate bankfull with Beechie equation
 
@@ -337,16 +337,16 @@ for DCE in DCE_list:
 def poly_error_buf(polygon, error_val, out_folder):
     buf_pos = float(error_val)
     buf_neg = (buf_pos * -1)
-    arcpy.Buffer_analysis(polygon, os.path.join(out_folder, 'error_max'), buf_pos)
-    arcpy.Buffer_analysis(polygon, os.path.join(out_folder, 'error_min'), buf_neg)
+    arcpy.Buffer_analysis(polygon, os.path.join(out_folder, 'error_max.shp'), buf_pos)
+    arcpy.Buffer_analysis(polygon, os.path.join(out_folder, 'error_min.shp'), buf_neg)
 
 # Create min and max extent polygons
 for DCE in DCE_list:
     poly_error_buf(os.path.join(DCE, 'inundation.shp'), '0.5', DCE)
     log.info('calculating inundation area and percent error...')
     print "calculating inundation error calcs for", DCE, "..."
-    inun_fn(os.path.join(DCE, 'error_min'), os.path.join(DCE, 'valley_bottom.shp'))
-    inun_fn(os.path.join(DCE, 'error_max'), os.path.join(DCE, 'valley_bottom.shp'))
+    inun_fn(os.path.join(DCE, 'error_min.shp'), os.path.join(DCE, 'valley_bottom.shp'))
+    inun_fn(os.path.join(DCE, 'error_max.shp'), os.path.join(DCE, 'valley_bottom.shp'))
 
 # Add desired site scale variables to valley bottom shapefile
 ## BRAT
@@ -356,9 +356,13 @@ for DCE in DCE_list:
     arcpy.AddField_management(os.path.join(DCE, 'valley_bottom.shp'), 'iHyd_Q2', 'DOUBLE')
     arcpy.AddField_management(os.path.join(DCE, 'valley_bottom.shp'), 'iHyd_SPLow', 'DOUBLE')
     arcpy.AddField_management(os.path.join(DCE, 'valley_bottom.shp'), 'iHyd_SP2', 'DOUBLE')
+    #statsFields = [['iGeo_DA', "MEAN"], ['iHyd_QLow', "MEAN"], ['iHyd_Q2', "MEAN"], ['iHyd_SPLow', "MEAN"], ['iHyd_SP2', "MEAN"]]
+    #arcpy.Statistics_analysis(os.path.join(DCE, 'BRAT_clip.shp'), os.path.join(DCE, 'BRAT_TAB'), statsFields)
+    arcpy.Dissolve_management(in_features= os.path.join(DCE, "BRAT_clip.shp"), out_feature_class= os.path.join(DCE, "BRAT_diss"), dissolve_field="iGeo_DA;iHyd_QLow;iHyd_Q2;iHyd_SPLow;iHyd_SP2", statistics_fields="", multi_part="MULTI_PART", unsplit_lines="DISSOLVE_LINES")
+    field_names = ['iGeo_DA', 'iHyd_QLow', 'iHyd_Q2', 'iHyd_SPLow', 'iHyd_SP2']
     with arcpy.da.UpdateCursor(os.path.join(DCE, 'valley_bottom.shp'), ['iGeo_DA', 'iHyd_QLow', 'iHyd_Q2', 'iHyd_SPLow', 'iHyd_SP2']) as Ucursor:
         for Urow in Ucursor:
-            with arcpy.da.SearchCursor(os.path.join(DCE, 'BRAT_diss.shp'), ['iGeo_DA', 'iHyd_QLow', 'iHyd_Q2', 'iHyd_SPLow', 'iHyd_SP2']) as Scursor:
+            with arcpy.da.SearchCursor(os.path.join(DCE, 'BRAT_diss.shp'), field_names) as Scursor:
                 for Srow in Scursor:
                     Urow[0] = Srow[0]
                     Urow[1] = Srow[1]
