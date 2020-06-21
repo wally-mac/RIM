@@ -297,6 +297,7 @@ def dam_crests_fn(crests_line, CL_line):
     # active dam crest to valley length ratio
     act_crestArr = arcpy.da.FeatureClassToNumPyArray(crests_line, ['SHAPE@LENGTH', 'crest_type'], "crest_type = 'active'")
     act_crest_len = act_crestArr['SHAPE@LENGTH'].sum()
+    pct_act = (act_crest_len / crest_lenArr) * 100
     act_crest_rat = round(act_crest_len / arrCL_len, 1)
     print "active dam crest length : valley length =", act_crest_rat
     # intact dam crest to valley length ratio
@@ -343,8 +344,9 @@ def dam_crests_fn(crests_line, CL_line):
     arcpy.AddField_management(crests_line, 'ratio_all', 'DOUBLE')
     arcpy.AddField_management(crests_line, 'ratio_act', 'DOUBLE')
     arcpy.AddField_management(crests_line, 'ratio_int', 'DOUBLE')
+    arcpy.AddField_management(crests_line, 'crestPctAct', 'DOUBLE')
     
-    with arcpy.da.UpdateCursor(crests_line, ['width', 'dams_num', 'dam_dens', 'intact_num', 'breach_num', 'blown_num', 'ratio_all', 'ratio_act', 'ratio_int', 'SHAPE@LENGTH']) as cursor:
+    with arcpy.da.UpdateCursor(crests_line, ['width', 'dams_num', 'dam_dens', 'intact_num', 'breach_num', 'blown_num', 'ratio_all', 'ratio_act', 'ratio_int', 'SHAPE@LENGTH', 'crestPctAct']) as cursor:
         for row in cursor:
             row[0] = row[9]
             row[1] = dams_num
@@ -355,6 +357,7 @@ def dam_crests_fn(crests_line, CL_line):
             row[6] = crest_CL_rat
             row[7] = act_crest_rat
             row[8] = intact_crest_rat
+            row[10] = pct_act
             cursor.updateRow(row)
 
 for DCE in DCE_list:
@@ -417,6 +420,19 @@ for DCE in DCE_list:
                     Urow[0] = Srow[0]
                     Urow[1] = Srow[1]
                     Ucursor.updateRow(Urow)
+## thalwegs (all)
+for DCE in DCE_list:
+    arcpy.AddField_management(os.path.join(DCE, 'valley_bottom.shp'), 'twgLenTot', 'DOUBLE')
+    arcpy.AddField_management(os.path.join(DCE, 'valley_bottom.shp'), 'twgLenMain', 'DOUBLE')
+    arcpy.AddField_management(os.path.join(DCE, 'valley_bottom.shp'), 'twgPctMain', 'DOUBLE')
+    with arcpy.da.UpdateCursor(os.path.join(DCE, 'valley_bottom.shp'), ['twgLenTot', 'twgLenMain', 'twgPctMain']) as Ucursor:
+        for Urow in Ucursor:
+            with arcpy.da.SearchCursor(os.path.join(DCE, 'thalwegs.shp'), ['twgLenTot', 'twgLenMain', 'twgPctMain']) as Scursor:
+                for Srow in Scursor:
+                    Urow[0] = Srow[0]
+                    Urow[1] = Srow[1]
+                    Urow[2] = Srow[2]
+                    Ucursor.updateRow(Urow)
 ## valley bottom centerline
 for DCE in DCE_list:
     arcpy.AddField_management(os.path.join(DCE, 'valley_bottom.shp'), 'grad_vall', 'DOUBLE')
@@ -439,9 +455,9 @@ for DCE in DCE_list:
     arcpy.AddField_management(os.path.join(DCE, 'valley_bottom.shp'), 'ratio_act', 'DOUBLE')
     arcpy.AddField_management(os.path.join(DCE, 'valley_bottom.shp'), 'ratio_int', 'DOUBLE')
 
-    with arcpy.da.UpdateCursor(os.path.join(DCE, 'valley_bottom.shp'), ['dams_num', 'dam_dens', 'intact_num', 'breach_num', 'blown_num', 'ratio_all', 'ratio_act', 'ratio_int']) as Ucursor:
+    with arcpy.da.UpdateCursor(os.path.join(DCE, 'valley_bottom.shp'), ['dams_num', 'dam_dens', 'intact_num', 'breach_num', 'blown_num', 'ratio_all', 'ratio_act', 'ratio_int', 'crestPctAct']) as Ucursor:
         for Urow in Ucursor:
-            with arcpy.da.SearchCursor(os.path.join(DCE, 'dam_crests.shp'), ['dams_num', 'dam_dens', 'intact_num', 'breach_num', 'blown_num', 'ratio_all', 'ratio_act', 'ratio_int']) as Scursor:
+            with arcpy.da.SearchCursor(os.path.join(DCE, 'dam_crests.shp'), ['dams_num', 'dam_dens', 'intact_num', 'breach_num', 'blown_num', 'ratio_all', 'ratio_act', 'ratio_int', 'crestPctAct']) as Scursor:
                 for Srow in Scursor:
                     Urow[0] = Srow[0]
                     Urow[1] = Srow[1]
@@ -451,6 +467,7 @@ for DCE in DCE_list:
                     Urow[5] = Srow[5]
                     Urow[6] = Srow[6]
                     Urow[7] = Srow[7]
+                    Urow[8] = Srow[8]
                     Ucursor.updateRow(Urow)
 ## inundation
 for DCE in DCE_list:
@@ -516,17 +533,14 @@ for DCE in DCE_list:
                     Ucursor.updateRow(Urow)
 
 # Additional site calcs
-for DCE in DCE_list:   
-    with arcpy.da.UpdateCursor(os.path.join(DCE, 'valley_bottom.shp'), ['maxWid_wet', 'maxTot_pct', 'maxFF_pct', 'maxPD_pct', 'maxOV_pct']) as Ucursor:
+for DCE in DCE_list: 
+    arcpy.AddField_management(os.path.join(DCE, 'valley_bottom.shp'), 'sinAllTwg', 'DOUBLE')
+    arcpy.AddField_management(os.path.join(DCE, 'valley_bottom.shp'), 'sinMainTwg', 'DOUBLE')
+    with arcpy.da.UpdateCursor(os.path.join(DCE, 'valley_bottom.shp'), ['len_vall', 'twgLenTot', 'twgLenMain', 'sinAllTwg', 'sinMainTwg']) as Ucursor:
         for Urow in Ucursor:
-            with arcpy.da.SearchCursor(os.path.join(DCE, 'error_max.shp'), ['intWidth', 'tot_pct', 'ff_pct', 'pd_pct', 'ov_pct']) as Scursor:
-                for Srow in Scursor:
-                    Urow[0] = Srow[0]
-                    Urow[1] = Srow[1]
-                    Urow[2] = Srow[2]
-                    Urow[3] = Srow[3]
-                    Urow[4] = Srow[4]
-                    Ucursor.updateRow(Urow)
+            row[3] = row[1] / row[0]
+            row[4] = row[2] / row[0]
+            cursor.updateRow(row)
 
 # Add data to csv
 for DCE in DCE_list:
