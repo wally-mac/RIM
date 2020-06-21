@@ -15,7 +15,7 @@ arcpy.CheckOutExtension('Spatial')
 
 # User Inputs
 # Set project path
-project_path = r"C:\Users\karen\Box\0_ET_AL\NonProject\etal_Drone\2019\Inundation_sites\Utah\Mill_Creek\mill_creek"
+project_path = r"C:\Users\karen\Box\0_ET_AL\NonProject\etal_Drone\2019\Inundation_sites\Utah\Mill_Creek\mill_codetest0618"
 
 # Input the name of the folder of the desired RS Context shapefiles (the folder with the Valley Bottom polygon)
 RS_folder_name = "RS_01"
@@ -39,6 +39,14 @@ out_folder = os.path.join(project_path, '03_Analysis')
 # Copy all RS and DCE mapped shapefiles and save copy to output folder for analysis
 DCE1 = os.path.join(map_folder, DCE1_name)
 DCE2 = os.path.join(map_folder, DCE2_name)
+
+
+#### make folders move this to other script 
+make_folder(out_folder, DCE2_name)
+make_folder(os.path.join(out_folder, DCE1_name), '01_Metrics')
+make_folder(os.path.join(out_folder, DCE2_name), '01_Metrics')
+
+
 DCE1_out = make_folder(os.path.join(out_folder, DCE1_name), 'shapefiles')
 DCE2_out = make_folder(os.path.join(out_folder, DCE2_name), 'shapefiles')
 # DCE1
@@ -68,6 +76,7 @@ log = Logger('CL_attributes')
 # Create a thalweg file with just the main thalweg
 for DCE in DCE_list:
     arcpy.MakeFeatureLayer_management(os.path.join(DCE, 'thalwegs.shp'), 'twg_main', "type = 'main'")
+    arcpy.SelectLayerByAttribute_management('twg_main', "NEW_SELECTION")
     arcpy.CopyFeatures_management('twg_main', os.path.join(DCE, 'twg_main.shp'))
 
 def CL_attributes(polyline, DEM, scratch):
@@ -356,11 +365,12 @@ for DCE in DCE_list:
     arcpy.AddField_management(os.path.join(DCE, 'valley_bottom.shp'), 'iHyd_Q2', 'DOUBLE')
     arcpy.AddField_management(os.path.join(DCE, 'valley_bottom.shp'), 'iHyd_SPLow', 'DOUBLE')
     arcpy.AddField_management(os.path.join(DCE, 'valley_bottom.shp'), 'iHyd_SP2', 'DOUBLE')
+    arcpy.AddField_management(os.path.join(DCE, 'valley_bottom.shp'), 'iGeo_Slope', 'DOUBLE')
     #statsFields = [['iGeo_DA', "MEAN"], ['iHyd_QLow', "MEAN"], ['iHyd_Q2', "MEAN"], ['iHyd_SPLow', "MEAN"], ['iHyd_SP2', "MEAN"]]
     #arcpy.Statistics_analysis(os.path.join(DCE, 'BRAT_clip.shp'), os.path.join(DCE, 'BRAT_TAB'), statsFields)
-    arcpy.Dissolve_management(in_features= os.path.join(DCE, "BRAT_clip.shp"), out_feature_class= os.path.join(DCE, "BRAT_diss"), dissolve_field="iGeo_DA;iHyd_QLow;iHyd_Q2;iHyd_SPLow;iHyd_SP2", statistics_fields="", multi_part="MULTI_PART", unsplit_lines="DISSOLVE_LINES")
-    field_names = ['iGeo_DA', 'iHyd_QLow', 'iHyd_Q2', 'iHyd_SPLow', 'iHyd_SP2']
-    with arcpy.da.UpdateCursor(os.path.join(DCE, 'valley_bottom.shp'), ['iGeo_DA', 'iHyd_QLow', 'iHyd_Q2', 'iHyd_SPLow', 'iHyd_SP2']) as Ucursor:
+    arcpy.Dissolve_management(in_features= os.path.join(DCE, "BRAT_clip.shp"), out_feature_class= os.path.join(DCE, "BRAT_diss"), dissolve_field="iGeo_DA;iHyd_QLow;iHyd_Q2;iHyd_SPLow;iHyd_SP2;iGeo_Slope", statistics_fields="", multi_part="MULTI_PART", unsplit_lines="DISSOLVE_LINES")
+    field_names = ['iGeo_DA', 'iHyd_QLow', 'iHyd_Q2', 'iHyd_SPLow', 'iHyd_SP2', 'iGeo_Slope']
+    with arcpy.da.UpdateCursor(os.path.join(DCE, 'valley_bottom.shp'), ['iGeo_DA', 'iHyd_QLow', 'iHyd_Q2', 'iHyd_SPLow', 'iHyd_SP2', 'iGeo_Slope']) as Ucursor:
         for Urow in Ucursor:
             with arcpy.da.SearchCursor(os.path.join(DCE, 'BRAT_diss.shp'), field_names) as Scursor:
                 for Srow in Scursor:
@@ -369,6 +379,7 @@ for DCE in DCE_list:
                     Urow[2] = Srow[2]
                     Urow[3] = Srow[3]
                     Urow[4] = Srow[4]
+                    Urow[5] = Srow[5]
                     Ucursor.updateRow(Urow)
 ## main thalweg/ channel slope and length
 for DCE in DCE_list:
@@ -442,6 +453,42 @@ for DCE in DCE_list:
                     Urow[7] = Srow[7]
                     Urow[8] = Srow[8]
                     Ucursor.updateRow(Urow)
+## minimum inundation
+for DCE in DCE_list:
+    arcpy.AddField_management(os.path.join(DCE, 'valley_bottom.shp'), 'minWid_wet', 'DOUBLE')
+    arcpy.AddField_management(os.path.join(DCE, 'valley_bottom.shp'), 'minTot_pct', 'DOUBLE')
+    arcpy.AddField_management(os.path.join(DCE, 'valley_bottom.shp'), 'minFF_pct', 'DOUBLE')
+    arcpy.AddField_management(os.path.join(DCE, 'valley_bottom.shp'), 'minPD_pct', 'DOUBLE')
+    arcpy.AddField_management(os.path.join(DCE, 'valley_bottom.shp'), 'minOV_pct', 'DOUBLE')
+    
+    with arcpy.da.UpdateCursor(os.path.join(DCE, 'valley_bottom.shp'), ['minWid_wet', 'minTot_pct', 'minFF_pct', 'minPD_pct', 'minOV_pct']) as Ucursor:
+        for Urow in Ucursor:
+            with arcpy.da.SearchCursor(os.path.join(DCE, 'error_min.shp'), ['intWidth', 'tot_pct', 'ff_pct', 'pd_pct', 'ov_pct']) as Scursor:
+                for Srow in Scursor:
+                    Urow[0] = Srow[0]
+                    Urow[1] = Srow[1]
+                    Urow[2] = Srow[2]
+                    Urow[3] = Srow[3]
+                    Urow[4] = Srow[4]
+                    Ucursor.updateRow(Urow)
+## max inundation
+for DCE in DCE_list:
+    arcpy.AddField_management(os.path.join(DCE, 'valley_bottom.shp'), 'maxWid_wet', 'DOUBLE')
+    arcpy.AddField_management(os.path.join(DCE, 'valley_bottom.shp'), 'maxTot_pct', 'DOUBLE')
+    arcpy.AddField_management(os.path.join(DCE, 'valley_bottom.shp'), 'maxFF_pct', 'DOUBLE')
+    arcpy.AddField_management(os.path.join(DCE, 'valley_bottom.shp'), 'maxPD_pct', 'DOUBLE')
+    arcpy.AddField_management(os.path.join(DCE, 'valley_bottom.shp'), 'maxOV_pct', 'DOUBLE')
+    
+    with arcpy.da.UpdateCursor(os.path.join(DCE, 'valley_bottom.shp'), ['maxWid_wet', 'maxTot_pct', 'maxFF_pct', 'maxPD_pct', 'maxOV_pct']) as Ucursor:
+        for Urow in Ucursor:
+            with arcpy.da.SearchCursor(os.path.join(DCE, 'error_max.shp'), ['intWidth', 'tot_pct', 'ff_pct', 'pd_pct', 'ov_pct']) as Scursor:
+                for Srow in Scursor:
+                    Urow[0] = Srow[0]
+                    Urow[1] = Srow[1]
+                    Urow[2] = Srow[2]
+                    Urow[3] = Srow[3]
+                    Urow[4] = Srow[4]
+                    Ucursor.updateRow(Urow)
 
 # Add data to csv
 for DCE in DCE_list:
@@ -473,6 +520,8 @@ for DCE in DCE_list:
     field_names = [f.name for f in arcpy.ListFields(os.path.join(DCE, 'dam_crests.shp'))]
     fields_str = ','.join(str(i) for i in field_names)
     numpy.savetxt(output + '/' + '01_Metrics' + '/' + 'dam_crests' + '_metrics.csv', nparr, fmt="%s", delimiter=",", header=str(fields_str), comments='')
+
+####################################################
 
 # Make plots
 
