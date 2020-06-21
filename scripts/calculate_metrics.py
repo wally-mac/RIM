@@ -187,6 +187,31 @@ for DCE in DCE_list:
         for row in cursor:
             row[0] = row[1]
             cursor.updateRow(row)
+    
+    # thalwegs (all)
+    log.info('calculating all thalweg lengths...')
+    thalwegs = os.path.join(DCE, 'thalwegs.shp')
+    ## calculate thalweg length for all types
+    twgArr = arcpy.da.FeatureClassToNumPyArray(thalwegs, ['SHAPE@LENGTH'])
+    twgTotLen = twgArr['SHAPE@LENGTH'].sum()
+    ## calculate other thalweg types
+    ### main
+    mainTwgArr = arcpy.da.FeatureClassToNumPyArray(thalwegs, ['SHAPE@LENGTH', 'type'], "type = 'main'")
+    mainTwgLen = act_crestArr['SHAPE@LENGTH'].sum()
+    mainTwgPct = round(mainTwgLen / twgTotLen, 1)
+    # add fields to attribyte table
+    arcpy.AddField_management(thalwegs, 'length', 'DOUBLE')
+    arcpy.AddField_management(thalwegs, 'twgLenTot', 'DOUBLE')
+    arcpy.AddField_management(thalwegs, 'twgLenMain', 'DOUBLE')
+    arcpy.AddField_management(thalwegs, 'twgPctMain', 'DOUBLE')
+
+    with arcpy.da.UpdateCursor(thalwegs, ['length', 'twgLenTot', 'twgLenMain', 'twgPctMain', 'SHAPE@LENGTH']) as cursor:
+        for row in cursor:
+            row[0] = row[4]
+            row[1] = twgTotLen
+            row[2] = mainTwgLen
+            row[3] = mainTwgPct
+            cursor.updateRow(row)
 
 # Calculate integrated valley width and integrated wetted width
 def intWidth_fn(polygon, polyline):
@@ -479,6 +504,19 @@ for DCE in DCE_list:
     arcpy.AddField_management(os.path.join(DCE, 'valley_bottom.shp'), 'maxPD_pct', 'DOUBLE')
     arcpy.AddField_management(os.path.join(DCE, 'valley_bottom.shp'), 'maxOV_pct', 'DOUBLE')
     
+    with arcpy.da.UpdateCursor(os.path.join(DCE, 'valley_bottom.shp'), ['maxWid_wet', 'maxTot_pct', 'maxFF_pct', 'maxPD_pct', 'maxOV_pct']) as Ucursor:
+        for Urow in Ucursor:
+            with arcpy.da.SearchCursor(os.path.join(DCE, 'error_max.shp'), ['intWidth', 'tot_pct', 'ff_pct', 'pd_pct', 'ov_pct']) as Scursor:
+                for Srow in Scursor:
+                    Urow[0] = Srow[0]
+                    Urow[1] = Srow[1]
+                    Urow[2] = Srow[2]
+                    Urow[3] = Srow[3]
+                    Urow[4] = Srow[4]
+                    Ucursor.updateRow(Urow)
+
+# Additional site calcs
+for DCE in DCE_list:   
     with arcpy.da.UpdateCursor(os.path.join(DCE, 'valley_bottom.shp'), ['maxWid_wet', 'maxTot_pct', 'maxFF_pct', 'maxPD_pct', 'maxOV_pct']) as Ucursor:
         for Urow in Ucursor:
             with arcpy.da.SearchCursor(os.path.join(DCE, 'error_max.shp'), ['intWidth', 'tot_pct', 'ff_pct', 'pd_pct', 'ov_pct']) as Scursor:
