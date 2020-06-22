@@ -15,7 +15,7 @@ arcpy.CheckOutExtension('Spatial')
 
 # User Inputs
 # Set project path
-project_path = r"C:\Users\karen\Box\0_ET_AL\NonProject\etal_Drone\2019\Inundation_sites\Utah\Mill_Creek\mill_codetest0618"
+project_path = r"C:\Users\karen\Box\0_ET_AL\NonProject\etal_Drone\2019\Inundation_sites\Utah\Mill_Creek\codetest_0622"
 
 # Input the name of the folder of the desired RS Context shapefiles (the folder with the Valley Bottom polygon)
 RS_folder_name = "RS_01"
@@ -197,7 +197,7 @@ for DCE in DCE_list:
     ## calculate other thalweg types
     ### main
     mainTwgArr = arcpy.da.FeatureClassToNumPyArray(thalwegs, ['SHAPE@LENGTH', 'type'], "type = 'main'")
-    mainTwgLen = act_crestArr['SHAPE@LENGTH'].sum()
+    mainTwgLen = mainTwgArr['SHAPE@LENGTH'].sum()
     mainTwgPct = round(mainTwgLen / twgTotLen, 1)
     # add fields to attribyte table
     arcpy.AddField_management(thalwegs, 'length', 'DOUBLE')
@@ -256,6 +256,23 @@ def inun_fn(inun_poly, site_poly):
     print "% ponded =", pd_pct
     ov_pct = round((ov_area / vb_area) * 100, 1)
     print "% overflow =", ov_pct
+    # Find number of exposed bars/ islands
+    arcpy.Dissolve_management(in_features=os.path.join(DCE, 'inundation.shp'), out_feature_class=os.path.join(DCE, 'inun_diss.shp'))
+    arcpy.Union_analysis(in_features=os.path.join(DCE, 'inun_diss.shp'), out_feature_class=os.path.join(DCE, 'inun_union.shp'), join_attributes="ALL", cluster_tolerance="", gaps="NO_GAPS")
+    arcpy.AddField_management(os.path.join(DCE, 'inun_union.shp'), 'area', 'DOUBLE')
+    with arcpy.da.UpdateCursor(os.path.join(DCE, 'inun_union.shp'), ['SHAPE@AREA', 'area']) as cursor:
+        for row in cursor:
+            row[1] = row[0]
+            cursor.updateRow(row)
+    arcpy.MakeFeatureLayer_management(os.path.join(DCE, 'inun_union.shp'), 'inun_union')
+    arcpy.SelectLayerByAttribute_management(in_layer_or_view='inun_union', where_clause='\"FID_inun_d\" = -1')
+    arcpy.SelectLayerByAttribute_management(in_layer_or_view='inun_union', selection_type="SUBSET_SELECTION", where_clause='\"area\" > 1')
+    holes = int(arcpy.GetCount_management('inun_union').getOutput(0))
+    arcpy.CopyFeatures_management('inun_union', os.path.join(DCE, 'inun_holes.shp'))
+    print (holes, "holes")
+    island_num = holes
+
+    # add fields to inundation shapefile
     arcpy.AddField_management(inun_poly, 'tot_area', 'DOUBLE')
     arcpy.AddField_management(inun_poly, 'ff_area', 'DOUBLE')
     arcpy.AddField_management(inun_poly, 'pd_area', 'DOUBLE')
@@ -265,7 +282,8 @@ def inun_fn(inun_poly, site_poly):
     arcpy.AddField_management(inun_poly, 'ff_pct', 'DOUBLE')
     arcpy.AddField_management(inun_poly, 'pd_pct', 'DOUBLE')
     arcpy.AddField_management(inun_poly, 'ov_pct', 'DOUBLE')
-    with arcpy.da.UpdateCursor(inun_poly, ['tot_area', 'ff_area', 'pd_area', 'ov_area', 'vb_area', 'tot_pct', 'ff_pct', 'pd_pct', 'ov_pct']) as cursor:
+    arcpy.AddField_management(inun_poly, 'island_num', 'DOUBLE')
+    with arcpy.da.UpdateCursor(inun_poly, ['tot_area', 'ff_area', 'pd_area', 'ov_area', 'vb_area', 'tot_pct', 'ff_pct', 'pd_pct', 'ov_pct', 'island_num']) as cursor:
         for row in cursor:
             row[0] = tot_area
             row[1] = ff_area
@@ -276,12 +294,16 @@ def inun_fn(inun_poly, site_poly):
             row[6] = ff_pct
             row[7] = pd_pct
             row[8] = ov_pct
+            row[9] = island_num
             cursor.updateRow(row)
 
 for DCE in DCE_list:
     log.info('calculating inundation area and percent...')
     print "calculating inundation percents for", DCE, "..."
     inun_fn(os.path.join(DCE, 'inundation.shp'), os.path.join(DCE, 'valley_bottom.shp'))
+
+# Calculate number of islands and perimeter:area ratio
+
 
 # Calculate dam crest metrics
 def dam_crests_fn(crests_line, CL_line):
@@ -344,9 +366,9 @@ def dam_crests_fn(crests_line, CL_line):
     arcpy.AddField_management(crests_line, 'ratio_all', 'DOUBLE')
     arcpy.AddField_management(crests_line, 'ratio_act', 'DOUBLE')
     arcpy.AddField_management(crests_line, 'ratio_int', 'DOUBLE')
-    arcpy.AddField_management(crests_line, 'crestPctAct', 'DOUBLE')
+    arcpy.AddField_management(crests_line, 'crstPctAct', 'DOUBLE')
     
-    with arcpy.da.UpdateCursor(crests_line, ['width', 'dams_num', 'dam_dens', 'intact_num', 'breach_num', 'blown_num', 'ratio_all', 'ratio_act', 'ratio_int', 'SHAPE@LENGTH', 'crestPctAct']) as cursor:
+    with arcpy.da.UpdateCursor(crests_line, ['width', 'dams_num', 'dam_dens', 'intact_num', 'breach_num', 'blown_num', 'ratio_all', 'ratio_act', 'ratio_int', 'SHAPE@LENGTH', 'crstPctAct']) as cursor:
         for row in cursor:
             row[0] = row[9]
             row[1] = dams_num
@@ -454,10 +476,11 @@ for DCE in DCE_list:
     arcpy.AddField_management(os.path.join(DCE, 'valley_bottom.shp'), 'ratio_all', 'DOUBLE')
     arcpy.AddField_management(os.path.join(DCE, 'valley_bottom.shp'), 'ratio_act', 'DOUBLE')
     arcpy.AddField_management(os.path.join(DCE, 'valley_bottom.shp'), 'ratio_int', 'DOUBLE')
+    arcpy.AddField_management(os.path.join(DCE, 'valley_bottom.shp'), 'crstPctAct', 'DOUBLE')
 
-    with arcpy.da.UpdateCursor(os.path.join(DCE, 'valley_bottom.shp'), ['dams_num', 'dam_dens', 'intact_num', 'breach_num', 'blown_num', 'ratio_all', 'ratio_act', 'ratio_int', 'crestPctAct']) as Ucursor:
+    with arcpy.da.UpdateCursor(os.path.join(DCE, 'valley_bottom.shp'), ['dams_num', 'dam_dens', 'intact_num', 'breach_num', 'blown_num', 'ratio_all', 'ratio_act', 'ratio_int', 'crstPctAct']) as Ucursor:
         for Urow in Ucursor:
-            with arcpy.da.SearchCursor(os.path.join(DCE, 'dam_crests.shp'), ['dams_num', 'dam_dens', 'intact_num', 'breach_num', 'blown_num', 'ratio_all', 'ratio_act', 'ratio_int', 'crestPctAct']) as Scursor:
+            with arcpy.da.SearchCursor(os.path.join(DCE, 'dam_crests.shp'), ['dams_num', 'dam_dens', 'intact_num', 'breach_num', 'blown_num', 'ratio_all', 'ratio_act', 'ratio_int', 'crstPctAct']) as Scursor:
                 for Srow in Scursor:
                     Urow[0] = Srow[0]
                     Urow[1] = Srow[1]
@@ -480,10 +503,11 @@ for DCE in DCE_list:
     arcpy.AddField_management(os.path.join(DCE, 'valley_bottom.shp'), 'ff_pct', 'DOUBLE')
     arcpy.AddField_management(os.path.join(DCE, 'valley_bottom.shp'), 'pd_pct', 'DOUBLE')
     arcpy.AddField_management(os.path.join(DCE, 'valley_bottom.shp'), 'ov_pct', 'DOUBLE')
+    arcpy.AddField_management(os.path.join(DCE, 'valley_bottom.shp'), 'island_num', 'DOUBLE')
     
-    with arcpy.da.UpdateCursor(os.path.join(DCE, 'valley_bottom.shp'), ['intWid_wet', 'tot_area', 'ff_area', 'pd_area', 'ov_area', 'tot_pct', 'ff_pct', 'pd_pct', 'ov_pct']) as Ucursor:
+    with arcpy.da.UpdateCursor(os.path.join(DCE, 'valley_bottom.shp'), ['intWid_wet', 'tot_area', 'ff_area', 'pd_area', 'ov_area', 'tot_pct', 'ff_pct', 'pd_pct', 'ov_pct', 'island_num']) as Ucursor:
         for Urow in Ucursor:
-            with arcpy.da.SearchCursor(os.path.join(DCE, 'inundation.shp'), ['intWidth', 'tot_area', 'ff_area', 'pd_area', 'ov_area', 'tot_pct', 'ff_pct', 'pd_pct', 'ov_pct']) as Scursor:
+            with arcpy.da.SearchCursor(os.path.join(DCE, 'inundation.shp'), ['intWidth', 'tot_area', 'ff_area', 'pd_area', 'ov_area', 'tot_pct', 'ff_pct', 'pd_pct', 'ov_pct', 'island_num']) as Scursor:
                 for Srow in Scursor:
                     Urow[0] = Srow[0]
                     Urow[1] = Srow[1]
@@ -494,6 +518,7 @@ for DCE in DCE_list:
                     Urow[6] = Srow[6]
                     Urow[7] = Srow[7]
                     Urow[8] = Srow[8]
+                    Urow[9] = Srow[9]
                     Ucursor.updateRow(Urow)
 ## minimum inundation
 for DCE in DCE_list:
@@ -536,8 +561,8 @@ for DCE in DCE_list:
 for DCE in DCE_list: 
     arcpy.AddField_management(os.path.join(DCE, 'valley_bottom.shp'), 'sinAllTwg', 'DOUBLE')
     arcpy.AddField_management(os.path.join(DCE, 'valley_bottom.shp'), 'sinMainTwg', 'DOUBLE')
-    with arcpy.da.UpdateCursor(os.path.join(DCE, 'valley_bottom.shp'), ['len_vall', 'twgLenTot', 'twgLenMain', 'sinAllTwg', 'sinMainTwg']) as Ucursor:
-        for Urow in Ucursor:
+    with arcpy.da.UpdateCursor(os.path.join(DCE, 'valley_bottom.shp'), ['len_vall', 'twgLenTot', 'twgLenMain', 'sinAllTwg', 'sinMainTwg']) as cursor:
+        for row in cursor:
             row[3] = row[1] / row[0]
             row[4] = row[2] / row[0]
             cursor.updateRow(row)
