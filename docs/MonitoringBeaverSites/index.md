@@ -1,5 +1,5 @@
 ---
-title: Monitoring Beaver Sites
+title: RIM Documentation
 weight: 1
 ---
 

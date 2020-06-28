@@ -12,22 +12,37 @@ arcpy.env.overwriteOutput = True
 from arcpy.sa import *
 arcpy.CheckOutExtension('Spatial')
 
+################################
+# Step 3 - CALCULATE METRICS
 
-# User Inputs
-# Set project path
+## Inputs
+
+### project path
 project_path = r"C:\Users\karen\Box\0_ET_AL\NonProject\etal_Drone\2019\Inundation_sites\Utah\Mill_Creek\codetest_0622"
-
-# Input the name of the folder of the desired RS Context shapefiles (the folder with the Valley Bottom polygon)
+### name of the folder of the desired RS Context shapefiles (the folder with the Valley Bottom polygon)
 RS_folder_name = "RS_01"
-
-# Input the name of the folder of the desired DCEs for the analysis
-DCE1_name = "DCE_01"
-DCE2_name = "DCE_02"
-
-# Select which DEM should be used to calculate slopes
+### path to DEM to be used to calculate slopes
 DEM = os.path.join(project_path, '01_Inputs', '02_Topo', 'DEM_01', 'DEM.tif')
 
-########
+## DCE Parameters
+### site parameters
+site_name = "mill_creek"
+
+### name of the folder of the desired DCEs for the analysis
+DCE1_name = "DCE_01"
+DCE2_name = "DCE_02" 
+### DCE 1 Parameters
+DCE1_date = '20190804'
+DCE1_flow_stage = 'low'
+DCE1_active = 'yes'
+DCE1_maintained = 'yes'
+### DCE 2 Parameters
+DCE2_date = 'pre beaver'
+DCE2_flow_stage = 'low'
+DCE2_active = 'NA'
+DCE2_maintained = 'NA'
+
+################################
 
 log = Logger('set paths')
 
@@ -37,16 +52,11 @@ RS_folder = os.path.join(map_folder, RS_folder_name)
 out_folder = os.path.join(project_path, '03_Analysis')
 
 # Copy all RS and DCE mapped shapefiles and save copy to output folder for analysis
+
 DCE1 = os.path.join(map_folder, DCE1_name)
 DCE2 = os.path.join(map_folder, DCE2_name)
-
-
-#### make folders move this to other script 
-make_folder(out_folder, DCE2_name)
 make_folder(os.path.join(out_folder, DCE1_name), '01_Metrics')
 make_folder(os.path.join(out_folder, DCE2_name), '01_Metrics')
-
-
 DCE1_out = make_folder(os.path.join(out_folder, DCE1_name), 'shapefiles')
 DCE2_out = make_folder(os.path.join(out_folder, DCE2_name), 'shapefiles')
 # DCE1
@@ -65,6 +75,35 @@ arcpy.CopyFeatures_management(os.path.join(DCE2, 'inundation.shp'), os.path.join
 
 # Create a list of DCEs 1 and 2
 DCE_list = [DCE1_out, DCE2_out]
+
+# Add DCE parameters to valley bottom shapefile
+for DCE in DCE_list:
+    arcpy.AddField_management(os.path.join(DCE, 'valley_bottom.shp'), 'site_name', "TEXT")
+    arcpy.AddField_management(os.path.join(DCE, 'valley_bottom.shp'), 'date', "TEXT")
+    arcpy.AddField_management(os.path.join(DCE, 'valley_bottom.shp'), 'flow_stage', "TEXT")
+    arcpy.AddField_management(os.path.join(DCE, 'valley_bottom.shp'), 'active', "TEXT")
+    arcpy.AddField_management(os.path.join(DCE, 'valley_bottom.shp'), 'maintnd', "TEXT")
+
+with arcpy.da.UpdateCursor(os.path.join(DCE1_out, 'valley_bottom.shp'), ['site_name', 'date', 'flow_stage', 'active', 'maintnd']) as cursor:
+    for row in cursor:
+        row[0] = site_name
+        row[1] = DCE1_date
+        row[2] = DCE1_flow_stage
+        row[3] = DCE1_active
+        row[4] = DCE1_maintained
+        cursor.updateRow(row)
+
+with arcpy.da.UpdateCursor(os.path.join(DCE2_out, 'valley_bottom.shp'), ['site_name', 'date', 'flow_stage', 'active', 'maintnd']) as cursor:
+    for row in cursor:
+        row[0] = site_name
+        row[1] = DCE2_date
+        row[2] = DCE2_flow_stage
+        row[3] = DCE2_active
+        row[4] = DCE2_maintained
+        cursor.updateRow(row)
+
+
+
 
 
 log.info('paths set for DCEs of interest and DEM')

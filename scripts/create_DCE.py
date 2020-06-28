@@ -18,9 +18,9 @@ from loghelper import Logger
 
 # define inputs to the create_DCE function
 # path to a shapefile with the desired output coordinate system
-srs_template = r"C:\Users\karen\Box\0_ET_AL\NonProject\etal_Drone\2019\Inundation_sites\Utah\Mill_Creek\08042019\GIS\dam_crests.shp"
+#srs_template = r"C:\Users\karen\Box\0_ET_AL\NonProject\etal_Drone\2019\Inundation_sites\Utah\Mill_Creek\08042019\GIS\dam_crests.shp"
 # path to project folder
-project_path = r"C:\Users\karen\Box\0_ET_AL\NonProject\etal_Drone\2019\Inundation_sites\Utah\Mill_Creek\test"
+#project_path = r"C:\Users\karen\Box\0_ET_AL\NonProject\etal_Drone\2019\Inundation_sites\Utah\Mill_Creek\test"
 
 # name of desired new DCE folder
 DCE_fold = 'DCE_02'
@@ -58,6 +58,11 @@ def new_DCE(srs_template, project_path, DCE_fold):
     if not os.path.exists(os.path.join(map_path, DCE_fold)):
         os.makedirs(os.path.join(map_path, DCE_fold)) 
 
+    #create a folder in Analysis for this DCE
+    analysis_path = os.path.join(project_path, '03_Analysis')
+    if not os.path.exists(os.path.join(analysis_path, DCE_fold)):
+        os.makedirs(os.path.join(analysis_path, DCE_fold))
+
     # inundation
     arcpy.CreateFeatureclass_management(os.path.join(map_path, DCE_fold), "inundation.shp", "POLYGON", "",has_m, has_z, spatial_reference)
     #add field for inundation type
@@ -87,4 +92,4 @@ def main():
 #srs_template = r"C:\Users\karen\Box\0_ET_AL\NonProject\etal_Drone\2019\Inundation_sites\Utah\Mill_Creek\08042019\GIS\dam_crests.shp"
 # path to project folder
 #project_path = r"C:\Users\karen\Box\0_ET_AL\NonProject\etal_Drone\2019\Inundation_sites\Utah\Mill_Creek\test"
-new_DCE(srs_template, project_path, DCE_fold)
+#new_DCE(srs_template, project_path, DCE_fold)

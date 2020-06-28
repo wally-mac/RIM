@@ -3,17 +3,6 @@
 import os
 import arcpy
 import sys
-# User Inputs
-# Project path and srs template
-#project_path = 
-#srs_template = 
-# imagery paths
-#AP01_path = 
-#AP02_path = 
-# Context layer paths
-#DEM_path = 
-#BRAT_path =
-#VBET_path = 
 
 # Make folder function 
 # copied from pyBRAT SupportingFunctions.py
@@ -29,13 +18,13 @@ def make_folder(path_to_location, new_folder_name):
         os.mkdir(newFolder)
     return newFolder
 
-def make_project(project_path, srs_template):
+def make_project(project_path, srs_template, site_name, huc8):
     """
     Creates project folders
     :param project_path: where we want project to be located
     """
 
-# set workspace to desired project location
+    # set workspace to desired project location
     arcpy.env.overwriteOutput = True
     arcpy.env.workspace = project_path
 
@@ -85,14 +74,23 @@ def make_project(project_path, srs_template):
     # create empty shapefiles for valley bottom and valley bottom centerline
     # valley bottom
     arcpy.CreateFeatureclass_management(RS01_folder, "valley_bottom.shp", "POLYGON", "", "DISABLED", "DISABLED", spatial_reference)
+    arcpy.AddField_management(os.path.join(RS01_folder, 'valley_bottom.shp'), 'site_name', "TEXT")
+    arcpy.AddField_management(os.path.join(RS01_folder, 'valley_bottom.shp'), 'huc8', "DOUBLE")
     # valley bottom centerline
     arcpy.CreateFeatureclass_management(RS01_folder, "vb_centerline.shp", "POLYLINE", "", "DISABLED", "DISABLED", spatial_reference)
     
     # analysis folder
     analysis_folder = make_folder(project_path, "03_Analysis")
-    make_folder(analysis_folder, "DCE_01")
+    DCE01_fold = make_folder(analysis_folder, "DCE_01")
     make_folder(analysis_folder, "CDs")
     make_folder(analysis_folder, "Summary")
+
+    with arcpy.da.UpdateCursor(os.path.join(RS01_folder, 'valley_bottom.shp'), ['site_name', 'huc8']) as cursor:
+        for row in cursor:
+            row[0] = site_name
+            row[1] = huc8
+            cursor.updateRow(row)
+
 
 def main():
     
@@ -103,9 +101,6 @@ def main():
 
     make_project(project_path)
 
-
-
-#make_project(project_path, srs_template)
 
 
 
