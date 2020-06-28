@@ -1,5 +1,5 @@
 ---
-title: RIM Documentation
+title: Documentation
 weight: 1
 ---
 
