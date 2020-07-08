@@ -42,7 +42,7 @@ def BRAT_settings (folder, BRAT, BRAT_out, SP_cut, grad_cut):
     ## SP
     #arcpy.SelectLayerByAttribute_management('BRAT_out', 'ADD_TO_SELECTION', '"iHyd_SPLow" <= ' + SP_cut)
     ## populate setting field
-    with arcpy.da.UpdateCursor('BRAT_out', ['setting', 'iGeo_Slope', 'iHyd_SPLow'], """"iGeo_Slope" >= grad_cut AND "iHyd_SPLow" <= SP_cut""") as Ucursor:
+    with arcpy.da.UpdateCursor('BRAT_out', ['setting', 'iGeo_Slope', 'iHyd_SPLow'], "\"iGeo_Slope\" >= grad_cut AND \"iHyd_SPLow\" <= SP_cut") as Ucursor:
         for Urow in Ucursor:
             Urow[0] = 'steep'
             Ucursor.updateRow(Urow)
@@ -53,7 +53,7 @@ def BRAT_settings (folder, BRAT, BRAT_out, SP_cut, grad_cut):
     ## SP
     #arcpy.SelectLayerByAttribute_management('BRAT_out', 'ADD_TO_SELECTION', '"iHyd_SPLow" >= ' + SP_cut)
     ## populate setting field
-    with arcpy.da.UpdateCursor('BRAT_out', ['setting', 'iGeo_Slope', 'iHyd_SPLow'], """"iGeo_Slope" <= grad_cut AND "iHyd_SPLow" >= SP_cut""") as Ucursor:
+    with arcpy.da.UpdateCursor('BRAT_out', ['setting', 'iGeo_Slope', 'iHyd_SPLow'], "\"iGeo_Slope\" <= grad_cut AND \"iHyd_SPLow\" >= SP_cut") as Ucursor:
         for Urow in Ucursor:
             Urow[0] = 'floodplain'
             Ucursor.updateRow(Urow)
@@ -64,7 +64,7 @@ def BRAT_settings (folder, BRAT, BRAT_out, SP_cut, grad_cut):
     ## SP
     #arcpy.SelectLayerByAttribute_management('BRAT_out', 'ADD_TO_SELECTION', '"iHyd_SPLow" <= ' + SP_cut)
     ## populate setting field
-    with arcpy.da.UpdateCursor('BRAT_out', ['setting', 'iGeo_Slope', 'iHyd_SPLow'], """"iGeo_Slope" <= grad_cut AND "iHyd_SPLow" <= SP_cut""") as Ucursor:
+    with arcpy.da.UpdateCursor('BRAT_out', ['setting', 'iGeo_Slope', 'iHyd_SPLow'], "\"iGeo_Slope\" <= grad_cut AND \"iHyd_SPLow\" <= SP_cut") as Ucursor:
         for Urow in Ucursor:
             Urow[0] = 'classic'
             Ucursor.updateRow(Urow)
@@ -73,8 +73,8 @@ def BRAT_settings (folder, BRAT, BRAT_out, SP_cut, grad_cut):
 folder = r"C:\Users\a02295870\Box\0_ET_AL\NonProject\etal_Drone\2019\Inundation_sites\all\BRAT\Utah\setting_test"
 BRAT = r"C:\Users\a02295870\Box\0_ET_AL\NonProject\etal_Drone\2019\Inundation_sites\all\BRAT\Utah\setting_test\Bear_river_BRAT.shp"
 BRAT_out = 'oCC_EX_6_25.shp'
-SP_cut = "25"
-grad_cut = "0.06"
+SP_cut = 25
+grad_cut = 0.06
 
 BRAT_settings(folder, BRAT, BRAT_out, SP_cut, grad_cut)
 
