@@ -3,9 +3,8 @@
 import os
 import arcpy
 import sys
-
-# Make folder function 
-# copied from pyBRAT SupportingFunctions.py
+# Functions from BRAAT
+# Make folder function from supportingFunctions.py
 def make_folder(path_to_location, new_folder_name):
     """
     Makes a folder and returns the path to it
@@ -18,7 +17,8 @@ def make_folder(path_to_location, new_folder_name):
         os.mkdir(newFolder)
     return newFolder
 
-def make_project(project_path, srs_template, site_name, huc8):
+# RIM projecy creation functions
+def make_project(project_path, srs_template, image_path, site_name, huc8):
     """
     Creates project folders
     :param project_path: where we want project to be located
@@ -36,7 +36,7 @@ def make_project(project_path, srs_template, site_name, huc8):
     inputs_folder = make_folder(project_path, "01_Inputs")
 
     image_folder = make_folder(inputs_folder, "01_Imagery")
-    make_folder(image_folder, "AP_01")
+    AP01_folder = make_folder(image_folder, "AP_01")
     make_folder(image_folder, "AP_02")
     make_folder(image_folder, "AP_03")
 
@@ -47,6 +47,9 @@ def make_project(project_path, srs_template, site_name, huc8):
     make_folder(context_folder, "BRAT_01")
     make_folder(context_folder, "VBET_01")
     make_folder(context_folder, 'WBD')
+
+    # put input imagery in folder
+    arcpy.CopyRaster_management(image_path, os.path.join(AP01_folder, 'orthomosaic.tif'))
 
     # mapping folder
     # subsequent DCE and RS folders are created when a new DCE is made using new dce script

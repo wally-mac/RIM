@@ -23,13 +23,15 @@ def project_rasters(in_folder, out_folder, srs_template):
 
 
 # pull files from RS_context folder
-def gather_RSinputs(context_folder, huc8, project_path):
-    arcpy.CopyRaster_management(os.path.join(context_folder, huc8, 'topography/dem.tif'), os.path.join(project_path, '01_Inputs/02_Topo/DEM_01', 'DEM.tif'))
-    arcpy.CopyRaster_management(os.path.join(context_folder, huc8, 'topography/dem_hillshade.tif'), os.path.join(project_path, '01_Inputs/02_Topo/DEM_01', 'hlsd.tif'))
-    # arcpy.CopyRaster_management(os.path.join(context_folder, huc8, 'topography/hand.tif'), os.path.join(project_path, '01_Inputs/02_Topo/DEM_01', 'hand.tif'))
-    # arcpy.CopyRaster_management(os.path.join(context_folder, huc8, 'topography/slope.tif'), os.path.join(project_path, '01_Inputs/02_Topo/DEM_01', 'slope.tif'))
+def gather_RSinputs(context_folder, huc8, project_path, srs_template):
+    arcpy.CopyRaster_management(os.path.join(context_folder, huc8, 'topography', 'dem.tif'), os.path.join(project_path, '01_Inputs/02_Topo/DEM_01', 'DEM.tif'))
+    arcpy.CopyRaster_management(os.path.join(context_folder, huc8, 'topography', 'dem_hillshade.tif'), os.path.join(project_path, '01_Inputs/02_Topo/DEM_01', 'hsld.tif'))
+    #arcpy.CopyRaster_management(os.path.join(context_folder, huc8, 'topography', 'hand.tif'), os.path.join(project_path, '01_Inputs/02_Topo/DEM_01', 'hand.tif'))
+    #arcpy.CopyRaster_management(os.path.join(context_folder, huc8, 'topography', 'slope.tif'), os.path.join(project_path, '01_Inputs/02_Topo/DEM_01', 'slope.tif'))
 
-    arcpy.CopyFeatures_management(os.path.join(context_folder, huc8, 'BRAT/BRAT.shp'), os.path.join(project_path, '01_Inputs/03_Context/BRAT_01', 'BRAT.shp'))
-    arcpy.CopyFeatures_management(os.path.join(context_folder, huc8, 'hydrology/WBDHU8.shp'), os.path.join(project_path, '01_Inputs/03_Context/WBD', 'HUC8.shp'))
-    arcpy.CopyFeatures_management(os.path.join(context_folder, huc8, 'hydrology/WBDHU10.shp'), os.path.join(project_path, '01_Inputs/03_Context/WBD', 'HUC10.shp'))
-    arcpy.CopyFeatures_management(os.path.join(context_folder, huc8, 'hydrology/WBDHU12.shp'), os.path.join(project_path, '01_Inputs/03_Context/WBD', 'HUC12.shp'))
+    arcpy.Project_management(os.path.join(context_folder, huc8, 'BRAT/BRAT.shp'), os.path.join(project_path, '01_Inputs/03_Context/BRAT_01', 'BRAT.shp'), srs_template)
+    arcpy.Project_management(os.path.join(context_folder, huc8, 'VBET/VBET.shp'), os.path.join(project_path, '01_Inputs/03_Context/VBET_01', 'VBET.shp'), srs_template)
+    arcpy.Project_management(os.path.join(context_folder, huc8, 'hydrology/WBDHU8.shp'), os.path.join(project_path, '01_Inputs/03_Context/WBD', 'HUC8.shp'), srs_template)
+    #arcpy.Project_management(os.path.join(context_folder, huc8, 'hydrology/WBDHU10.shp'), os.path.join(project_path, '01_Inputs/03_Context/WBD', 'HUC10.shp'), srs_template)
+    #arcpy.Project_management
+    # (os.path.join(context_folder, huc8, 'hydrology/WBDHU12.shp'), os.path.join(project_path, '01_Inputs/03_Context/WBD', 'HUC12.shp'), srs_template)

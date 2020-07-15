@@ -5,7 +5,7 @@ import XMLBuilder
 reload(XMLBuilder)
 XMLBuilder = XMLBuilder.XMLBuilder
 
-def write_xml(project_root, proj_name, huc_ID, network_destinations,
+def write_xml(project_root, proj_name, huc_ID, image_destinations,
               dem_destinations, valley_bottom_destinations, beaver_dams_destinations):
     """
     Writes and populates the entire XML document for the project.
@@ -13,7 +13,7 @@ def write_xml(project_root, proj_name, huc_ID, network_destinations,
     :param proj_name: The name for the project given by the user
     :param huc_ID: The HUC ID given by the user
 
-    :param network_destinations: A path to all network files
+    :param image_destinations: A path to all image files
     :param dem_destinations: A path to all DEM files
 
     :param valley_bottom_destinations: A path to all valley bottom files
@@ -32,16 +32,16 @@ def write_xml(project_root, proj_name, huc_ID, network_destinations,
     if proj_name is None:
         proj_name = os.path.basename(project_root)
     new_xml_file.add_sub_element(new_xml_file.root, "Name", proj_name)
-    new_xml_file.add_sub_element(new_xml_file.root, "ProjectType", "BRAT")
+    new_xml_file.add_sub_element(new_xml_file.root, "ProjectType", "RIM")
 
     add_metadata(new_xml_file, huc_ID)
 
-    add_inputs(project_root, new_xml_file, network_destinations,
+    add_inputs(project_root, new_xml_file, image_destinations,
                dem_destinations, valley_bottom_destinations, beaver_dams_destinations)
 
     new_xml_file.write()
 
-def add_inputs(project_root, new_xml_file, network_destinations, dem_destinations, valley_bottom_destinations, beaver_dams_destinations, perennial_stream_destinations):
+def add_inputs(project_root, new_xml_file, image_destinations, dem_destinations, valley_bottom_destinations, beaver_dams_destinations, perennial_stream_destinations):
     """
     Calls write_xml_for_destination for each input and creates a sub element for inputs
     :param project_root: The folder for the whole project
