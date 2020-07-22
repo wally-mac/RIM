@@ -1,10 +1,14 @@
-
-
+# Name:     XML Builder
+#
+# Purpose:  Helper methods for building XML files.
+#
+# Author:   Philip Bailey
+#
+# Date:     30 May 2019
+# -------------------------------------------------------------------------------
 import xml.etree.ElementTree as ET
 import xml.dom.minidom as minidom
 import os
-import arcpy
-import re
 
 
 class XMLBuilder:
@@ -12,12 +16,12 @@ class XMLBuilder:
     Builds an XML file
     """
 
-    def __init__(self, xml_file, root_name='', tags=[]):
+    def __init__(self, xml_file, root_name='', attribs={}):
         """
-        Initializes the class by setting up the root based on the given name and tags
+        Initializes the class by setting up the root based on the given name and attributes
         :param xml_file: The path to where the new XML file will be made on the hard drive
         :param root_name: The name of the root element of the XML file
-        :param tags: An array of tuples. tag[0] is the name of the tag, tag[1] is the value
+        :param attribs: An array of tuples. att[0] is the name of the att, att[1] is the value
         """
         self.xml_file = xml_file
         if os.path.exists(xml_file):
@@ -28,45 +32,55 @@ class XMLBuilder:
 
         self.set_parent_map()
 
-        for tag in tags:
-            self.root.set(tag[0], tag[1])
+        for k, att in attribs.items():
+            self.root.set(k, att)
 
     def set_parent_map(self):
         self.parent_map = dict((c, p) for p in self.tree.iter() for c in p)
 
+    def delete_sub_element(self, base_element, name, id):
+        # ID is the only thing we match
+        id_str = '[@id=\"{}\"]'.format(id) if id else ''
+        found = base_element.findall('{}{}'.format(name, id_str))
+        if len(found) == 0:
+            return
+        elif len(found) > 1:
+            raise Exception('delete_sub_element found more than one node to delete. Cannot continue.')
 
-    def add_sub_element(self, base_element, name='', text='', tags=[]):
+        base_element.remove(found[0])
+
+    def add_sub_element(self, base_element, name='', text='', attribs={}, replace=False):
         """
         Creates a new element below an existing element
         :param base_element: an XML Element that we will attach our new sub element to
         :param name: The name of the new sub element
         :param text: The text that is meant to go within the element
-        :param tags: A list of tuples. The first element contains the name of the tag, the second contains the value
+        :param attribs: A list of tuples. The first element contains the name of the atribute, the second contains the value
         :return: The subelement created. Useful if the user wants to append additional subelements to it
         """
         if base_element is None:
-            arcpy.AddWarning("Warning: NoneType was passed to add_sub_element as base element. Possible bug, further investigation may be required")
-            return None
+            raise Exception("Warning: NoneType was passed to add_sub_element as base element. Possible bug, further investigation may be required")
+
+        if replace:
+            self.delete_sub_element(base_element, name, attribs['id'])
+
         new_element = ET.SubElement(base_element, name)
         new_element.text = text
 
-        for tag in tags:
-            new_element.set(tag[0], tag[1])
+        for k, att in attribs.items():
+            new_element.set(k, att)
 
-        self.set_parent_map() # Redoes the parent child mapping, to account for the new element
+        self.set_parent_map()  # Redoes the parent child mapping, to account for the new element
         return new_element
-
 
     def find(self, element_name):
         return self.root.find(element_name)
-
 
     def find_by_text(self, text):
         for element in self.tree.iter():
             if element.text == text:
                 return element
         return None
-
 
     def find_by_id(self, given_id):
         for element in self.tree.iter():
@@ -77,18 +91,17 @@ class XMLBuilder:
                 pass
         return None
 
-
     def find_element_parent(self, element):
         if element is None:
-            arcpy.AddWarning("None type passed to find_element_parent. Possible bug, please report to the pyBRAT GitHub page")
-            return None
+            raise Exception("None type passed to find_element_parent. Possible bug, please report to the pyBRAT GitHub page")
+
         if element not in self.parent_map:
             self.set_parent_map()
-            if element not in self.parent_map:
-                arcpy.AddWarning("Could not find parent of an XML element. Possible bug, please report to the pyBRAT GitHub page")
-                return None
-        return self.parent_map[element]
 
+            if element not in self.parent_map:
+                raise Exception("Could not find parent of an XML element. Possible bug, please report to the pyBRAT GitHub page")
+
+        return self.parent_map[element]
 
     def write(self):
         """
@@ -117,9 +130,9 @@ def remove_extra_newlines(given_string):
     for i in range(1, len(given_string)):
         if given_string[i] != '\n' and given_string[i] != '\t':
             i_is_bad_char = False
-        elif given_string[i] == '\n' and given_string[i-1] == '\t':
+        elif given_string[i] == '\n' and given_string[i - 1] == '\t':
             i_is_bad_char = True
-        elif given_string[i] == '\n' and given_string[i-1] == '\n':
+        elif given_string[i] == '\n' and given_string[i - 1] == '\n':
             i_is_bad_char = True
         elif given_string[i] == '\n':
             i_is_bad_char = False
@@ -144,3 +157,11 @@ def find_next_non_tab_index(i, given_string):
         i += 1
     return i
 
+
+def add_project_metadata(builder, key, value):
+    metadata_element = builder.find('MetaData')
+    if not metadata_element:
+        metadata_element = builder.add_sub_element(builder.root, "MetaData")
+
+    builder.add_sub_element(metadata_element, "Meta", value, {"name": key})
+    builder.write()

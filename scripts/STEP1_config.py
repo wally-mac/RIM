@@ -19,13 +19,19 @@ srs_template = r"C:\Users\karen\Box\0_ET_AL\NonProject\etal_Drone\2019\Inundatio
 project_path = r"C:\Users\karen\Box\Thesis_sites\17070204\lower_owens"
 ### file locations for RS context inputs and imagery 
 context_folder = r"C:\Users\karen\Box\0_ET_AL\NonProject\etal_Drone\2019\Inundation_sites\Riverscapes_Context"
-# image_path = 
+image_path = 
 
 ## Parameters
 
 ### site parameters
 site_name = "lower_owens"
-huc8 = '17070204'
+huc = '17070204'
+
+### image AP01 metadata
+image_date = ""  # use format YYYYMMDD
+image_source = "" # e.g. drone, google_earth, NAIP
+flow_stage = "" # flow stage at the time of the imagery (e.g. baseflow, low, medium, high)
+
 
 ##############################
 
