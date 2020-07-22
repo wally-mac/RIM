@@ -48,8 +48,11 @@ def make_project(project_path, srs_template, image_path, site_name, huc8):
     make_folder(context_folder, "VBET_01")
     make_folder(context_folder, 'WBD')
 
-    # put input imagery in folder
-    arcpy.CopyRaster_management(image_path, os.path.join(AP01_folder, 'orthomosaic.tif'))
+    def add_image(image_path, AP_folder):
+        # put input imagery in folder
+        arcpy.CopyRaster_management(image_path, os.path.join(AP_folder, 'orthomosaic.tif'))
+    add_image(image_path, AP01_folder)
+
 
     # mapping folder
     # subsequent DCE and RS folders are created when a new DCE is made using new dce script
