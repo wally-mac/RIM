@@ -21,8 +21,6 @@ def create_project(huc, output_dir, site_name, image_date):
     realizations = project.XMLBuilder.add_sub_element(project.XMLBuilder.root, 'Realizations')
     rs_context = project.XMLBuilder.add_sub_element(realizations, 'RS_Context', None, {
         'id': 'RS_01',
-        'evidence_used': 'DEM, hillshade, vegetation',
-        'Mapper': mapper,
         'dateCreated': datetime.datetime.now().isoformat(),
         'guid': str(uuid.uuid1()),
         'productVersion': cfg.version
@@ -37,4 +35,4 @@ def create_project(huc, output_dir, site_name, image_date):
     project.XMLBuilder.add_sub_element(dce, 'Name', image_date)
 
     project.XMLBuilder.write()
-    return project, realization
+    return project, inputs, rs_context, dce

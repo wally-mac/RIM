@@ -140,7 +140,7 @@ def CL_attributes(polyline, DEM, scratch):
         arcpy.FeatureVerticesToPoints_management(polyline, tmp_pts, vertex_type)
         # create 20 meter buffer around each start/end point
         tmp_buff = os.path.join(scratch, 'tmp_buff.shp')
-        arcpy.Buffer_analysis(tmp_pts, tmp_buff, '20 Meters')
+        arcpy.Buffer_analysis(tmp_pts, tmp_buff, '10 Meters')
         # get min dem z value within each buffer
         arcpy.AddField_management(polyline, out_field, "DOUBLE")
         out_ZS = arcpy.sa.ZonalStatistics(tmp_buff, "FID", DEM, "MINIMUM", "NODATA")

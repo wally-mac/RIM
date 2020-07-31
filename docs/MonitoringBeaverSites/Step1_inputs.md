@@ -12,6 +12,7 @@ The required inputs to use the Riverscape Inundation Mapper tool in full are:
 Additional optional inputs are useful and provide additional context for valley bottom mapping and information about the local hydrology:
 - [VBET](http://rcat.riverscapes.xyz/Documentation/Version_1.0/VBET.html#toc-valley-bottom-extraction-tool-vbet-) output
 - [BRAT](https://brat.riverscapes.xyz/) output
+- hillshade
 
 ### Imagery
 
