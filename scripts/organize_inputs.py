@@ -1,7 +1,7 @@
 import os
 import arcpy
 import sys
-from create_project import make_folder
+#from create_project import make_folder
 
 # path to folder with unprojected rasters
 #in_folder = r"C:\Users\A02295870\Box\Thesis_sites\16010203\RH_fork_mid\DroneDeploy\05292019"
@@ -16,9 +16,9 @@ def project_rasters(in_folder, out_folder, srs_template):
     arcpy.ProjectRaster_management(os.path.join(in_folder, 'orthomosaic.tif'), os.path.join(out_folder, 'orthomosaic.tif'), srs_template, 'NEAREST', '.02')
 
     # DEM
-    arcpy.ProjectRaster_management(os.path.join(in_folder, 'DEM.tif'), os.path.join(out_folder, 'DEM.tif'), srs_template, 'NEAREST', '.02')
+    arcpy.ProjectRaster_management(os.path.join(in_folder, 'DEM.tif'), os.path.join(out_folder, 'DEM.tif'), srs_template, 'NEAREST')
 
-    # Orthomosaic
+    # NDVI
     arcpy.ProjectRaster_management(os.path.join(in_folder, 'NDVI.tif'), os.path.join(out_folder, 'NDVI.tif'), srs_template, 'NEAREST', '.02')
 
 
@@ -35,3 +35,5 @@ def gather_RSinputs(context_folder, huc8, project_path, srs_template):
     #arcpy.Project_management(os.path.join(context_folder, huc8, 'hydrology/WBDHU10.shp'), os.path.join(project_path, '01_Inputs/03_Context/WBD', 'HUC10.shp'), srs_template)
     #arcpy.Project_management
     # (os.path.join(context_folder, huc8, 'hydrology/WBDHU12.shp'), os.path.join(project_path, '01_Inputs/03_Context/WBD', 'HUC12.shp'), srs_template)
+
+project_rasters(r"C:\Users\A02295870\Box\Thesis_sites\16010203\temple_upper\DroneDeploy\06202020", r"C:\Users\A02295870\Box\Thesis_sites\16010203\temple_upper\DroneDeploy\06202020\projected", r"C:\Users\A02295870\Box\0_ET_AL\NonProject\etal_Drone\2019\Inundation_sites\Utah\TempleFork\temple_b\10262019\GIS\inundation.shp")

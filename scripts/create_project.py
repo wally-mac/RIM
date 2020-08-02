@@ -4,8 +4,20 @@ import os
 import arcpy
 import sys
 from settings import ModelConfig
+from project import RSLayer
 
 cfg = ModelConfig('http://xml.riverscapes.xyz/Projects/XSD/V1/RSContext.xsd')
+
+LayerTypes = {
+    # key: (name, id, tag, relpath)
+    'DEM': RSLayer('NED 10m DEM', 'DEM', 'DEM', '01_Inputs/02_Topo/DEM_01/DEM.tif'),
+    'IMAGE': RSLayer('orthomosaic', 'AP_01', 'AP', '01_Inputs/01_Imagery/AP_01/orthomosaic.tif'),
+    'HILLSHADE': RSLayer('DEM Hillshade', 'HILLSHADE', 'Raster', '01_Inputs/02_Topo/DEM_01/hlsd.tif'),
+    'BRAT': RSLayer('BRAT', 'BRAT', 'Vector', '01_Inputs/03_Context/BRAT_01/BRAT.shp'),
+    'VBET': RSLayer('VBET', 'VBET', 'Vector', '01_Inputs/03_Context/VBET_01/VBET.shp')
+
+}
+
 # Functions from BRAAT
 # Make folder function from supportingFunctions.py
 def make_folder(path_to_location, new_folder_name):
@@ -21,7 +33,7 @@ def make_folder(path_to_location, new_folder_name):
     return newFolder
 
 # RIM projecy creation functions
-def make_project(project_path, srs_template, image_path, site_name, huc8):
+def make_project(project_path, srs_template, image_path, site_name, huc8, BRAT_path, VBET_path, DEM_path, hs_path):
     """
     Creates project folders
     :param project_path: where we want project to be located
@@ -44,11 +56,11 @@ def make_project(project_path, srs_template, image_path, site_name, huc8):
     make_folder(image_folder, "AP_03")
 
     topo_folder = make_folder(inputs_folder, "02_Topo")
-    make_folder(topo_folder, "DEM_01")
+    DEM01_folder = make_folder(topo_folder, "DEM_01")
 
     context_folder = make_folder(inputs_folder, "03_Context")
-    make_folder(context_folder, "BRAT_01")
-    make_folder(context_folder, "VBET_01")
+    BRAT01_folder = make_folder(context_folder, "BRAT_01")
+    VBET01_folder = make_folder(context_folder, "VBET_01")
     make_folder(context_folder, 'WBD')
 
     def add_image(image_path, AP_folder):
@@ -56,6 +68,13 @@ def make_project(project_path, srs_template, image_path, site_name, huc8):
         arcpy.CopyRaster_management(image_path, os.path.join(AP_folder, 'orthomosaic.tif'))
     add_image(image_path, AP01_folder)
 
+    # copy DEM, hillshade to project folder
+    arcpy.CopyRaster_management(DEM_path, os.path.join(DEM01_folder, 'DEM.tif'))
+    arcpy.CopyRaster_management(hs_path, os.path.join(DEM01_folder, 'hlsd.tif'))
+
+    #copy BRAT, VBET to project folder
+    arcpy.CopyFeatures_management(BRAT_path, os.path.join(BRAT01_folder, 'BRAT.shp'))
+    arcpy.CopyFeatures_management(VBET_path, os.path.join(VBET01_folder, 'VBET.shp'))
 
     # mapping folder
     # subsequent DCE and RS folders are created when a new DCE is made using new dce script
@@ -100,8 +119,19 @@ def make_project(project_path, srs_template, image_path, site_name, huc8):
             row[1] = huc8
             cursor.updateRow(row)
 
-# xml creation
+    # create xml
+    project, inputs, rs_context, dce = create_project(huc8, project_path, site_name, image_date)
 
+    dem_raster = project.add_project_raster(inputs, LayerTypes['DEM'])
+    image_raster = project.add_project_raster(inputs, LayerTypes['IMAGE'])
+    hill_raster = project.add_project_raster(inputs, LayerTypes['HILLSHADE'])
+    BRAT_raster = project.add_project_vector(inputs, LayerTypes['BRAT'])
+    VBET_raster = project.add_project_vector(inputs, LayerTypes['VBET'])
+    
+
+
+
+# xml creation
 
 def create_project(huc, output_dir, site_name, image_date):
 
@@ -125,7 +155,7 @@ def create_project(huc, output_dir, site_name, image_date):
     })
     dce = project.XMLBuilder.add_sub_element(realizations, 'DCE', None, {
         'id': 'DCE_01',
-        'image_date': image_date
+        'image_date': image_date,
         'dateCreated': datetime.datetime.now().isoformat(),
         'guid': str(uuid.uuid1()),
         'productVersion': cfg.version
