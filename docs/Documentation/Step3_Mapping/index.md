@@ -1,5 +1,5 @@
 ---
-title: Step 3 - Map Features
+title: Step 3 - Mapping
 weight: 1
 ---
 
