@@ -40,7 +40,7 @@ image_res = '.02' # resolution of the imagery in meters
 ##############################
 
 # create project folders and empty mapping shapefiles for first DCE
-make_project(project_path, srs_template, site_name, huc, BRAT_path, VBET_path, DEM_path, hs_path)
+make_project(project_path, srs_template, image_path, site_name, huc, BRAT_path, VBET_path, DEM_path, hs_path)
 
 # gather RS context inputs
 #gather_RSinputs(context_folder, huc8, project_path, srs_template)
