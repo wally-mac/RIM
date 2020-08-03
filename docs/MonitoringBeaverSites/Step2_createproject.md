@@ -20,7 +20,8 @@ The next step is to run the Project Builder script. This script is designed to t
 ### Parameters
 - **site_name** The name of the project
 - **huc8** - the 8 digit Hydrologic Unit Code
-#### Metadata for the imagery provided for the imagery input image_path
+
+#### Metadata for the input imagery
 - **site_name** The name of the project
 - **image_date** - The date the imagery was collected. Use format YYYYMMDD
 - **image_source** - The source of the imagery

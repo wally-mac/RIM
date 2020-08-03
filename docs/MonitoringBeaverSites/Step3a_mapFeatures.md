@@ -9,20 +9,24 @@ There are 2 types of features that you will map
 - Context features
 - Data Capture Events (DCEs)
 
+An empty shapefile was created for all features that need to be mapped when the Project Builder script was run in [Step 2](https://riverscapes.github.io/inundation/MonitoringBeaverSites/Step2_createproject.html). The context features are located in the 02_Mapping/RS_01 folder and the shapefiles for the first DCE are located in the 02_Mapping/DCE_02 folder.
 ### Context features
 The context features you need to map are the valley bottom and a valley bottom centerline. These features are typically consistent over time.
 
 #### Valley bottom
-The valley bottom is defined as the channel(s) and contemporary floodplain. The spatial extent of the valley bottom represents the area that could plausibly flood during the contemporary flow regime.
+##### Background
+The valley bottom is defined as the channel(s) and contemporary floodplain. The spatial extent of the valley bottom represents the area that could plausibly flood during the contemporary flow regime. The margins or lateral extent of the valley bottom will be a confining margin. Confining margins are hillslope, fans, and terraces. 
 
 ![ValleyBottom]({{ site.baseurl }}/assets/images/oblique_valleyBottom-02.jpg)
 
-##### Useful resources and lines of evidence for identifying the valley bottom extent
+##### Mapping
+###### Useful resources and lines of evidence for identifying the valley bottom extent
 
 #### Valley bottom centerline
+##### Mapping
 
 ### DCE
-The Data Capture Event features to map are the structure or beaver dam crests, thalwegs, and the inundation types. These features are a snapshot in time and should be mapped seperately for each imagery or time period of interest.
+The Data Capture Event features to map are the structure or beaver dam crests, thalwegs, and the inundation types. These features are a snapshot in time and should be mapped seperately for each different image or time period of interest.
 
 #### Dam or structure crests
 
