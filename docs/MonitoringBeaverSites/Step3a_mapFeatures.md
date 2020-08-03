@@ -15,7 +15,7 @@ The context features you need to map are the valley bottom and a valley bottom c
 #### Valley bottom
 The valley bottom is defined as the channel(s) and contemporary floodplain. The spatial extent of the valley bottom represents the area that could plausibly flood during the contemporary flow regime.
 
-<img class="float-left" src="C:\Users\A02295870\Box\0_ET_AL\NonProject\etal_Drone\2019\Inundation_sites\Figs\oblique_valleyBottom-02.jpg"> 
+![ValleyBottom]({{ site.baseurl }}/assets/images/oblique_valleyBottom-02.jpg)
 
 ##### Useful resources and lines of evidence for identifying the valley bottom extent
 
