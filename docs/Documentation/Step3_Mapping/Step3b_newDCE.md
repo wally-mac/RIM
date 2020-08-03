@@ -7,7 +7,7 @@ weight: 1
 
 Run this script to create an additional data capture event. 
 
-Examples for which you might want to create a 2nd, 2rd, etc DCE:
+Examples for which you might want to create a 2nd, 3rd, etc DCE:
 - to map a different snapshot in time at the same site (e.g. using imagery with a different date)
 - using imagery from the same date but from a different source (e.g. to make a comparison between UAV acquired imagery and NAIP imagery)
 - to compare outputs from two different mappers
