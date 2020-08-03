@@ -35,7 +35,7 @@ huc = '16010203'
 image_date = "20200620"  # use format YYYYMMDD
 image_source = "drone" # e.g. drone, google_earth, NAIP
 flow_stage = "moderate" # flow stage at the time of the imagery (e.g. baseflow, low, medium, high)
-
+image_res = '.02' # resolution of the imagery in meters
 
 ##############################
 
