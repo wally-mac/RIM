@@ -9,7 +9,11 @@ There are 2 types of features that you will map
 - Context features
 - Data Capture Events (DCEs)
 
-An empty shapefile was created for all features that need to be mapped when the Project Builder script was run in [Step 2](https://riverscapes.github.io/inundation/MonitoringBeaverSites/Step2_createproject.html). The context features are located in the 02_Mapping/RS_01 folder and the shapefiles for the first DCE are located in the 02_Mapping/DCE_02 folder.
+An empty shapefile was created for all features that need to be mapped when the Project Builder script was run in [Step 2](https://riverscapes.github.io/inundation/Documentation/Step2_createproject.html). 
+
+The context features are located in the 02_Mapping/RS_01 folder 
+
+The shapefiles for the first DCE are located in the 02_Mapping/DCE_02 folder.
 ### Context features
 The context features you need to map are the valley bottom and a valley bottom centerline. These features are typically consistent over time.
 
