@@ -5,7 +5,7 @@ weight: 1
 
 ## Riverscape Inundation Mapper inputs
 
-The next step is to run the Project Builder script. This script is designed to take the inputs and organize them and create a folder structure as well as an XML file for the project. This script will create empty shapefiles for your first Data Capture Event (DCE)
+The next step is to run the Project Builder script. This script is designed to take the inputs and organize them and create a folder structure as well as an XML file for the project. This script will create empty shapefiles to map the riverscape context features and for your first Data Capture Event (DCE)
 
 ## Inputs
 ### Files
