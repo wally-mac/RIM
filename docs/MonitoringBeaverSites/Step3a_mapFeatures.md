@@ -38,3 +38,5 @@ The Data Capture Event features to map are the structure or beaver dam crests, t
 
 ##### Inundation type
 
+![InundationType]({{ site.baseurl }}/assets/images/07052020inundation_typespng-01.png)
+
