@@ -15,7 +15,7 @@ Additional optional inputs are useful and provide additional context for valley 
 - hillshade
 
 ### Imagery
-
+Potential sources of imagery include Unmanned Aerial Vehicle (UAV) orthomosaics, imagery from the National Agriculture Imagery Program (NAIP), Google Earth, Light Detection and Ranging (LIDAR) data, and more.
 ### DEM
 We typically use [USGS National Elevation Dataset (NED)](https://viewer.nationalmap.gov/basic/) 1/3 arc second (~ 10 m) DEM data.
 
