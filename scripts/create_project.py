@@ -18,7 +18,7 @@ LayerTypes = {
 
 }
 
-# Functions from BRAAT
+# Functions from pyBRAT
 # Make folder function from supportingFunctions.py
 def make_folder(path_to_location, new_folder_name):
     """
@@ -32,7 +32,7 @@ def make_folder(path_to_location, new_folder_name):
         os.mkdir(newFolder)
     return newFolder
 
-# RIM projecy creation functions
+# RIM project creation functions
 def make_project(project_path, srs_template, image_path, site_name, huc8, BRAT_path, VBET_path, DEM_path, hs_path):
     """
     Creates project folders
