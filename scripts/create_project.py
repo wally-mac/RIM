@@ -6,19 +6,19 @@ import sys
 from settings import ModelConfig
 from project import RSLayer
 
-cfg = ModelConfig('http://xml.riverscapes.xyz/Projects/XSD/V1/RSContext.xsd')
+# cfg = ModelConfig('http://xml.riverscapes.xyz/Projects/XSD/V1/RSContext.xsd')
 
-LayerTypes = {
-    # key: (name, id, tag, relpath)
-    'DEM': RSLayer('NED 10m DEM', 'DEM', 'DEM', '01_Inputs/02_Topo/DEM_01/DEM.tif'),
-    'IMAGE': RSLayer('orthomosaic', 'AP_01', 'AP', '01_Inputs/01_Imagery/AP_01/orthomosaic.tif'),
-    'HILLSHADE': RSLayer('DEM Hillshade', 'HILLSHADE', 'Raster', '01_Inputs/02_Topo/DEM_01/hlsd.tif'),
-    'BRAT': RSLayer('BRAT', 'BRAT', 'Vector', '01_Inputs/03_Context/BRAT_01/BRAT.shp'),
-    'VBET': RSLayer('VBET', 'VBET', 'Vector', '01_Inputs/03_Context/VBET_01/VBET.shp')
+# LayerTypes = {
+#     # key: (name, id, tag, relpath)
+#     'DEM': RSLayer('NED 10m DEM', 'DEM', 'DEM', '01_Inputs/02_Topo/DEM_01/DEM.tif'),
+#     'IMAGE': RSLayer('orthomosaic', 'AP_01', 'AP', '01_Inputs/01_Imagery/AP_01/orthomosaic.tif'),
+#     'HILLSHADE': RSLayer('DEM Hillshade', 'HILLSHADE', 'Raster', '01_Inputs/02_Topo/DEM_01/hlsd.tif'),
+#     'BRAT': RSLayer('BRAT', 'BRAT', 'Vector', '01_Inputs/03_Context/BRAT_01/BRAT.shp'),
+#     'VBET': RSLayer('VBET', 'VBET', 'Vector', '01_Inputs/03_Context/VBET_01/VBET.shp')
 
-}
+# }
 
-# Functions from pyBRAT
+# Functions from BRAAT
 # Make folder function from supportingFunctions.py
 def make_folder(path_to_location, new_folder_name):
     """
@@ -32,7 +32,7 @@ def make_folder(path_to_location, new_folder_name):
         os.mkdir(newFolder)
     return newFolder
 
-# RIM project creation functions
+# RIM projecy creation functions
 def make_project(project_path, srs_template, image_path, site_name, huc8, BRAT_path, VBET_path, DEM_path, hs_path):
     """
     Creates project folders
@@ -84,86 +84,90 @@ def make_project(project_path, srs_template, image_path, site_name, huc8, BRAT_p
     # Use Describe to get a SpatialReference object
     spatial_reference = arcpy.Describe(srs_template).spatialReference
     # inundation
-    arcpy.CreateFeatureclass_management(DCE01_folder, "inundation.shp", "POLYGON", "", "DISABLED", "DISABLED", spatial_reference)
+    if not os.path.exists(os.path.join(DCE01_folder, "inundation.shp")):
+        arcpy.CreateFeatureclass_management(DCE01_folder, "inundation.shp", "POLYGON", "", "DISABLED", "DISABLED", spatial_reference)
     #add field for inundation type
-    arcpy.AddField_management(os.path.join(DCE01_folder, 'inundation.shp'), 'type', "TEXT")
+        arcpy.AddField_management(os.path.join(DCE01_folder, 'inundation.shp'), 'type', "TEXT")
     # dam crests
-    arcpy.CreateFeatureclass_management(DCE01_folder, "dam_crests.shp", "POLYLINE", "", "DISABLED", "DISABLED", spatial_reference)
+    if not os.path.exists(os.path.join(DCE01_folder, "dam_crests.shp")):
+        arcpy.CreateFeatureclass_management(DCE01_folder, "dam_crests.shp", "POLYLINE", "", "DISABLED", "DISABLED", spatial_reference)
     #add fields for dam state and crest type
-    arcpy.AddField_management(os.path.join(DCE01_folder, 'dam_crests.shp'), 'dam_state', "TEXT")
-    arcpy.AddField_management(os.path.join(DCE01_folder, 'dam_crests.shp'), 'crest_type', "TEXT")
-    arcpy.AddField_management(os.path.join(DCE01_folder, 'dam_crests.shp'), 'dam_id', "DOUBLE")
+        arcpy.AddField_management(os.path.join(DCE01_folder, 'dam_crests.shp'), 'dam_state', "TEXT")
+        arcpy.AddField_management(os.path.join(DCE01_folder, 'dam_crests.shp'), 'crest_type', "TEXT")
+        arcpy.AddField_management(os.path.join(DCE01_folder, 'dam_crests.shp'), 'dam_id', "DOUBLE")
     # thalwegs
-    arcpy.CreateFeatureclass_management(DCE01_folder, "thalwegs.shp", "POLYLINE", "", "DISABLED", "DISABLED", spatial_reference)
+    if not os.path.exists(os.path.join(DCE01_folder, "thalwegs.shp")):
+        arcpy.CreateFeatureclass_management(DCE01_folder, "thalwegs.shp", "POLYLINE", "", "DISABLED", "DISABLED", spatial_reference)
     #add fields for thalweg type
-    arcpy.AddField_management(os.path.join(DCE01_folder, 'thalwegs.shp'), 'type', "TEXT")
+        arcpy.AddField_management(os.path.join(DCE01_folder, 'thalwegs.shp'), 'type', "TEXT")
     # make first RS folder
     RS01_folder = make_folder(mapping_folder, "RS_01")
     # create empty shapefiles for valley bottom and valley bottom centerline
     # valley bottom
-    arcpy.CreateFeatureclass_management(RS01_folder, "valley_bottom.shp", "POLYGON", "", "DISABLED", "DISABLED", spatial_reference)
-    arcpy.AddField_management(os.path.join(RS01_folder, 'valley_bottom.shp'), 'site_name', "TEXT")
-    arcpy.AddField_management(os.path.join(RS01_folder, 'valley_bottom.shp'), 'huc8', "DOUBLE")
+    if not os.path.exists(os.path.join(RS01_folder, "valley_bottom.shp")):
+        arcpy.CreateFeatureclass_management(RS01_folder, "valley_bottom.shp", "POLYGON", "", "DISABLED", "DISABLED", spatial_reference)
+        arcpy.AddField_management(os.path.join(RS01_folder, 'valley_bottom.shp'), 'site_name', "TEXT")
+        arcpy.AddField_management(os.path.join(RS01_folder, 'valley_bottom.shp'), 'huc8', "DOUBLE")
+        with arcpy.da.UpdateCursor(os.path.join(RS01_folder, 'valley_bottom.shp'), ['site_name', 'huc8']) as cursor:
+            for row in cursor:
+                row[0] = site_name
+                row[1] = huc8
+                cursor.updateRow(row)
     # valley bottom centerline
-    arcpy.CreateFeatureclass_management(RS01_folder, "vb_centerline.shp", "POLYLINE", "", "DISABLED", "DISABLED", spatial_reference)
+    if not os.path.exists(os.path.join(RS01_folder, "vb_centerline.shp")):
+        arcpy.CreateFeatureclass_management(RS01_folder, "vb_centerline.shp", "POLYLINE", "", "DISABLED", "DISABLED", spatial_reference)
     
     # analysis folder
     analysis_folder = make_folder(project_path, "03_Analysis")
     DCE01_fold = make_folder(analysis_folder, "DCE_01")
     make_folder(analysis_folder, "CDs")
-    make_folder(analysis_folder, "Summary")
-
-    with arcpy.da.UpdateCursor(os.path.join(RS01_folder, 'valley_bottom.shp'), ['site_name', 'huc8']) as cursor:
-        for row in cursor:
-            row[0] = site_name
-            row[1] = huc8
-            cursor.updateRow(row)
+    make_folder(analysis_folder, "Summary")s
 
     # create xml
-    project, inputs, rs_context, dce = create_project(huc8, project_path, site_name, image_date)
+    # project, inputs, rs_context, dce = create_project(huc8, project_path, site_name, image_date)
 
-    dem_raster = project.add_project_raster(inputs, LayerTypes['DEM'])
-    image_raster = project.add_project_raster(inputs, LayerTypes['IMAGE'])
-    hill_raster = project.add_project_raster(inputs, LayerTypes['HILLSHADE'])
-    BRAT_raster = project.add_project_vector(inputs, LayerTypes['BRAT'])
-    VBET_raster = project.add_project_vector(inputs, LayerTypes['VBET'])
+    # dem_raster = project.add_project_raster(inputs, LayerTypes['DEM'])
+    # image_raster = project.add_project_raster(inputs, LayerTypes['IMAGE'])
+    # hill_raster = project.add_project_raster(inputs, LayerTypes['HILLSHADE'])
+    # BRAT_raster = project.add_project_vector(inputs, LayerTypes['BRAT'])
+    # VBET_raster = project.add_project_vector(inputs, LayerTypes['VBET'])
     
 
 
 
 # xml creation
 
-def create_project(huc, output_dir, site_name, image_date):
+# def create_project(huc, output_dir, site_name, image_date):
 
-    project_name = site_name
-    project = RSProject(cfg, output_dir)
-    project.create(project_name, 'RIM')
+#     project_name = site_name
+#     project = RSProject(cfg, output_dir)
+#     project.create(project_name, 'RIM')
 
-    project.add_project_meta({
-        'HUC{}'.format(len(huc)): str(huc),
-        'site_name': site_name,
-        'date_created': datetime.datetime.now().isoformat()
-    })
+#     project.add_project_meta({
+#         'HUC{}'.format(len(huc)): str(huc),
+#         'site_name': site_name,
+#         'date_created': datetime.datetime.now().isoformat()
+#     })
 
-    inputs = project.XMLBuilder.add_sub_element(project.XMLBuilder.root, 'Inputs')
-    realizations = project.XMLBuilder.add_sub_element(project.XMLBuilder.root, 'Realizations')
-    rs_context = project.XMLBuilder.add_sub_element(realizations, 'RS_Context', None, {
-        'id': 'RS_01',
-        'dateCreated': datetime.datetime.now().isoformat(),
-        'guid': str(uuid.uuid1()),
-        'productVersion': cfg.version
-    })
-    dce = project.XMLBuilder.add_sub_element(realizations, 'DCE', None, {
-        'id': 'DCE_01',
-        'image_date': image_date,
-        'dateCreated': datetime.datetime.now().isoformat(),
-        'guid': str(uuid.uuid1()),
-        'productVersion': cfg.version
-    })
-    project.XMLBuilder.add_sub_element(dce, 'Name', image_date)
+#     inputs = project.XMLBuilder.add_sub_element(project.XMLBuilder.root, 'Inputs')
+#     realizations = project.XMLBuilder.add_sub_element(project.XMLBuilder.root, 'Realizations')
+#     rs_context = project.XMLBuilder.add_sub_element(realizations, 'RS_Context', None, {
+#         'id': 'RS_01',
+#         'dateCreated': datetime.datetime.now().isoformat(),
+#         'guid': str(uuid.uuid1()),
+#         'productVersion': cfg.version
+#     })
+#     dce = project.XMLBuilder.add_sub_element(realizations, 'DCE', None, {
+#         'id': 'DCE_01',
+#         'image_date': image_date,
+#         'dateCreated': datetime.datetime.now().isoformat(),
+#         'guid': str(uuid.uuid1()),
+#         'productVersion': cfg.version
+#     })
+#     project.XMLBuilder.add_sub_element(dce, 'Name', image_date)
 
-    project.XMLBuilder.write()
-    return project, inputs, rs_context, dce
+#     project.XMLBuilder.write()
+#     return project, inputs, rs_context, dce
 
 def main():
     
@@ -172,7 +176,7 @@ def main():
     parser.add_argument('project_path', help='path to output folder', type=str)
     args = parser.parse_args()
 
-    make_project(project_path)
+
 
 
 
