@@ -21,8 +21,8 @@ Instructuions:
 
 """
 
-# change to this value after the pull request is finished: http://xml.riverscapes.xyz/Projects/XSD/V1/Inundation.xsd
-cfg = ModelConfig('https://raw.githubusercontent.com/Riverscapes/RiverscapesXML/innundation/Projects/XSD/V1/Inundation.xsd')
+# change to this value after the pull request is finished:
+cfg = ModelConfig('http://xml.riverscapes.xyz/Projects/XSD/V1/Inundation.xsd')
 
 # Define the types of layers we're going to use up top so we can re-use them later
 LayerTypes = {
