@@ -4,9 +4,14 @@ import os
 import arcpy
 import sys
 from settings import ModelConfig
-from lib.project import RSLayer
+import uuid
+from lib.project import RSProject, RSLayer
+from lib.util import safe_makedirs
+from lib.loghelper import Logger
+import time
+import datetime
 
-# cfg = ModelConfig('http://xml.riverscapes.xyz/Projects/XSD/V1/RSContext.xsd')
+cfg = ModelConfig('http://xml.riverscapes.xyz/Projects/XSD/V1/Inundation.xsd')
 
 # LayerTypes = {
 #     # key: (name, id, tag, relpath)
@@ -18,8 +23,15 @@ from lib.project import RSLayer
 
 # }
 
+LayerTypes = {
+    # RSLayer(name, id, tag, rel_path)
+    'AP_01': RSLayer('2019 August', 'AP_01', 'Raster', '01_Inputs/01_Imagery/AP_01/orthomosaic.tif')
+}
+
 # Functions from BRAAT
 # Make folder function from supportingFunctions.py
+
+
 def make_folder(path_to_location, new_folder_name):
     """
     Makes a folder and returns the path to it
@@ -33,11 +45,32 @@ def make_folder(path_to_location, new_folder_name):
     return newFolder
 
 # RIM projecy creation functions
+
+
 def make_project(project_path, srs_template, image_path, site_name, huc8, BRAT_path, VBET_path, DEM_path, hs_path):
     """
     Creates project folders
     :param project_path: where we want project to be located
     """
+    log = Logger('build_xml')
+    log.info('Starting the build of the XML')
+
+    project_name = 'Inundation Mapper'
+    project = RSProject(cfg, project_path.replace('\\', '/'))
+    project.create(project_name, 'Inundation')
+
+    # Add the root metadata
+    project.add_metadata({
+        'ModelVersion': cfg.version,
+        'date_created': str(int(time.time())),
+        'HUC8': '16010201',
+        'InundationVersion': cfg.version,
+        'watershed': 'Upper Bear',
+        'site_name': 'Mill Creek',
+    })
+
+    # Create the realizations container node
+    realizations = project.XMLBuilder.add_sub_element(project.XMLBuilder.root, 'Realizations')
 
     # set workspace to desired project location
     arcpy.env.overwriteOutput = True
@@ -72,33 +105,33 @@ def make_project(project_path, srs_template, image_path, site_name, huc8, BRAT_p
     arcpy.CopyRaster_management(DEM_path, os.path.join(DEM01_folder, 'DEM.tif'))
     arcpy.CopyRaster_management(hs_path, os.path.join(DEM01_folder, 'hlsd.tif'))
 
-    #copy BRAT, VBET to project folder
+    # copy BRAT, VBET to project folder
     arcpy.CopyFeatures_management(BRAT_path, os.path.join(BRAT01_folder, 'BRAT.shp'))
     arcpy.CopyFeatures_management(VBET_path, os.path.join(VBET01_folder, 'VBET.shp'))
 
     # mapping folder
     # subsequent DCE and RS folders are created when a new DCE is made using new dce script
     mapping_folder = make_folder(project_path, "02_Mapping")
-    DCE01_folder =  make_folder(mapping_folder, "DCE_01")
+    DCE01_folder = make_folder(mapping_folder, "DCE_01")
     # make empty shapefiles for first DCE
     # Use Describe to get a SpatialReference object
     spatial_reference = arcpy.Describe(srs_template).spatialReference
     # inundation
     if not os.path.exists(os.path.join(DCE01_folder, "inundation.shp")):
         arcpy.CreateFeatureclass_management(DCE01_folder, "inundation.shp", "POLYGON", "", "DISABLED", "DISABLED", spatial_reference)
-    #add field for inundation type
+    # add field for inundation type
         arcpy.AddField_management(os.path.join(DCE01_folder, 'inundation.shp'), 'type', "TEXT")
     # dam crests
     if not os.path.exists(os.path.join(DCE01_folder, "dam_crests.shp")):
         arcpy.CreateFeatureclass_management(DCE01_folder, "dam_crests.shp", "POLYLINE", "", "DISABLED", "DISABLED", spatial_reference)
-    #add fields for dam state and crest type
+    # add fields for dam state and crest type
         arcpy.AddField_management(os.path.join(DCE01_folder, 'dam_crests.shp'), 'dam_state', "TEXT")
         arcpy.AddField_management(os.path.join(DCE01_folder, 'dam_crests.shp'), 'crest_type', "TEXT")
         arcpy.AddField_management(os.path.join(DCE01_folder, 'dam_crests.shp'), 'dam_id', "DOUBLE")
     # thalwegs
     if not os.path.exists(os.path.join(DCE01_folder, "thalwegs.shp")):
         arcpy.CreateFeatureclass_management(DCE01_folder, "thalwegs.shp", "POLYLINE", "", "DISABLED", "DISABLED", spatial_reference)
-    #add fields for thalweg type
+    # add fields for thalweg type
         arcpy.AddField_management(os.path.join(DCE01_folder, 'thalwegs.shp'), 'type', "TEXT")
     # make first RS folder
     RS01_folder = make_folder(mapping_folder, "RS_01")
@@ -116,23 +149,22 @@ def make_project(project_path, srs_template, image_path, site_name, huc8, BRAT_p
     # valley bottom centerline
     if not os.path.exists(os.path.join(RS01_folder, "vb_centerline.shp")):
         arcpy.CreateFeatureclass_management(RS01_folder, "vb_centerline.shp", "POLYLINE", "", "DISABLED", "DISABLED", spatial_reference)
-    
+
     # analysis folder
     analysis_folder = make_folder(project_path, "03_Analysis")
     DCE01_fold = make_folder(analysis_folder, "DCE_01")
     make_folder(analysis_folder, "CDs")
     make_folder(analysis_folder, "Summary")
 
-    # create xml
-    # project, inputs, rs_context, dce = create_project(huc8, project_path, site_name, image_date)
-
     # dem_raster = project.add_project_raster(inputs, LayerTypes['DEM'])
     # image_raster = project.add_project_raster(inputs, LayerTypes['IMAGE'])
     # hill_raster = project.add_project_raster(inputs, LayerTypes['HILLSHADE'])
     # BRAT_raster = project.add_project_vector(inputs, LayerTypes['BRAT'])
     # VBET_raster = project.add_project_vector(inputs, LayerTypes['VBET'])
-    
-
+    # Finally write the file
+    log.info('Writing file')
+    project.XMLBuilder.write()
+    log.info('Done')
 
 
 # xml creation
@@ -170,14 +202,8 @@ def make_project(project_path, srs_template, image_path, site_name, huc8, BRAT_p
 #     return project, inputs, rs_context, dce
 
 def main():
-    
+
     parser = argparse.ArgumentParser()
     parser.add_argument('srs_template', help='path to a shapefile with desired output coordinate system', type=str)
     parser.add_argument('project_path', help='path to output folder', type=str)
     args = parser.parse_args()
-
-
-
-
-
-

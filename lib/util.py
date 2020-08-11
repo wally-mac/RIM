@@ -21,7 +21,7 @@ def safe_makedirs(dir_create_path):
     log = Logger("MakeDir")
 
     # Safety check on path lengths
-    if len(dir_create_path) < 5 or len(dir_create_path.split(os.path.sep)) <= 2:
+    if len(dir_create_path) < 5 or len(dir_create_path.split('/')) <= 2:
         raise Exception('Invalid path: {}'.format(dir_create_path))
 
     if os.path.exists(dir_create_path) and os.path.isfile(dir_create_path):

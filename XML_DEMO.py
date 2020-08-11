@@ -142,7 +142,7 @@ if __name__ == '__main__':
 
     if args.projectpath is None or len(args.projectpath) < 10:
         raise Exception('projectpath has invalid value')
-
+    safe_makedirs(args.projectpath)
     # Initiate the log file
     log = Logger('Inundation XML')
     log.setup(logPath=os.path.join(args.projectpath, 'Inundation.log'), verbose=args.verbose)
