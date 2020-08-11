@@ -6,7 +6,7 @@ import argparse
 import numpy
 import csv
 import pandas as pd
-from loghelper import Logger
+from lib.loghelper import Logger
 from create_project import make_folder
 arcpy.env.overwriteOutput = True
 from arcpy.sa import *

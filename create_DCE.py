@@ -13,7 +13,7 @@ import arcpy
 from arcpy import env
 import os
 import argparse
-from loghelper import Logger
+from lib.loghelper import Logger
 
 
 # define inputs to the create_DCE function

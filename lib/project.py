@@ -12,10 +12,7 @@ from lib import xml_builder
 import datetime
 import uuid
 from settings import ModelConfig
-#import rasterio.shutil
-#from osgeo import ogr
-#from lib.util import ProgressBar, safe_makedirs
-from lib.shapefile import copy_feature_class
+from lib.util import safe_makedirs
 from lib.loghelper import Logger
 
 XMLBuilder = xml_builder.XMLBuilder
@@ -117,7 +114,7 @@ class RSProject:
         self.XMLBuilder.add_sub_element(self.XMLBuilder.root, "Name", name)
         self.XMLBuilder.add_sub_element(self.XMLBuilder.root, "ProjectType", project_type)
 
-        self.add_project_meta({
+        self.add_metadata({
             'ModelVersion': self.settings.version,
             'dateCreated': datetime.datetime.now().isoformat()
         })
@@ -125,12 +122,15 @@ class RSProject:
         self.XMLBuilder.write()
         self.exists = True
 
-    def add_project_meta(self, valdict):
-        log = Logger('add_project_meta')
-        metadata_element = self.XMLBuilder.find('MetaData')
+    def add_metadata(self, valdict, node=None):
+        log = Logger('add_metadata')
+        metadata_element = node.find('MetaData') if node is not None else self.XMLBuilder.find('MetaData')
         for mkey, mval in valdict.items():
-            if not metadata_element:
-                metadata_element = self.XMLBuilder.add_sub_element(self.XMLBuilder.root, "MetaData")
+            if metadata_element is None:
+                if node is not None:
+                    metadata_element = self.XMLBuilder.add_sub_element(node, "MetaData")
+                else:
+                    metadata_element = self.XMLBuilder.add_sub_element(self.XMLBuilder.root, "MetaData")
 
             found = metadata_element.findall('Meta[@name="{}"]'.format(mkey))
             # Only one key-value pair are allowed with the same name. This cleans up any stragglers
@@ -159,8 +159,8 @@ class RSProject:
 
         return file_path
 
-    def add_realization(self, id, name):
-        """name: 'BRAT Realization'
+    def add_realization(self, id, name, meta=None):
+        """name: 'Realization'
         Arguments:
             id {[type]} -- [description]
             name {[type]} -- [description]
@@ -220,60 +220,20 @@ class RSProject:
         self.XMLBuilder.add_sub_element(nod_dataset, 'Path', os.path.relpath(abs_path, os.path.dirname(self.xml_path)))
         self.XMLBuilder.write()
 
-    def add_project_vector(self, parent_node, rs_lyr, copy_path=None, replace=False, att_filter=None):
+    def add_project_vector(self, parent_node, rs_lyr, replace=False, att_filter=None):
         log = Logger('add_project_vector')
 
         file_path = os.path.join(os.path.dirname(self.xml_path), rs_lyr.rel_path)
         file_dir = os.path.dirname(file_path)
 
-        # Create the folder if we need to
-        safe_makedirs(file_dir)
-
-        if copy_path is not None or replace is True:
-            # Delete existing copies so we can re-copy them
-            if os.path.exists(file_path):
-                log.debug('Existing file found. deleting: {}'.format(file_path))
-                driver = ogr.GetDriverByName("ESRI Shapefile")
-                driver.DeleteDataSource(file_path)
-
-        if copy_path is not None:
-            if not os.path.exists(copy_path):
-                log.error('Could not find mandatory input "{}" shapefile at path "{}"'.format(rs_lyr.name, copy_path))
-            log.info('Copying dataset: {}'.format(rs_lyr.name))
-
-            # Rasterio copies datasets efficiently
-            copy_feature_class(copy_path, self.settings.OUTPUT_EPSG, file_path, attribute_filter=att_filter)
-            log.debug('Shapefile Copied {} to {}'.format(copy_path, file_path))
-
         self.add_dataset(parent_node, file_path, rs_lyr, 'Vector', replace)
         return file_path
 
-    def add_project_raster(self, parent_node, rs_lyr, copy_path=None, replace=False):
+    def add_project_raster(self, parent_node, rs_lyr, replace=False):
         log = Logger('add_project_raster')
 
         file_path = os.path.join(os.path.dirname(self.xml_path), rs_lyr.rel_path)
         file_dir = os.path.dirname(file_path)
-
-        # Create the folder if we need to
-        safe_makedirs(file_dir)
-
-        if copy_path is not None or replace is True:
-            # Delete existing copies so we can re-copy them
-            if os.path.exists(file_path):
-                log.debug('Existing file found. deleting: {}'.format(file_path))
-                try:
-                    rasterio.shutil.delete(file_path)
-                except Exception as e:
-                    log.debug('Raster possibly corrupt. Deleting using file system')
-                    os.remove(file_path)
-
-        if copy_path is not None:
-            if not os.path.exists(copy_path) or not rs_lyr:
-                log.error('Could not find mandatory input "{}" raster at path "{}"'.format(rs_lyr.name, copy_path))
-
-            # Rasterio copies datasets efficiently
-            rasterio.shutil.copy(copy_path, file_path)
-            log.info('Raster Copied {} to {}'.format(copy_path, file_path))
 
         self.add_dataset(parent_node, file_path, rs_lyr, 'Raster', replace)
         return file_path
