@@ -4,7 +4,7 @@ import os
 import arcpy
 import sys
 from settings import ModelConfig
-from project import RSLayer
+from lib.project import RSLayer
 
 # cfg = ModelConfig('http://xml.riverscapes.xyz/Projects/XSD/V1/RSContext.xsd')
 
@@ -121,7 +121,7 @@ def make_project(project_path, srs_template, image_path, site_name, huc8, BRAT_p
     analysis_folder = make_folder(project_path, "03_Analysis")
     DCE01_fold = make_folder(analysis_folder, "DCE_01")
     make_folder(analysis_folder, "CDs")
-    make_folder(analysis_folder, "Summary")s
+    make_folder(analysis_folder, "Summary")
 
     # create xml
     # project, inputs, rs_context, dce = create_project(huc8, project_path, site_name, image_date)
