@@ -25,11 +25,14 @@ cfg = ModelConfig('http://xml.riverscapes.xyz/Projects/XSD/V1/Inundation.xsd')
 
 LayerTypes = {
     # RSLayer(name, id, tag, rel_path)
-    'AP_01': RSLayer('2019 August', 'AP_01', 'Raster', '01_Inputs/01_Imagery/AP_01/orthomosaic.tif')
+    'AP_01': RSLayer(date_name, 'AP_01', 'Raster', '01_Inputs/01_Imagery/AP_01/orthomosaic.tif'),
+    'DEM': RSLayer('NED 10m DEM', 'DEM', 'DEM', '01_Inputs/02_Topo/DEM_01/DEM.tif'),
+    'HILLSHADE': RSLayer('DEM Hillshade', 'HILLSHADE', 'Raster', '01_Inputs/02_Topo/DEM_01/hlsd.tif'),
+    'BRAT': RSLayer('BRAT', 'BRAT', 'Vector', '01_Inputs/03_Context/BRAT_01/BRAT.shp'),
+    'VBET': RSLayer('VBET', 'VBET', 'Vector', '01_Inputs/03_Context/VBET_01/VBET.shp')
 }
 
-# Functions from BRAAT
-# Make folder function from supportingFunctions.py
+# Functions from BAAT
 
 
 def make_folder(path_to_location, new_folder_name):
@@ -47,7 +50,7 @@ def make_folder(path_to_location, new_folder_name):
 # RIM projecy creation functions
 
 
-def make_project(project_path, srs_template, image_path, site_name, huc8, BRAT_path, VBET_path, DEM_path, hs_path):
+def make_project(project_path, srs_template, image_path, site_name, huc8, BRAT_path, VBET_path, DEM_path, hs_path, image_date, image_source, flow_stage, image_res):
     """
     Creates project folders
     :param project_path: where we want project to be located
@@ -63,11 +66,13 @@ def make_project(project_path, srs_template, image_path, site_name, huc8, BRAT_p
     project.add_metadata({
         'ModelVersion': cfg.version,
         'date_created': str(int(time.time())),
-        'HUC8': '16010201',
+        'HUC8': huc8,
         'InundationVersion': cfg.version,
-        'watershed': 'Upper Bear',
-        'site_name': 'Mill Creek',
+        'site_name': site_name
     })
+
+    # Create the inputs container node
+    inputs = project.XMLBuilder.add_sub_element(project.XMLBuilder.root, 'Inputs')
 
     # Create the realizations container node
     realizations = project.XMLBuilder.add_sub_element(project.XMLBuilder.root, 'Realizations')
@@ -108,6 +113,21 @@ def make_project(project_path, srs_template, image_path, site_name, huc8, BRAT_p
     # copy BRAT, VBET to project folder
     arcpy.CopyFeatures_management(BRAT_path, os.path.join(BRAT01_folder, 'BRAT.shp'))
     arcpy.CopyFeatures_management(VBET_path, os.path.join(VBET01_folder, 'VBET.shp'))
+
+    # add the input rasters to xml
+    project.add_project_raster(inputs, LayerTypes['DEM'])
+    image_raster = project.add_project_raster(inputs, LayerTypes['AP_01'])
+    project.add_metadata({
+        'image_date': image_date,
+        'source': image_source,
+        'flow_stage': flow_stage,
+        'image_res': image_res
+    }, image_raster)
+    project.add_project_raster(inputs, LayerTypes['HILLSHADE'])
+
+    # add the input vectors to xml
+    project.add_project_vector(inputs, LayerTypes['BRAT'])
+    project.add_project_vector(inputs, LayerTypes['VBET'])
 
     # mapping folder
     # subsequent DCE and RS folders are created when a new DCE is made using new dce script
@@ -156,9 +176,6 @@ def make_project(project_path, srs_template, image_path, site_name, huc8, BRAT_p
     make_folder(analysis_folder, "CDs")
     make_folder(analysis_folder, "Summary")
 
-    # dem_raster = project.add_project_raster(inputs, LayerTypes['DEM'])
-    # image_raster = project.add_project_raster(inputs, LayerTypes['IMAGE'])
-    # hill_raster = project.add_project_raster(inputs, LayerTypes['HILLSHADE'])
     # BRAT_raster = project.add_project_vector(inputs, LayerTypes['BRAT'])
     # VBET_raster = project.add_project_vector(inputs, LayerTypes['VBET'])
     # Finally write the file
