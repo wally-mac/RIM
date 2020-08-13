@@ -88,6 +88,10 @@ def make_project(project_path, srs_template, image_path, site_name, huc8, BRAT_p
 
     # build project folder structure in project path
     # inputs folders
+
+    log = Logger('create_project')
+    log.info('creating project folders...')
+
     inputs_folder = make_folder(project_path, "01_Inputs")
 
     image_folder = make_folder(inputs_folder, "01_Imagery")
@@ -103,6 +107,8 @@ def make_project(project_path, srs_template, image_path, site_name, huc8, BRAT_p
     VBET01_folder = make_folder(context_folder, "VBET_01")
     make_folder(context_folder, 'WBD')
 
+    log.info('copying input files into new project folder...')
+
     def add_image(image_path, AP_folder):
         # put input imagery in folder
         arcpy.CopyRaster_management(image_path, os.path.join(AP_folder, 'orthomosaic.tif'))
@@ -115,6 +121,9 @@ def make_project(project_path, srs_template, image_path, site_name, huc8, BRAT_p
     # copy BRAT, VBET to project folder
     arcpy.CopyFeatures_management(BRAT_path, os.path.join(BRAT01_folder, 'BRAT.shp'))
     arcpy.CopyFeatures_management(VBET_path, os.path.join(VBET01_folder, 'VBET.shp'))
+
+    log = Logger('build_xml')
+    log.info('adding inputs to xml...')
 
     # add the input rasters to xml
     project.add_project_raster(inputs, LayerTypes['DEM'])
@@ -135,6 +144,10 @@ def make_project(project_path, srs_template, image_path, site_name, huc8, BRAT_p
     # subsequent DCE and RS folders are created when a new DCE is made using new dce script
     mapping_folder = make_folder(project_path, "02_Mapping")
     DCE01_folder = make_folder(mapping_folder, "DCE_01")
+
+    log = Logger('create_project')
+    log.info('creating blank RS and DCE shapefiles...')
+
     # make empty shapefiles for first DCE
     # Use Describe to get a SpatialReference object
     spatial_reference = arcpy.Describe(srs_template).spatialReference
