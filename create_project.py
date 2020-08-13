@@ -23,14 +23,6 @@ cfg = ModelConfig('http://xml.riverscapes.xyz/Projects/XSD/V1/Inundation.xsd')
 
 # }
 
-LayerTypes = {
-    # RSLayer(name, id, tag, rel_path)
-    'AP_01': RSLayer(date_name, 'AP_01', 'Raster', '01_Inputs/01_Imagery/AP_01/orthomosaic.tif'),
-    'DEM': RSLayer('NED 10m DEM', 'DEM', 'DEM', '01_Inputs/02_Topo/DEM_01/DEM.tif'),
-    'HILLSHADE': RSLayer('DEM Hillshade', 'HILLSHADE', 'Raster', '01_Inputs/02_Topo/DEM_01/hlsd.tif'),
-    'BRAT': RSLayer('BRAT', 'BRAT', 'Vector', '01_Inputs/03_Context/BRAT_01/BRAT.shp'),
-    'VBET': RSLayer('VBET', 'VBET', 'Vector', '01_Inputs/03_Context/VBET_01/VBET.shp')
-}
 
 # Functions from BAAT
 
@@ -55,6 +47,16 @@ def make_project(project_path, srs_template, image_path, site_name, huc8, BRAT_p
     Creates project folders
     :param project_path: where we want project to be located
     """
+
+    LayerTypes = {
+        # RSLayer(name, id, tag, rel_path)
+        'AP_01': RSLayer(date_name, 'AP_01', 'Raster', '01_Inputs/01_Imagery/AP_01/orthomosaic.tif'),
+        'DEM': RSLayer('NED 10m DEM', 'DEM', 'DEM', '01_Inputs/02_Topo/DEM_01/DEM.tif'),
+        'HILLSHADE': RSLayer('DEM Hillshade', 'HILLSHADE', 'Raster', '01_Inputs/02_Topo/DEM_01/hlsd.tif'),
+        'BRAT': RSLayer('BRAT', 'BRAT', 'Vector', '01_Inputs/03_Context/BRAT_01/BRAT.shp'),
+        'VBET': RSLayer('VBET', 'VBET', 'Vector', '01_Inputs/03_Context/VBET_01/VBET.shp')
+    }
+
     log = Logger('build_xml')
     log.info('Starting the build of the XML')
 
