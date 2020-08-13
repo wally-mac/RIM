@@ -41,7 +41,7 @@ image_res = '.02'  # resolution of the imagery in meters
 ##############################
 
 # create project folders and empty mapping shapefiles for first DCE
-make_project(project_path, srs_template, image_path, site_name, huc, BRAT_path, VBET_path, DEM_path, hs_path, image_date, image_source, flow_stage, image_res)
+make_project(project_path, srs_template, image_path, site_name, huc, BRAT_path, VBET_path, DEM_path, hs_path, image_date, date_name, image_source, flow_stage, image_res)
 
 
 ##########################

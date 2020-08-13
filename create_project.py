@@ -42,7 +42,7 @@ def make_folder(path_to_location, new_folder_name):
 # RIM projecy creation functions
 
 
-def make_project(project_path, srs_template, image_path, site_name, huc8, BRAT_path, VBET_path, DEM_path, hs_path, image_date, image_source, flow_stage, image_res):
+def make_project(project_path, srs_template, image_path, site_name, huc8, BRAT_path, VBET_path, DEM_path, hs_path, image_date, date_name, image_source, flow_stage, image_res):
     """
     Creates project folders
     :param project_path: where we want project to be located
@@ -132,7 +132,7 @@ def make_project(project_path, srs_template, image_path, site_name, huc8, BRAT_p
         'image_date': image_date,
         'source': image_source,
         'flow_stage': flow_stage,
-        'image_res': image_res
+        'image_res': image_res,
     }, image_raster)
     project.add_project_raster(inputs, LayerTypes['HILLSHADE'])
 
