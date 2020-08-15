@@ -54,7 +54,12 @@ def make_project(project_path, srs_template, image_path, site_name, huc8, BRAT_p
         'DEM': RSLayer('NED 10m DEM', 'DEM', 'DEM', '01_Inputs/02_Topo/DEM_01/DEM.tif'),
         'HILLSHADE': RSLayer('DEM Hillshade', 'HILLSHADE', 'Raster', '01_Inputs/02_Topo/DEM_01/hlsd.tif'),
         'BRAT': RSLayer('BRAT', 'BRAT', 'Vector', '01_Inputs/03_Context/BRAT_01/BRAT.shp'),
-        'VBET': RSLayer('VBET', 'VBET', 'Vector', '01_Inputs/03_Context/VBET_01/VBET.shp')
+        'VBET': RSLayer('VBET', 'VBET', 'Vector', '01_Inputs/03_Context/VBET_01/VBET.shp'),
+        'VB': RSLayer('Valley Bottom', 'VB_01', 'Vector', '02_Mapping/RS_01/valley_bottom.shp'),
+        'VB_CL': RSLayer('VB Centerline', 'vbCL_01', 'Vector', '02_Mapping/RS_01/vb_centerline.shp'),
+        'INUN': RSLayer('Inundation', 'DCE_01_inun', 'Vector', '02_Mapping/DCE_01/inundation.shp'),
+        'DAM_CREST': RSLayer('Dam Crests', 'DCE_01_damcrests', 'Vector', '02_Mapping/DCE_01/dam_crests.shp'),
+        'TWG': RSLayer('Thalwegs', 'DCE_01_thalwegs', 'Vector', '02_Mapping/DCE_01/thalwegs.shp')
     }
 
     log = Logger('build_xml')
@@ -79,9 +84,25 @@ def make_project(project_path, srs_template, image_path, site_name, huc8, BRAT_p
     # Create the realizations container node
     realizations = project.XMLBuilder.add_sub_element(project.XMLBuilder.root, 'Realizations')
 
+    # Create the InundationContext (vb and vb centerline) container node
+    inun_context = project.XMLBuilder.add_sub_element(realizations, 'InundationContext', None, {
+        'id': 'RS_01',
+        'dateCreated': datetime.datetime.now().isoformat(),
+        'guid': str(uuid.uuid1()),
+        'productVersion': cfg.version
+    }))
+
+    # Create the InundationDCE container node
+    DCE01_node=project.XMLBuilder.add_sub_element(realizations, 'InundationDCE', None, {
+        'id': 'DCE_01',
+        'dateCreated': datetime.datetime.now().isoformat(),
+        'guid': str(uuid.uuid1()),
+        'productVersion': cfg.version
+    }))
+
     # set workspace to desired project location
-    arcpy.env.overwriteOutput = True
-    arcpy.env.workspace = project_path
+    arcpy.env.overwriteOutput=True
+    arcpy.env.workspace=project_path
 
     if not os.path.exists(project_path):
         os.mkdir(project_path)
@@ -89,22 +110,22 @@ def make_project(project_path, srs_template, image_path, site_name, huc8, BRAT_p
     # build project folder structure in project path
     # inputs folders
 
-    log = Logger('create_project')
+    log=Logger('create_project')
     log.info('creating project folders...')
 
-    inputs_folder = make_folder(project_path, "01_Inputs")
+    inputs_folder=make_folder(project_path, "01_Inputs")
 
-    image_folder = make_folder(inputs_folder, "01_Imagery")
-    AP01_folder = make_folder(image_folder, "AP_01")
+    image_folder=make_folder(inputs_folder, "01_Imagery")
+    AP01_folder=make_folder(image_folder, "AP_01")
     make_folder(image_folder, "AP_02")
     make_folder(image_folder, "AP_03")
 
-    topo_folder = make_folder(inputs_folder, "02_Topo")
-    DEM01_folder = make_folder(topo_folder, "DEM_01")
+    topo_folder=make_folder(inputs_folder, "02_Topo")
+    DEM01_folder=make_folder(topo_folder, "DEM_01")
 
-    context_folder = make_folder(inputs_folder, "03_Context")
-    BRAT01_folder = make_folder(context_folder, "BRAT_01")
-    VBET01_folder = make_folder(context_folder, "VBET_01")
+    context_folder=make_folder(inputs_folder, "03_Context")
+    BRAT01_folder=make_folder(context_folder, "BRAT_01")
+    VBET01_folder=make_folder(context_folder, "VBET_01")
     make_folder(context_folder, 'WBD')
 
     log.info('copying input files into new project folder...')
@@ -122,13 +143,13 @@ def make_project(project_path, srs_template, image_path, site_name, huc8, BRAT_p
     arcpy.CopyFeatures_management(BRAT_path, os.path.join(BRAT01_folder, 'BRAT.shp'))
     arcpy.CopyFeatures_management(VBET_path, os.path.join(VBET01_folder, 'VBET.shp'))
 
-    log = Logger('build_xml')
+    log=Logger('build_xml')
     log.info('adding inputs to xml...')
 
     # add the input rasters to xml
     project.add_project_raster(inputs, LayerTypes['DEM'])
     project.add_project_raster(inputs, LayerTypes['AP_01'])
-    AP01_node = project.XMLBuilder.find_by_id('AP_01')
+    AP01_node=project.XMLBuilder.find_by_id('AP_01')
     project.add_metadata({
         'image_date': image_date,
         'source': image_source,
@@ -143,15 +164,15 @@ def make_project(project_path, srs_template, image_path, site_name, huc8, BRAT_p
 
     # mapping folder
     # subsequent DCE and RS folders are created when a new DCE is made using new dce script
-    mapping_folder = make_folder(project_path, "02_Mapping")
-    DCE01_folder = make_folder(mapping_folder, "DCE_01")
+    mapping_folder=make_folder(project_path, "02_Mapping")
+    DCE01_folder=make_folder(mapping_folder, "DCE_01")
 
-    log = Logger('create_project')
+    log=Logger('create_project')
     log.info('creating blank RS and DCE shapefiles...')
 
     # make empty shapefiles for first DCE
     # Use Describe to get a SpatialReference object
-    spatial_reference = arcpy.Describe(srs_template).spatialReference
+    spatial_reference=arcpy.Describe(srs_template).spatialReference
     # inundation
     if not os.path.exists(os.path.join(DCE01_folder, "inundation.shp")):
         arcpy.CreateFeatureclass_management(DCE01_folder, "inundation.shp", "POLYGON", "", "DISABLED", "DISABLED", spatial_reference)
@@ -170,7 +191,7 @@ def make_project(project_path, srs_template, image_path, site_name, huc8, BRAT_p
     # add fields for thalweg type
         arcpy.AddField_management(os.path.join(DCE01_folder, 'thalwegs.shp'), 'type', "TEXT")
     # make first RS folder
-    RS01_folder = make_folder(mapping_folder, "RS_01")
+    RS01_folder=make_folder(mapping_folder, "RS_01")
     # create empty shapefiles for valley bottom and valley bottom centerline
     # valley bottom
     if not os.path.exists(os.path.join(RS01_folder, "valley_bottom.shp")):
@@ -179,16 +200,16 @@ def make_project(project_path, srs_template, image_path, site_name, huc8, BRAT_p
         arcpy.AddField_management(os.path.join(RS01_folder, 'valley_bottom.shp'), 'huc8', "DOUBLE")
         with arcpy.da.UpdateCursor(os.path.join(RS01_folder, 'valley_bottom.shp'), ['site_name', 'huc8']) as cursor:
             for row in cursor:
-                row[0] = site_name
-                row[1] = huc8
+                row[0]=site_name
+                row[1]=huc8
                 cursor.updateRow(row)
     # valley bottom centerline
     if not os.path.exists(os.path.join(RS01_folder, "vb_centerline.shp")):
         arcpy.CreateFeatureclass_management(RS01_folder, "vb_centerline.shp", "POLYLINE", "", "DISABLED", "DISABLED", spatial_reference)
 
     # analysis folder
-    analysis_folder = make_folder(project_path, "03_Analysis")
-    DCE01_fold = make_folder(analysis_folder, "DCE_01")
+    analysis_folder=make_folder(project_path, "03_Analysis")
+    DCE01_fold=make_folder(analysis_folder, "DCE_01")
     make_folder(analysis_folder, "CDs")
     make_folder(analysis_folder, "Summary")
 
@@ -236,7 +257,7 @@ def make_project(project_path, srs_template, image_path, site_name, huc8, BRAT_p
 
 def main():
 
-    parser = argparse.ArgumentParser()
-    parser.add_argument('srs_template', help='path to a shapefile with desired output coordinate system', type=str)
-    parser.add_argument('project_path', help='path to output folder', type=str)
-    args = parser.parse_args()
+    parser=argparse.ArgumentParser()
+    parser.add_argument('srs_template', help = 'path to a shapefile with desired output coordinate system', type = str)
+    parser.add_argument('project_path', help = 'path to output folder', type = str)
+    args=parser.parse_args()
