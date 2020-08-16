@@ -30,6 +30,13 @@ DCE_fold = 'DCE_02'
 
 def new_DCE(srs_template, project_path, DCE_fold):
 
+    LayerTypes = {
+        # RSLayer(name, id, tag, rel_path)
+        'AP_new': RSLayer(date_name, AP_fold, 'Raster', os.path.join('01_Inputs/01_Imagery', AP_fold, 'imagery.tif')),
+        'INUN_new': RSLayer('Inundation', DCE_fold + '_inun', 'Vector', os.path.join('02_Mapping', DCE_fold, 'inundation.tif')),
+        'DAM_CREST_new': RSLayer('Dam Crests', DCE_fold + '_damcrests', 'Vector', os.path.join('02_Mapping', DCE_fold, 'dam_crests.tif')),
+        'TWG_new': RSLayer('Thalwegs', DCE_fold + '_thalwegs', 'Vector', os.path.join('02_Mapping', DCE_fold, 'thalwegs.tif'))
+    }
     log = Logger('new_DCE')
 
     # Set local variables
