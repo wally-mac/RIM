@@ -84,7 +84,9 @@ def make_project(project_path, srs_template, image_path, site_name, huc8, BRAT_p
     })
 
     # Create the realizations container node
-    realizations = project.XMLBuilder.add_sub_element(project.XMLBuilder.root, 'Realizations')
+    realizations = project.XMLBuilder.add_sub_element(project.XMLBuilder.root, 'Realizations', None, {
+        'id': 'realizations'
+    })
 
     # Create the InundationContext (vb and vb centerline) container node
     RS01_node = project.XMLBuilder.add_sub_element(realizations, 'InundationContext', None, {
