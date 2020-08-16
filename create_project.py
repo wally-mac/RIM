@@ -230,7 +230,7 @@ def make_project(project_path, srs_template, image_path, site_name, huc8, BRAT_p
 
     # analysis folder
     analysis_folder = make_folder(project_path, "03_Analysis")
-    DCE01_fold = make_folder(analysis_folder, "DCE_01")
+    make_folder(analysis_folder, "DCE_01")
     make_folder(analysis_folder, "CDs")
     make_folder(analysis_folder, "Summary")
 

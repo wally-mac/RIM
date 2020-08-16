@@ -1,13 +1,7 @@
 # Import system modules
-#import arcpy
-#from arcpy import env
-#import os
-#import argparse
-#from loghelper import Logger
-#from create_DCE import new_DCE
+
 from create_project import make_project
-#from create_project import make_folder
-#from organize_inputs import gather_RSinputs
+
 
 ##############################
 # STEP 1 - CREATE PROJECT
@@ -46,7 +40,3 @@ make_project(project_path, srs_template, image_path, site_name, huc, BRAT_path, 
 
 
 ##########################
-# gather RS context inputs
-#gather_RSinputs(context_folder, huc8, project_path, srs_template)
-
-# gather image for DCE1

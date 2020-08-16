@@ -22,13 +22,6 @@ import datetime
 
 cfg = ModelConfig('http://xml.riverscapes.xyz/Projects/XSD/V1/Inundation.xsd')
 
-# define inputs to the create_DCE function
-# path to a shapefile with the desired output coordinate system
-#srs_template = r"C:\Users\karen\Box\0_ET_AL\NonProject\etal_Drone\2019\Inundation_sites\Utah\Mill_Creek\08042019\GIS\dam_crests.shp"
-# path to project folder
-#project_path = r"C:\Users\karen\Box\0_ET_AL\NonProject\etal_Drone\2019\Inundation_sites\Utah\Mill_Creek\test"
-
-
 # function for create files
 
 
@@ -169,12 +162,3 @@ def main():
     parser.add_argument('srs_template', help='path to a shapefile with desired output coordinate system', type=str)
     parser.add_argument('project_path', help='path to output folder', type=str)
     args = parser.parse_args()
-
-    new_DCE(args.srs_template, args.project_path, DCE_fold)
-
-
-# path to a shapefile with the desired output coordinate system
-#srs_template = r"C:\Users\karen\Box\0_ET_AL\NonProject\etal_Drone\2019\Inundation_sites\Utah\Mill_Creek\08042019\GIS\dam_crests.shp"
-# path to project folder
-#project_path = r"C:\Users\karen\Box\0_ET_AL\NonProject\etal_Drone\2019\Inundation_sites\Utah\Mill_Creek\test"
-#new_DCE(srs_template, project_path, DCE_fold)
