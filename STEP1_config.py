@@ -31,17 +31,18 @@ hs_path = r"C:\Users\A02295870\Box\0_ET_AL\NonProject\etal_Drone\2019\Inundation
 site_name = "RH_fork_mid"
 huc = '16010203'
 
-# image AP01 metadata
+# image and DCE 01 metadata
 image_date = "20200529"  # use format YYYYMMDD
 date_name = "May 2019"  # what you want the display name for the image to be
 image_source = "drone"  # e.g. drone, google_earth, NAIP
 flow_stage = "moderate"  # flow stage at the time of the imagery (e.g. baseflow, low, medium, high)
 image_res = '.02'  # resolution of the imagery in meters
+mapper = 'Karen Bartelt'
 
 ##############################
 
 # create project folders and empty mapping shapefiles for first DCE
-make_project(project_path, srs_template, image_path, site_name, huc, BRAT_path, VBET_path, DEM_path, hs_path, image_date, date_name, image_source, flow_stage, image_res)
+make_project(project_path, srs_template, image_path, site_name, huc, BRAT_path, VBET_path, DEM_path, hs_path, image_date, date_name, image_source, flow_stage, image_res, mapper)
 
 
 ##########################
