@@ -9,12 +9,18 @@ Created on Sat Mar 14 15:04:43 2020
 # Description: Create shapefiles for inundation work
 
 # Import system modules
-import arcpy
-from arcpy import env
 import os
-import argparse
+import arcpy
+import sys
+from settings import ModelConfig
+import uuid
+from lib.project import RSProject, RSLayer
+from lib.util import safe_makedirs
 from lib.loghelper import Logger
+import time
+import datetime
 
+cfg = ModelConfig('http://xml.riverscapes.xyz/Projects/XSD/V1/Inundation.xsd')
 
 # define inputs to the create_DCE function
 # path to a shapefile with the desired output coordinate system
@@ -22,13 +28,11 @@ from lib.loghelper import Logger
 # path to project folder
 #project_path = r"C:\Users\karen\Box\0_ET_AL\NonProject\etal_Drone\2019\Inundation_sites\Utah\Mill_Creek\test"
 
-# name of desired new DCE folder
-DCE_fold = 'DCE_02'
 
 # function for create files
 
 
-def new_DCE(srs_template, project_path, DCE_fold):
+def new_DCE(srs_template, project_path, AP_fold, DCE_fold, image_path, image_date, date_name, image_source, flow_stage, image_res, mapper):
 
     LayerTypes = {
         # RSLayer(name, id, tag, rel_path)
@@ -37,6 +41,12 @@ def new_DCE(srs_template, project_path, DCE_fold):
         'DAM_CREST_new': RSLayer('Dam Crests', DCE_fold + '_damcrests', 'Vector', os.path.join('02_Mapping', DCE_fold, 'dam_crests.tif')),
         'TWG_new': RSLayer('Thalwegs', DCE_fold + '_thalwegs', 'Vector', os.path.join('02_Mapping', DCE_fold, 'thalwegs.tif'))
     }
+
+    log = Logger('edit_xml')
+    log.info('Loading the XML to make edits...')
+    # Load up a new RSProject class
+    project = RSProject(cfg, project_path)
+
     log = Logger('new_DCE')
 
     # Set local variables
@@ -62,6 +72,8 @@ def new_DCE(srs_template, project_path, DCE_fold):
     # create new AP folder
     if not os.path.exists(os.path.join(image_folder, AP_fold)):
         AP_path = os.makedirs(os.path.join(image_folder, AP_fold))
+    else:
+        AP_path = os.path.join(image_folder, AP_fold)
 
     log.info('copying image to project folder...')
 
@@ -69,8 +81,21 @@ def new_DCE(srs_template, project_path, DCE_fold):
         # put input imagery in folder
         if not os.path.exists(os.path.join(AP_folder, 'imagery.tif')):
             arcpy.CopyRaster_management(image_path, os.path.join(AP_folder, 'imagery.tif'))
-            else print('existing image already exists in this AP folder')
+        else:
+            print("existing image already exists in this AP folder")
     add_image(image_path, AP_path)
+
+    # Add new AP to xml
+    inputs = project.XMLBuilder.find_by_id('inputs')
+    project.add_project_raster(inputs, LayerTypes['AP_new'])
+    # add new AP metadata
+    APnew_node = project.XMLBuilder.find_by_id(AP_fold)
+    project.add_metadata({
+        'image_date': image_date,
+        'source': image_source,
+        'flow_stage': flow_stage,
+        'image_res': image_res,
+    }, APnew_node)
 
     # set pathway to mapping folder
     map_path = os.path.join(project_path, '02_Mapping')
