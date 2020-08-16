@@ -234,47 +234,10 @@ def make_project(project_path, srs_template, image_path, site_name, huc8, BRAT_p
     make_folder(analysis_folder, "CDs")
     make_folder(analysis_folder, "Summary")
 
-    # BRAT_raster = project.add_project_vector(inputs, LayerTypes['BRAT'])
-    # VBET_raster = project.add_project_vector(inputs, LayerTypes['VBET'])
     # Finally write the file
     log.info('Writing file')
     project.XMLBuilder.write()
     log.info('Done')
-
-
-# xml creation
-
-# def create_project(huc, output_dir, site_name, image_date):
-
-#     project_name = site_name
-#     project = RSProject(cfg, output_dir)
-#     project.create(project_name, 'RIM')
-
-#     project.add_project_meta({
-#         'HUC{}'.format(len(huc)): str(huc),
-#         'site_name': site_name,
-#         'date_created': datetime.datetime.now().isoformat()
-#     })
-
-#     inputs = project.XMLBuilder.add_sub_element(project.XMLBuilder.root, 'Inputs')
-#     realizations = project.XMLBuilder.add_sub_element(project.XMLBuilder.root, 'Realizations')
-#     rs_context = project.XMLBuilder.add_sub_element(realizations, 'RS_Context', None, {
-#         'id': 'RS_01',
-#         'dateCreated': datetime.datetime.now().isoformat(),
-#         'guid': str(uuid.uuid1()),
-#         'productVersion': cfg.version
-#     })
-#     dce = project.XMLBuilder.add_sub_element(realizations, 'DCE', None, {
-#         'id': 'DCE_01',
-#         'image_date': image_date,
-#         'dateCreated': datetime.datetime.now().isoformat(),
-#         'guid': str(uuid.uuid1()),
-#         'productVersion': cfg.version
-#     })
-#     project.XMLBuilder.add_sub_element(dce, 'Name', image_date)
-
-#     project.XMLBuilder.write()
-#     return project, inputs, rs_context, dce
 
 def main():
 
