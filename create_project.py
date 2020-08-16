@@ -79,7 +79,9 @@ def make_project(project_path, srs_template, image_path, site_name, huc8, BRAT_p
     })
 
     # Create the inputs container node
-    inputs = project.XMLBuilder.add_sub_element(project.XMLBuilder.root, 'Inputs')
+    inputs = project.XMLBuilder.add_sub_element(project.XMLBuilder.root, 'Inputs', None, {
+        'id': 'inputs'
+    })
 
     # Create the realizations container node
     realizations = project.XMLBuilder.add_sub_element(project.XMLBuilder.root, 'Realizations')
