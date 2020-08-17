@@ -13,7 +13,7 @@ import argparse
 import numpy
 import csv
 import pandas as pd
-import matplotlib as plt
+import matplotlib.pyplot as plt
 from lib.loghelper import Logger
 from create_project import make_folder
 arcpy.env.overwriteOutput = True
@@ -31,15 +31,15 @@ def calculate_metrics(project_path, RS_folder_name, DEM, site_name, DCE1_name, D
     project = RSProject(cfg, project_path)
 
     DCEs = [DCE1_name, DCE2_name]
-    for DCE in DCEs:
-        LayerTypes = {
-            # RSLayer(name, id, tag, rel_path)
-            'VB': RSLayer('Valley Bottom', 'VB_01', 'Vector', os.path.join('03_Analysis', DCE, 'Shapefiles/valley_bottom.shp')),
-            'VB_CL': RSLayer('VB Centerline', 'vbCL_01', 'Vector', os.path.join('03_Analysis', DCE, 'Shapefiles/vb_centerline.shp')),
-        }
-        DCEXX = project.XMLBuilder.find_by_id(DCE)
-        project.add_project_vector(DCEXX, LayerTypes['VB'])
-        project.add_project_vector(DCEXX, LayerTypes['VB_CL'])
+    # for DCE in DCEs:
+    # LayerTypes = {
+    # RSLayer(name, id, tag, rel_path)
+    # 'VB': RSLayer('Valley Bottom', 'VB_01', 'Vector', os.path.join('03_Analysis', DCE, 'Shapefiles/valley_bottom.shp')),
+    # 'VB_CL': RSLayer('VB Centerline', 'vbCL_01', 'Vector', os.path.join('03_Analysis', DCE, 'Shapefiles/vb_centerline.shp')),
+    # }
+    # DCEXX = project.XMLBuilder.find_by_id(DCE)
+    # project.add_project_vector(DCEXX, LayerTypes['VB'])
+    # project.add_project_vector(DCEXX, LayerTypes['VB_CL'])
 
     log = Logger('set paths')
 
@@ -290,6 +290,32 @@ def calculate_metrics(project_path, RS_folder_name, DEM, site_name, DCE1_name, D
         print "% ponded =", pd_pct
         ov_pct = round((ov_area / vb_area) * 100, 1)
         print "% overflow =", ov_pct
+
+        # Plot pie chart
+        labels = 'Free Flowing', 'Ponded', 'Overflow'
+        sizes = [ff_pct, pd_pct, ov_pct]
+        colors = ['deeppink', 'blue', 'cyan']
+
+        fig1, ax1 = plt.subplots()
+        ax1.pie(sizes, labels=labels, colors=colors, autopct='%1.1f%%', startangle=90)
+        ax1.axis('equal')
+
+        if not os.path.exists(os.path.join(out_folder, DCE, 'inun_types.pdf')):
+            plt.savefig(os.path.join(out_folder, DCE, 'inun_types.pdf'))
+            plt.show()
+        elif not os.path.exists(os.path.join(out_folder, DCE, 'inun_types_2.pdf')):
+            plt.savefig(os.path.join(out_folder, DCE, 'inun_types_2.pdf'))
+            plt.show()
+        elif not os.path.exists(os.path.join(out_folder, DCE, 'inun_types_3.pdf')):
+            plt.savefig(os.path.join(out_folder, DCE, 'inun_types_3.pdf'))
+            plt.show()
+        elif not os.path.exists(os.path.join(out_folder, DCE, 'inun_types_4.pdf')):
+            plt.savefig(os.path.join(out_folder, DCE, 'inun_types_4.pdf'))
+            plt.show()
+        else:
+            plt.savefig(os.path.join(out_folder, DCE, 'inun_types_5.pdf'))
+            plt.show()
+
         # Find number of exposed bars/ islands
         arcpy.Dissolve_management(in_features=os.path.join(DCE, 'inundation.shp'), out_feature_class=os.path.join(DCE, 'inun_diss.shp'))
         arcpy.Union_analysis(in_features=os.path.join(DCE, 'inun_diss.shp'), out_feature_class=os.path.join(DCE, 'inun_union.shp'), join_attributes="ALL", cluster_tolerance="", gaps="NO_GAPS")
@@ -477,7 +503,7 @@ def calculate_metrics(project_path, RS_folder_name, DEM, site_name, DCE1_name, D
                         Urow[0] = Srow[0]
                         Urow[1] = Srow[1]
                         Ucursor.updateRow(Urow)
-    ## thalwegs (all)
+    # thalwegs (all)
     for DCE in DCE_list:
         arcpy.AddField_management(os.path.join(DCE, 'valley_bottom.shp'), 'twgLenTot', 'DOUBLE')
         arcpy.AddField_management(os.path.join(DCE, 'valley_bottom.shp'), 'twgLenMain', 'DOUBLE')
