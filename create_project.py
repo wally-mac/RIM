@@ -14,17 +14,6 @@ arcpy.CheckOutExtension('Spatial')
 
 cfg = ModelConfig('http://xml.riverscapes.xyz/Projects/XSD/V1/Inundation.xsd')
 
-# LayerTypes = {
-#     # key: (name, id, tag, relpath)
-#     'DEM': RSLayer('NED 10m DEM', 'DEM', 'DEM', '01_Inputs/02_Topo/DEM_01/DEM.tif'),
-#     'IMAGE': RSLayer('orthomosaic', 'AP_01', 'AP', '01_Inputs/01_Imagery/AP_01/orthomosaic.tif'),
-#     'HILLSHADE': RSLayer('DEM Hillshade', 'HILLSHADE', 'Raster', '01_Inputs/02_Topo/DEM_01/hlsd.tif'),
-#     'BRAT': RSLayer('BRAT', 'BRAT', 'Vector', '01_Inputs/03_Context/BRAT_01/BRAT.shp'),
-#     'VBET': RSLayer('VBET', 'VBET', 'Vector', '01_Inputs/03_Context/VBET_01/VBET.shp')
-
-# }
-
-
 # Functions from BAAT
 
 
