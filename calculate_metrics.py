@@ -13,6 +13,19 @@ arcpy.env.overwriteOutput = True
 arcpy.CheckOutExtension('Spatial')
 
 
+# Add VB and VBCL to xml
+DCEs = [DCE1_name, DCE2_name]
+for DCE in DCEs:
+    LayerTypes = {
+        # RSLayer(name, id, tag, rel_path)
+        'VB': RSLayer('Valley Bottom', 'VB_01', 'Vector', os.path.join('03_Analysis', DCE, 'Shapefiles/valley_bottom.shp')),
+        'VB_CL': RSLayer('VB Centerline', 'vbCL_01', 'Vector', os.path.join('03_Analysis', DCE, 'Shapefiles/vb_centerline.shp')),
+    }
+    DCEXX = project.XMLBuilder.find_by_id(DCE)
+    project.add_project_vector(DCEXX, LayerTypes['VB'])
+    project.add_project_vector(DCEXX, LayerTypes['VB_CL'])
+
+
 log = Logger('set paths')
 
 # Set internal paths
