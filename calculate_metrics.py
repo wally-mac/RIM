@@ -1,4 +1,5 @@
 # Import system modules
+from arcpy.sa import *
 import arcpy
 from arcpy import env
 import os
@@ -9,44 +10,12 @@ import pandas as pd
 from lib.loghelper import Logger
 from create_project import make_folder
 arcpy.env.overwriteOutput = True
-from arcpy.sa import *
 arcpy.CheckOutExtension('Spatial')
 
-################################
-# Step 3 - CALCULATE METRICS
-
-## Inputs
-
-### project path
-project_path = r"C:\Users\karen\Box\0_ET_AL\NonProject\etal_Drone\2019\Inundation_sites\Utah\Mill_Creek\codetest_0622"
-### name of the folder of the desired RS Context shapefiles (the folder with the Valley Bottom polygon)
-RS_folder_name = "RS_01"
-### path to DEM to be used to calculate slopes
-DEM = os.path.join(project_path, '01_Inputs', '02_Topo', 'DEM_01', 'DEM.tif')
-
-## DCE Parameters
-### site parameters
-site_name = "mill_creek"
-
-### name of the folder of the desired DCEs for the analysis
-DCE1_name = "DCE_01"
-DCE2_name = "DCE_02" 
-### DCE 1 Parameters
-DCE1_date = '20190804'
-DCE1_flow_stage = 'low'
-DCE1_active = 'yes'
-DCE1_maintained = 'yes'
-### DCE 2 Parameters
-DCE2_date = 'pre beaver'
-DCE2_flow_stage = 'low'
-DCE2_active = 'NA'
-DCE2_maintained = 'NA'
-
-################################
 
 log = Logger('set paths')
 
-# Set internal paths 
+# Set internal paths
 map_folder = os.path.join(project_path, '02_Mapping')
 RS_folder = os.path.join(map_folder, RS_folder_name)
 out_folder = os.path.join(project_path, '03_Analysis')
@@ -103,9 +72,6 @@ with arcpy.da.UpdateCursor(os.path.join(DCE2_out, 'valley_bottom.shp'), ['site_n
         cursor.updateRow(row)
 
 
-
-
-
 log.info('paths set for DCEs of interest and DEM')
 
 #######
@@ -117,6 +83,7 @@ for DCE in DCE_list:
     arcpy.MakeFeatureLayer_management(os.path.join(DCE, 'thalwegs.shp'), 'twg_main', "type = 'main'")
     arcpy.SelectLayerByAttribute_management('twg_main', "NEW_SELECTION")
     arcpy.CopyFeatures_management('twg_main', os.path.join(DCE, 'twg_main.shp'))
+
 
 def CL_attributes(polyline, DEM, scratch):
     """
@@ -155,7 +122,6 @@ def CL_attributes(polyline, DEM, scratch):
                         Urow[0] = Srow[0]
                         Ucursor.updateRow(Urow)
 
-
         # delete temp fcs, tbls, etc.
         items = [tmp_pts, tmp_pts2, tmp_buff, out_ZS]
         for item in items:
@@ -175,13 +141,15 @@ def CL_attributes(polyline, DEM, scratch):
     arcpy.AddField_management(polyline, "slope", "DOUBLE")
     with arcpy.da.UpdateCursor(polyline, ["el_1", "el_2", "length", "slope"]) as cursor:
         for row in cursor:
-            row[3] = (abs(row[0] - row[1]))/row[2]
+            row[3] = (abs(row[0] - row[1])) / row[2]
             if row[3] == 0.0:
                 row[3] = 0.0001
             cursor.updateRow(row)
 
     log.info('added min and max elevation, length, and slope to polyline')
-# Run CL_attributes for thalweg to get channel slope and valley bottom centerline to get valley slope 
+
+
+# Run CL_attributes for thalweg to get channel slope and valley bottom centerline to get valley slope
 for DCE in DCE_list:
     log = Logger('DCE CL_attributes')
     CL_attributes(os.path.join(DCE, 'twg_main.shp'), DEM, project_path)
@@ -226,15 +194,15 @@ for DCE in DCE_list:
         for row in cursor:
             row[0] = row[1]
             cursor.updateRow(row)
-    
+
     # thalwegs (all)
     log.info('calculating all thalweg lengths...')
     thalwegs = os.path.join(DCE, 'thalwegs.shp')
-    ## calculate thalweg length for all types
+    # calculate thalweg length for all types
     twgArr = arcpy.da.FeatureClassToNumPyArray(thalwegs, ['SHAPE@LENGTH'])
     twgTotLen = twgArr['SHAPE@LENGTH'].sum()
-    ## calculate other thalweg types
-    ### main
+    # calculate other thalweg types
+    # main
     mainTwgArr = arcpy.da.FeatureClassToNumPyArray(thalwegs, ['SHAPE@LENGTH', 'type'], "type = 'main'")
     mainTwgLen = mainTwgArr['SHAPE@LENGTH'].sum()
     mainTwgPct = round(mainTwgLen / twgTotLen, 1)
@@ -253,6 +221,8 @@ for DCE in DCE_list:
             cursor.updateRow(row)
 
 # Calculate integrated valley width and integrated wetted width
+
+
 def intWidth_fn(polygon, polyline):
     arrPoly = arcpy.da.FeatureClassToNumPyArray(polygon, ['SHAPE@AREA'])
     arrPolyArea = arrPoly['SHAPE@AREA'].sum()
@@ -274,6 +244,8 @@ for DCE in DCE_list:
     intWidth_fn(os.path.join(DCE, 'inundation.shp'), os.path.join(DCE, 'twg_main.shp'))
 
 # Calculate total inundated area and percent and inundated area and percent by inundation type
+
+
 def inun_fn(inun_poly, site_poly):
     # calculate inundation areas
     tot_arrPoly = arcpy.da.FeatureClassToNumPyArray(inun_poly, ['SHAPE@AREA', 'type'])
@@ -336,6 +308,7 @@ def inun_fn(inun_poly, site_poly):
             row[9] = island_num
             cursor.updateRow(row)
 
+
 for DCE in DCE_list:
     log.info('calculating inundation area and percent...')
     print "calculating inundation percents for", DCE, "..."
@@ -349,7 +322,7 @@ def dam_crests_fn(crests_line, CL_line):
     # Calculate valley length
     arrCL = arcpy.da.FeatureClassToNumPyArray(CL_line, ['SHAPE@LENGTH'])
     arrCL_len = arrCL['SHAPE@LENGTH'].sum()
-    
+
     # Calculate dam crest to valley length ratio
     crestArr = arcpy.da.FeatureClassToNumPyArray(crests_line, ['SHAPE@LENGTH'])
     crest_lenArr = crestArr['SHAPE@LENGTH'].sum()
@@ -406,7 +379,7 @@ def dam_crests_fn(crests_line, CL_line):
     arcpy.AddField_management(crests_line, 'ratio_act', 'DOUBLE')
     arcpy.AddField_management(crests_line, 'ratio_int', 'DOUBLE')
     arcpy.AddField_management(crests_line, 'crstPctAct', 'DOUBLE')
-    
+
     with arcpy.da.UpdateCursor(crests_line, ['width', 'dams_num', 'dam_dens', 'intact_num', 'breach_num', 'blown_num', 'ratio_all', 'ratio_act', 'ratio_int', 'SHAPE@LENGTH', 'crstPctAct']) as cursor:
         for row in cursor:
             row[0] = row[9]
@@ -421,6 +394,7 @@ def dam_crests_fn(crests_line, CL_line):
             row[10] = pct_act
             cursor.updateRow(row)
 
+
 for DCE in DCE_list:
     dam_crests_fn(os.path.join(DCE, 'dam_crests.shp'), os.path.join(DCE, 'vb_centerline.shp'))
 
@@ -432,11 +406,14 @@ for DCE in DCE_list:
 # Estimate bankfull with Beechie equation
 
 # Estimate Error for inundation area
+
+
 def poly_error_buf(polygon, error_val, out_folder):
     buf_pos = float(error_val)
     buf_neg = (buf_pos * -1)
     arcpy.Buffer_analysis(polygon, os.path.join(out_folder, 'error_max.shp'), buf_pos)
     arcpy.Buffer_analysis(polygon, os.path.join(out_folder, 'error_min.shp'), buf_neg)
+
 
 # Create min and max extent polygons
 for DCE in DCE_list:
@@ -447,7 +424,7 @@ for DCE in DCE_list:
     inun_fn(os.path.join(DCE, 'error_max.shp'), os.path.join(DCE, 'valley_bottom.shp'))
 
 # Add desired site scale variables to valley bottom shapefile
-## BRAT
+# BRAT
 for DCE in DCE_list:
     arcpy.AddField_management(os.path.join(DCE, 'valley_bottom.shp'), 'iGeo_DA', 'DOUBLE')
     arcpy.AddField_management(os.path.join(DCE, 'valley_bottom.shp'), 'iHyd_QLow', 'DOUBLE')
@@ -457,7 +434,7 @@ for DCE in DCE_list:
     arcpy.AddField_management(os.path.join(DCE, 'valley_bottom.shp'), 'iGeo_Slope', 'DOUBLE')
     #statsFields = [['iGeo_DA', "MEAN"], ['iHyd_QLow', "MEAN"], ['iHyd_Q2', "MEAN"], ['iHyd_SPLow', "MEAN"], ['iHyd_SP2', "MEAN"]]
     #arcpy.Statistics_analysis(os.path.join(DCE, 'BRAT_clip.shp'), os.path.join(DCE, 'BRAT_TAB'), statsFields)
-    arcpy.Dissolve_management(in_features= os.path.join(DCE, "BRAT_clip.shp"), out_feature_class= os.path.join(DCE, "BRAT_diss"), dissolve_field="iGeo_DA;iHyd_QLow;iHyd_Q2;iHyd_SPLow;iHyd_SP2;iGeo_Slope", statistics_fields="", multi_part="MULTI_PART", unsplit_lines="DISSOLVE_LINES")
+    arcpy.Dissolve_management(in_features=os.path.join(DCE, "BRAT_clip.shp"), out_feature_class=os.path.join(DCE, "BRAT_diss"), dissolve_field="iGeo_DA;iHyd_QLow;iHyd_Q2;iHyd_SPLow;iHyd_SP2;iGeo_Slope", statistics_fields="", multi_part="MULTI_PART", unsplit_lines="DISSOLVE_LINES")
     field_names = ['iGeo_DA', 'iHyd_QLow', 'iHyd_Q2', 'iHyd_SPLow', 'iHyd_SP2', 'iGeo_Slope']
     with arcpy.da.UpdateCursor(os.path.join(DCE, 'valley_bottom.shp'), ['iGeo_DA', 'iHyd_QLow', 'iHyd_Q2', 'iHyd_SPLow', 'iHyd_SP2', 'iGeo_Slope']) as Ucursor:
         for Urow in Ucursor:
@@ -470,7 +447,7 @@ for DCE in DCE_list:
                     Urow[4] = Srow[4]
                     Urow[5] = Srow[5]
                     Ucursor.updateRow(Urow)
-## main thalweg/ channel slope and length
+# main thalweg/ channel slope and length
 for DCE in DCE_list:
     arcpy.AddField_management(os.path.join(DCE, 'valley_bottom.shp'), 'grad_chan', 'DOUBLE')
     arcpy.AddField_management(os.path.join(DCE, 'valley_bottom.shp'), 'len_chan', 'DOUBLE')
@@ -494,7 +471,7 @@ for DCE in DCE_list:
                     Urow[1] = Srow[1]
                     Urow[2] = Srow[2]
                     Ucursor.updateRow(Urow)
-## valley bottom centerline
+# valley bottom centerline
 for DCE in DCE_list:
     arcpy.AddField_management(os.path.join(DCE, 'valley_bottom.shp'), 'grad_vall', 'DOUBLE')
     arcpy.AddField_management(os.path.join(DCE, 'valley_bottom.shp'), 'len_vall', 'DOUBLE')
@@ -505,7 +482,7 @@ for DCE in DCE_list:
                     Urow[0] = Srow[0]
                     Urow[1] = Srow[1]
                     Ucursor.updateRow(Urow)
-## dam crests
+# dam crests
 for DCE in DCE_list:
     arcpy.AddField_management(os.path.join(DCE, 'valley_bottom.shp'), 'dams_num', 'DOUBLE')
     arcpy.AddField_management(os.path.join(DCE, 'valley_bottom.shp'), 'dam_dens', 'DOUBLE')
@@ -531,7 +508,7 @@ for DCE in DCE_list:
                     Urow[7] = Srow[7]
                     Urow[8] = Srow[8]
                     Ucursor.updateRow(Urow)
-## inundation
+# inundation
 for DCE in DCE_list:
     arcpy.AddField_management(os.path.join(DCE, 'valley_bottom.shp'), 'intWid_wet', 'DOUBLE')
     arcpy.AddField_management(os.path.join(DCE, 'valley_bottom.shp'), 'tot_area', 'DOUBLE')
@@ -543,7 +520,7 @@ for DCE in DCE_list:
     arcpy.AddField_management(os.path.join(DCE, 'valley_bottom.shp'), 'pd_pct', 'DOUBLE')
     arcpy.AddField_management(os.path.join(DCE, 'valley_bottom.shp'), 'ov_pct', 'DOUBLE')
     arcpy.AddField_management(os.path.join(DCE, 'valley_bottom.shp'), 'island_num', 'DOUBLE')
-    
+
     with arcpy.da.UpdateCursor(os.path.join(DCE, 'valley_bottom.shp'), ['intWid_wet', 'tot_area', 'ff_area', 'pd_area', 'ov_area', 'tot_pct', 'ff_pct', 'pd_pct', 'ov_pct', 'island_num']) as Ucursor:
         for Urow in Ucursor:
             with arcpy.da.SearchCursor(os.path.join(DCE, 'inundation.shp'), ['intWidth', 'tot_area', 'ff_area', 'pd_area', 'ov_area', 'tot_pct', 'ff_pct', 'pd_pct', 'ov_pct', 'island_num']) as Scursor:
@@ -559,14 +536,14 @@ for DCE in DCE_list:
                     Urow[8] = Srow[8]
                     Urow[9] = Srow[9]
                     Ucursor.updateRow(Urow)
-## minimum inundation
+# minimum inundation
 for DCE in DCE_list:
     arcpy.AddField_management(os.path.join(DCE, 'valley_bottom.shp'), 'minWid_wet', 'DOUBLE')
     arcpy.AddField_management(os.path.join(DCE, 'valley_bottom.shp'), 'minTot_pct', 'DOUBLE')
     arcpy.AddField_management(os.path.join(DCE, 'valley_bottom.shp'), 'minFF_pct', 'DOUBLE')
     arcpy.AddField_management(os.path.join(DCE, 'valley_bottom.shp'), 'minPD_pct', 'DOUBLE')
     arcpy.AddField_management(os.path.join(DCE, 'valley_bottom.shp'), 'minOV_pct', 'DOUBLE')
-    
+
     with arcpy.da.UpdateCursor(os.path.join(DCE, 'valley_bottom.shp'), ['minWid_wet', 'minTot_pct', 'minFF_pct', 'minPD_pct', 'minOV_pct']) as Ucursor:
         for Urow in Ucursor:
             with arcpy.da.SearchCursor(os.path.join(DCE, 'error_min.shp'), ['intWidth', 'tot_pct', 'ff_pct', 'pd_pct', 'ov_pct']) as Scursor:
@@ -577,14 +554,14 @@ for DCE in DCE_list:
                     Urow[3] = Srow[3]
                     Urow[4] = Srow[4]
                     Ucursor.updateRow(Urow)
-## max inundation
+# max inundation
 for DCE in DCE_list:
     arcpy.AddField_management(os.path.join(DCE, 'valley_bottom.shp'), 'maxWid_wet', 'DOUBLE')
     arcpy.AddField_management(os.path.join(DCE, 'valley_bottom.shp'), 'maxTot_pct', 'DOUBLE')
     arcpy.AddField_management(os.path.join(DCE, 'valley_bottom.shp'), 'maxFF_pct', 'DOUBLE')
     arcpy.AddField_management(os.path.join(DCE, 'valley_bottom.shp'), 'maxPD_pct', 'DOUBLE')
     arcpy.AddField_management(os.path.join(DCE, 'valley_bottom.shp'), 'maxOV_pct', 'DOUBLE')
-    
+
     with arcpy.da.UpdateCursor(os.path.join(DCE, 'valley_bottom.shp'), ['maxWid_wet', 'maxTot_pct', 'maxFF_pct', 'maxPD_pct', 'maxOV_pct']) as Ucursor:
         for Urow in Ucursor:
             with arcpy.da.SearchCursor(os.path.join(DCE, 'error_max.shp'), ['intWidth', 'tot_pct', 'ff_pct', 'pd_pct', 'ov_pct']) as Scursor:
@@ -597,7 +574,7 @@ for DCE in DCE_list:
                     Ucursor.updateRow(Urow)
 
 # Additional site calcs
-for DCE in DCE_list: 
+for DCE in DCE_list:
     arcpy.AddField_management(os.path.join(DCE, 'valley_bottom.shp'), 'sinAllTwg', 'DOUBLE')
     arcpy.AddField_management(os.path.join(DCE, 'valley_bottom.shp'), 'sinMainTwg', 'DOUBLE')
     with arcpy.da.UpdateCursor(os.path.join(DCE, 'valley_bottom.shp'), ['len_vall', 'twgLenTot', 'twgLenMain', 'sinAllTwg', 'sinMainTwg']) as cursor:
@@ -611,7 +588,7 @@ for DCE in DCE_list:
     # create output folder
     output = os.path.dirname(DCE)
 
-    # valley bottom 
+    # valley bottom
     nparr = arcpy.da.FeatureClassToNumPyArray(os.path.join(DCE, 'valley_bottom.shp'), ['*'])
     field_names = [f.name for f in arcpy.ListFields(os.path.join(DCE, 'valley_bottom.shp'))]
     fields_str = ','.join(str(i) for i in field_names)
@@ -641,11 +618,4 @@ for DCE in DCE_list:
 
 # Make plots
 
-# Make table 
-
-
-
-
-
-
-
+# Make table

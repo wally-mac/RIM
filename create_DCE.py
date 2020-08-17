@@ -30,9 +30,9 @@ def new_DCE(srs_template, project_path, AP_fold, DCE_fold, image_path, image_dat
     LayerTypes = {
         # RSLayer(name, id, tag, rel_path)
         'AP_new': RSLayer(date_name, AP_fold, 'Raster', os.path.join('01_Inputs/01_Imagery', AP_fold, 'imagery.tif')),
-        'INUN_new': RSLayer('Inundation', DCE_fold + '_inun', 'Vector', os.path.join('02_Mapping', DCE_fold, 'inundation.shp')),
-        'DAM_CREST_new': RSLayer('Dam Crests', DCE_fold + '_damcrests', 'Vector', os.path.join('02_Mapping', DCE_fold, 'dam_crests.shp')),
-        'TWG_new': RSLayer('Thalwegs', DCE_fold + '_thalwegs', 'Vector', os.path.join('02_Mapping', DCE_fold, 'thalwegs.shp'))
+        'INUN_new': RSLayer('Inundation', DCE_fold + '_inun', 'Vector', os.path.join('03_Analysis', DCE_fold, 'Shapefiles/inundation.shp')),
+        'DAM_CREST_new': RSLayer('Dam Crests', DCE_fold + '_damcrests', 'Vector', os.path.join('03_Analysis', DCE_fold, 'Shapefiles/dam_crests.shp')),
+        'TWG_new': RSLayer('Thalwegs', DCE_fold + '_thalwegs', 'Vector', os.path.join('03_Analysis', DCE_fold, 'Shapefiles/thalwegs.shp'))
     }
 
     log = Logger('edit_xml')
@@ -135,7 +135,8 @@ def new_DCE(srs_template, project_path, AP_fold, DCE_fold, image_path, image_dat
             'source': image_source,
             'flow_stage': flow_stage,
             'image_res': image_res,
-            'mapper': mapper
+            'mapper': mapper,
+            'rs_used': "RS_01"
         }, DCEnew_node)
 
         # Add DCE01 files to xml
@@ -150,6 +151,9 @@ def new_DCE(srs_template, project_path, AP_fold, DCE_fold, image_path, image_dat
     analysis_path = os.path.join(project_path, '03_Analysis')
     if not os.path.exists(os.path.join(analysis_path, DCE_fold)):
         os.makedirs(os.path.join(analysis_path, DCE_fold))
+        DCEout = os.path.join(analysis_path, DCE_fold)
+        if not os.path.exists(os.path.join(DCEout, 'shapefiles')):
+            os.makedirs(os.path.join(DCEout, 'Shapefiles'))
 
     log.info('Writing file')
     project.XMLBuilder.write()

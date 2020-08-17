@@ -10,6 +10,7 @@ from lib.util import safe_makedirs
 from lib.loghelper import Logger
 import time
 import datetime
+arcpy.CheckOutExtension('Spatial')
 
 cfg = ModelConfig('http://xml.riverscapes.xyz/Projects/XSD/V1/Inundation.xsd')
 
@@ -57,9 +58,9 @@ def make_project(project_path, srs_template, image_path, site_name, huc8, BRAT_p
         'VBET': RSLayer('VBET', 'VBET', 'Vector', '01_Inputs/03_Context/VBET_01/VBET.shp'),
         'VB': RSLayer('Valley Bottom', 'VB_01', 'Vector', '02_Mapping/RS_01/valley_bottom.shp'),
         'VB_CL': RSLayer('VB Centerline', 'vbCL_01', 'Vector', '02_Mapping/RS_01/vb_centerline.shp'),
-        'INUN': RSLayer('Inundation', 'DCE_01_inun', 'Vector', '02_Mapping/DCE_01/inundation.shp'),
-        'DAM_CREST': RSLayer('Dam Crests', 'DCE_01_damcrests', 'Vector', '02_Mapping/DCE_01/dam_crests.shp'),
-        'TWG': RSLayer('Thalwegs', 'DCE_01_thalwegs', 'Vector', '02_Mapping/DCE_01/thalwegs.shp')
+        'INUN': RSLayer('Inundation', 'DCE_01_inun', 'Vector', '03_Analysis/DCE_01/Shapefiles/inundation.shp'),
+        'DAM_CREST': RSLayer('Dam Crests', 'DCE_01_damcrests', 'Vector', '03_Analysis/DCE_01/Shapefiles/dam_crests.shp'),
+        'TWG': RSLayer('Thalwegs', 'DCE_01_thalwegs', 'Vector', '03_Analysis/DCE_01/Shapefiles/thalwegs.shp')
     }
 
     log = Logger('build_xml')
@@ -230,7 +231,8 @@ def make_project(project_path, srs_template, image_path, site_name, huc8, BRAT_p
 
     # analysis folder
     analysis_folder = make_folder(project_path, "03_Analysis")
-    make_folder(analysis_folder, "DCE_01")
+    DCEout = make_folder(analysis_folder, "DCE_01")
+    make_folder(DCEout, "Shapefiles")
     make_folder(analysis_folder, "CDs")
     make_folder(analysis_folder, "Summary")
 
@@ -238,6 +240,7 @@ def make_project(project_path, srs_template, image_path, site_name, huc8, BRAT_p
     log.info('Writing file')
     project.XMLBuilder.write()
     log.info('Done')
+
 
 def main():
 
