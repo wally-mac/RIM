@@ -1,13 +1,9 @@
 # Import system modules
-from arcpy.sa import *
+
 import arcpy
 from arcpy import env
 import os
 import argparse
-import numpy
-import csv
-import pandas as pd
-from loghelper import Logger
 from create_project import make_folder
 arcpy.env.overwriteOutput = True
 arcpy.CheckOutExtension('Spatial')
@@ -36,10 +32,12 @@ DCE1_date = '20190804'
 DCE1_flow_stage = 'low'
 DCE1_active = 'yes'
 DCE1_maintained = 'yes'
+DCE1_res = '.02'
 # DCE 2 Parameters
 DCE2_date = 'pre beaver'
 DCE2_flow_stage = 'low'
 DCE2_active = 'NA'
 DCE2_maintained = 'NA'
+DCE2_res = '.2'
 
 ################################
