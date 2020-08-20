@@ -232,18 +232,42 @@ def calculate_metrics(project_path, RS_folder_name, DEM, site_name, DCE1_name, D
         mainTwgArr = arcpy.da.FeatureClassToNumPyArray(thalwegs, ['SHAPE@LENGTH', 'type'], "type = 'main'")
         mainTwgLen = mainTwgArr['SHAPE@LENGTH'].sum()
         mainTwgPct = round(mainTwgLen / twgTotLen, 1)
+        # anabranch
+        anaTwgArr = arcpy.da.FeatureClassToNumPyArray(thalwegs, ['SHAPE@LENGTH', 'type'], "type = 'anabranch'")
+        anaTwgLen = anaTwgArr['SHAPE@LENGTH'].sum()
+        anaTwgPct = round(anaTwgLen / twgTotLen, 1)
+        # split
+        splitTwgArr = arcpy.da.FeatureClassToNumPyArray(thalwegs, ['SHAPE@LENGTH', 'type'], "type = 'split'")
+        splitTwgLen = splitTwgArr['SHAPE@LENGTH'].sum()
+        splitTwgPct = round(splitTwgLen / twgTotLen, 1)
+        # braid
+        braidTwgArr = arcpy.da.FeatureClassToNumPyArray(thalwegs, ['SHAPE@LENGTH', 'type'], "type = 'braid'")
+        braidTwgLen = braidTwgArr['SHAPE@LENGTH'].sum()
+        braidTwgPct = round(braidTwgLen / twgTotLen, 1)
         # add fields to attribyte table
         arcpy.AddField_management(thalwegs, 'length', 'DOUBLE')
         arcpy.AddField_management(thalwegs, 'twgLenTot', 'DOUBLE')
         arcpy.AddField_management(thalwegs, 'twgLenMain', 'DOUBLE')
         arcpy.AddField_management(thalwegs, 'twgPctMain', 'DOUBLE')
+        arcpy.AddField_management(thalwegs, 'twgLenAna', 'DOUBLE')
+        arcpy.AddField_management(thalwegs, 'twgPctAna', 'DOUBLE')
+        arcpy.AddField_management(thalwegs, 'twgLenSplt', 'DOUBLE')
+        arcpy.AddField_management(thalwegs, 'twgPctSplt', 'DOUBLE')
+        arcpy.AddField_management(thalwegs, 'twgLenBrd', 'DOUBLE')
+        arcpy.AddField_management(thalwegs, 'twgPctBrd', 'DOUBLE')
 
-        with arcpy.da.UpdateCursor(thalwegs, ['length', 'twgLenTot', 'twgLenMain', 'twgPctMain', 'SHAPE@LENGTH']) as cursor:
+        with arcpy.da.UpdateCursor(thalwegs, ['length', 'twgLenTot', 'twgLenMain', 'twgPctMain', 'twgLenAna', 'twgPctAna', 'twgLenSplt', 'twgPctSplt', 'twgLenBrd', 'twgPctBrd', 'SHAPE@LENGTH']) as cursor:
             for row in cursor:
-                row[0] = row[4]
+                row[0] = row[10]
                 row[1] = twgTotLen
                 row[2] = mainTwgLen
                 row[3] = mainTwgPct
+                row[4] = anaTwgLen
+                row[5] = anaTwgPct
+                row[6] = splitTwgLen
+                row[7] = splitTwgPct
+                row[8] = braidTwgLen
+                row[9] = braidTwgPct
                 cursor.updateRow(row)
 
     # Calculate integrated valley width and integrated wetted width
@@ -292,6 +316,9 @@ def calculate_metrics(project_path, RS_folder_name, DEM, site_name, DCE1_name, D
         print "% overflow =", ov_pct
 
         # Plot pie chart
+        (head, tail) = os.path.split(DCE)
+        (head, tail) = os.path.split(head)
+
         labels = 'Free Flowing', 'Ponded', 'Overflow'
         sizes = [ff_pct, pd_pct, ov_pct]
         colors = ['deeppink', 'blue', 'cyan']
@@ -300,20 +327,20 @@ def calculate_metrics(project_path, RS_folder_name, DEM, site_name, DCE1_name, D
         ax1.pie(sizes, labels=labels, colors=colors, autopct='%1.1f%%', startangle=90)
         ax1.axis('equal')
 
-        if not os.path.exists(os.path.join(out_folder, DCE, 'inun_types.pdf')):
-            plt.savefig(os.path.join(out_folder, DCE, 'inun_types.pdf'))
+        if not os.path.exists(os.path.join(out_folder, tail, 'inun_types.pdf')):
+            plt.savefig(os.path.join(out_folder, tail, 'inun_types.pdf'))
             plt.show()
-        elif not os.path.exists(os.path.join(out_folder, DCE, 'inun_types_2.pdf')):
-            plt.savefig(os.path.join(out_folder, DCE, 'inun_types_2.pdf'))
+        elif not os.path.exists(os.path.join(out_folder, tail, 'inun_types_2.pdf')):
+            plt.savefig(os.path.join(out_folder, tail, 'inun_types_2.pdf'))
             plt.show()
-        elif not os.path.exists(os.path.join(out_folder, DCE, 'inun_types_3.pdf')):
-            plt.savefig(os.path.join(out_folder, DCE, 'inun_types_3.pdf'))
+        elif not os.path.exists(os.path.join(out_folder, tail, 'inun_types_3.pdf')):
+            plt.savefig(os.path.join(out_folder, tail, 'inun_types_3.pdf'))
             plt.show()
-        elif not os.path.exists(os.path.join(out_folder, DCE, 'inun_types_4.pdf')):
-            plt.savefig(os.path.join(out_folder, DCE, 'inun_types_4.pdf'))
+        elif not os.path.exists(os.path.join(out_folder, tail, 'inun_types_4.pdf')):
+            plt.savefig(os.path.join(out_folder, tail, 'inun_types_4.pdf'))
             plt.show()
         else:
-            plt.savefig(os.path.join(out_folder, DCE, 'inun_types_5.pdf'))
+            plt.savefig(os.path.join(out_folder, tail, 'inun_types_5.pdf'))
             plt.show()
 
         # Find number of exposed bars/ islands
@@ -459,10 +486,12 @@ def calculate_metrics(project_path, RS_folder_name, DEM, site_name, DCE1_name, D
         buf_neg = (buf_pos * -1)
         arcpy.Buffer_analysis(polygon, os.path.join(out_folder, 'error_max.shp'), buf_pos)
         arcpy.Buffer_analysis(polygon, os.path.join(out_folder, 'error_min.shp'), buf_neg)
-
-    # Create min and max extent polygons
+    err1 = float(DCE1_res) * 3
+    err2 = float(DCE2_res) * 3
+    poly_error_buf(os.path.join(DCE1_out, 'inundation.shp'), err1, DCE1_out)
+    poly_error_buf(os.path.join(DCE2_out, 'inundation.shp'), err2, DCE2_out)
+    # Create min and max extent polygons for each DCE
     for DCE in DCE_list:
-        poly_error_buf(os.path.join(DCE, 'inundation.shp'), '0.5', DCE)
         log.info('calculating inundation area and percent error...')
         print "calculating inundation error calcs for", DCE, "..."
         inun_fn(os.path.join(DCE, 'error_min.shp'), os.path.join(DCE, 'valley_bottom.shp'))
