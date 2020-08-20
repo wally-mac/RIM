@@ -31,15 +31,20 @@ def calculate_metrics(project_path, RS_folder_name, DEM, site_name, DCE1_name, D
     project = RSProject(cfg, project_path)
 
     DCEs = [DCE1_name, DCE2_name]
-    # for DCE in DCEs:
-    # LayerTypes = {
-    # RSLayer(name, id, tag, rel_path)
-    # 'VB': RSLayer('Valley Bottom', 'VB_01', 'Vector', os.path.join('03_Analysis', DCE, 'Shapefiles/valley_bottom.shp')),
-    # 'VB_CL': RSLayer('VB Centerline', 'vbCL_01', 'Vector', os.path.join('03_Analysis', DCE, 'Shapefiles/vb_centerline.shp')),
-    # }
-    # DCEXX = project.XMLBuilder.find_by_id(DCE)
-    # project.add_project_vector(DCEXX, LayerTypes['VB'])
-    # project.add_project_vector(DCEXX, LayerTypes['VB_CL'])
+    LayerTypes = {
+        # RSLayer(name, id, tag, rel_path)
+        'VB01': RSLayer('Valley Bottom', 'VB_01', 'Vector', '03_Analysis/DCE_01/Shapefiles/valley_bottom.shp'),
+        'VB_CL01': RSLayer('VB Centerline', 'vbCL_01', 'Vector', '03_Analysis/DCE_01/Shapefiles/vb_centerline.shp'),
+        'VB02': RSLayer('Valley Bottom', 'VB_01', 'Vector', '03_Analysis/DCE_02/Shapefiles/valley_bottom.shp'),
+        'VB_CL02': RSLayer('VB Centerline', 'vbCL_01', 'Vector', '03_Analysis/DCE_02/Shapefiles/vb_centerline.shp'),
+    }
+    DCE01 = project.XMLBuilder.find_by_id('DCE_01')
+    project.add_project_vector(DCE01, LayerTypes['VB01'])
+    project.add_project_vector(DCE01, LayerTypes['VB_CL01'])
+
+    DCE02 = project.XMLBuilder.find_by_id('DCE_02')
+    project.add_project_vector(DCE02, LayerTypes['VB02'])
+    project.add_project_vector(DCE02, LayerTypes['VB_CL02'])
 
     log = Logger('set paths')
 
