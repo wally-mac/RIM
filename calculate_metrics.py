@@ -16,6 +16,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from lib.loghelper import Logger
 from create_project import make_folder
+import numpy as np
 arcpy.env.overwriteOutput = True
 arcpy.CheckOutExtension('Spatial')
 
@@ -35,16 +36,47 @@ def calculate_metrics(project_path, RS_folder_name, DEM, site_name, DCE1_name, D
         # RSLayer(name, id, tag, rel_path)
         'VB01': RSLayer('Valley Bottom', 'VB_01', 'Vector', '03_Analysis/DCE_01/Shapefiles/valley_bottom.shp'),
         'VB_CL01': RSLayer('VB Centerline', 'vbCL_01', 'Vector', '03_Analysis/DCE_01/Shapefiles/vb_centerline.shp'),
+        'PIE01': RSLayer('DCE_01 Inundation Types', 'PIE_01', 'PDF', '03_Analysis/DCE_01/inun_types.pdf'),
+        'Min01': RSLayer('Minimum Inundation Extent', 'Min01', 'Vector', '03_Analysis/DCE_01/Shapefiles/error_min.shp'),
+        'Max01': RSLayer('Maximum Inundation Extent', 'Max01', 'Vector', '03_Analysis/DCE_01/Shapefiles/error_max.shp'),
         'VB02': RSLayer('Valley Bottom', 'VB_01', 'Vector', '03_Analysis/DCE_02/Shapefiles/valley_bottom.shp'),
         'VB_CL02': RSLayer('VB Centerline', 'vbCL_01', 'Vector', '03_Analysis/DCE_02/Shapefiles/vb_centerline.shp'),
+        'PIE02': RSLayer('DCE_02 Inundation Types', 'PIE_02', 'PDF', '03_Analysis/DCE_02/inun_types.pdf'),
+        'Min02': RSLayer('Minimum Inundation Extent', 'Min02', 'Vector', '03_Analysis/DCE_02/Shapefiles/error_min.shp'),
+        'Max02': RSLayer('Maximum Inundation Extent', 'Max02', 'Vector', '03_Analysis/DCE_02/Shapefiles/error_max.shp'),
+        'CD01': RSLayer('Percent Valley Bottom Inundation', 'CD_totPct', 'PDF', '03_Analysis/CDs/tot_pct.pdf'),
+        'CD02': RSLayer('Inundated Area', 'CD_area', 'PDF', '03_Analysis/CDs/area_types.pdf'),
+        'CD03': RSLayer('Percent Valley Bottom Inundation by Type', 'CD_typePct', 'PDF', '03_Analysis/CDs/pct_types.pdf'),
     }
     DCE01 = project.XMLBuilder.find_by_id('DCE_01')
     project.add_project_vector(DCE01, LayerTypes['VB01'])
     project.add_project_vector(DCE01, LayerTypes['VB_CL01'])
+    project.add_project_vector(DCE01, LayerTypes['Min01'])
+    project.add_project_vector(DCE01, LayerTypes['Max01'])
+    project.add_project_pdf(DCE01, LayerTypes['PIE01'])
 
     DCE02 = project.XMLBuilder.find_by_id('DCE_02')
     project.add_project_vector(DCE02, LayerTypes['VB02'])
     project.add_project_vector(DCE02, LayerTypes['VB_CL02'])
+    project.add_project_vector(DCE02, LayerTypes['Min01'])
+    project.add_project_vector(DCE02, LayerTypes['Max01'])
+    project.add_project_pdf(DCE02, LayerTypes['PIE02'])
+
+    realizations = project.XMLBuilder.find_by_id('realizations')
+    CD0102 = project.XMLBuilder.add_sub_element(realizations, 'InundationCD', None, {
+        'id': 'DCE_0102CD',
+        'Name': "DCE_01 vs DCE_02",
+        'dateCreated': datetime.datetime.now().isoformat(),
+        'guid': str(uuid.uuid1()),
+        'productVersion': cfg.version
+    })
+    project.add_metadata({
+        'DCEs': 'DCE01 and DCE02',
+    }, CD0102)
+
+    project.add_project_pdf(CD0102, LayerTypes['CD01'])
+    project.add_project_pdf(CD0102, LayerTypes['CD02'])
+    project.add_project_pdf(CD0102, LayerTypes['CD03'])
 
     log = Logger('set paths')
 
@@ -695,6 +727,87 @@ def calculate_metrics(project_path, RS_folder_name, DEM, site_name, DCE1_name, D
 
     ####################################################
 
-    # Make plots
+    # Join metrics from both DCE into 1 csv
+    # List of all csvs
+    outputs = [os.path.join(project_path, '03_Analysis/DCE_01/01_Metrics/valley_bottom_metrics.csv'), os.path.join(project_path, '03_Analysis/DCE_02/01_Metrics/valley_bottom_metrics.csv')]
+    metrics = pd.concat([pd.read_csv(f) for f in outputs])
+    # Output csv
+    metrics.to_csv(os.path.join(project_path, '03_Analysis/CDs', 'metrics.csv'))
 
-    # Make table
+    # Make Plots
+    data = pd.read_csv(os.path.join(project_path, '03_Analysis/CDs/metrics.csv'))
+    # plot with total percent inun and error bars
+    date = data.date.tolist()
+    tot_pct = data.tot_pct.tolist()
+    maxPct = data.maxTot_pct.tolist()
+    minPct = data.minTot_pct.tolist()
+    Uerror = []
+    Uzip = zip(maxPct, tot_pct)
+    for list1_i, list2_i in Uzip:
+        Uerror.append(list1_i - list2_i)
+    Lerror = []
+    Lzip = zip(tot_pct, minPct)
+    for list1_i, list2_i in Lzip:
+        Lerror.append(list1_i - list2_i)
+    # The position of the bars on the x-axis
+    r = [0, 1]
+    # Names of group and bar width
+    names = date
+    barWidth = 1
+    # Create brown bars
+    plt.bar(r, tot_pct, color='black', edgecolor='white', width=barWidth)
+    # Custom X axis
+    plt.xticks(r, names)
+    # asym error
+    a_error = [Lerror, Uerror]
+    plt.errorbar(r, tot_pct, yerr=a_error, fmt='o')
+    plt.ylabel('% Valley Bottom Inundation')
+    plt.ylim(0, 100)
+    plt.savefig(os.path.join(project_path, '03_Analysis/CDs', 'tot_pct.pdf'))
+    plt.show()
+
+    # Plot with total inun area symbolized by type
+    ff_area = data.ff_area.tolist()
+    pd_area = data.pd_area.tolist()
+    ov_area = data.ov_area.tolist()
+    # heights of ff + pd
+    ffpd_area = np.add(ff_area, pd_area).tolist()
+    # The position of the bars on the x-axis
+    r = [0, .5]
+    # Names of group and bar width
+    names = date
+    barWidth = .5
+    # Create pink ff bars
+    plt.bar(r, ff_area, color='deeppink', edgecolor='white', width=barWidth, label='free flowing')
+    # Create blue pd bars
+    plt.bar(r, pd_area, bottom=ff_area, color='blue', edgecolor='white', width=barWidth, label='ponded')
+    # Create cyan ov bars
+    plt.bar(r, ov_area, bottom=ffpd_area, color='cyan', edgecolor='white', width=barWidth, label='overflow')
+    # Custom X axis
+    plt.xticks(r, names)
+    plt.ylabel('Inundated area (m^2)')
+    plt.savefig(os.path.join(project_path, '03_Analysis/CDs', 'area_types.pdf'))
+    plt.show()
+    # Plot with total inun % symbolized by type
+    ff_pct = data.ff_pct.tolist()
+    pd_pct = data.pd_pct.tolist()
+    ov_pct = data.ov_pct.tolist()
+    # heights of ff + pd
+    ffpd_pct = np.add(ff_pct, pd_pct).tolist()
+    # The position of the bars on the x-axis
+    r = [0, .5]
+    # Names of group and bar width
+    names = date
+    barWidth = .5
+    # Create pink ff bars
+    plt.bar(r, ff_pct, color='deeppink', edgecolor='white', width=barWidth, label='free flowing')
+    # Create blue pd bars
+    plt.bar(r, pd_pct, bottom=ff_pct, color='blue', edgecolor='white', width=barWidth, label='ponded')
+    # Create cyan ov bars
+    plt.bar(r, ov_pct, bottom=ffpd_pct, color='cyan', edgecolor='white', width=barWidth, label='overflow')
+    # Custom X axis
+    plt.xticks(r, names)
+    plt.ylim(0, 100)
+    plt.ylabel('% Valley Bottom Inundation')
+    plt.savefig(os.path.join(project_path, '03_Analysis/CDs', 'pct_types.pdf'))
+    plt.show()

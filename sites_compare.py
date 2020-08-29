@@ -1,6 +1,8 @@
 import os
 import glob
 import pandas as pd
+import matplotlib.pyplot as plt
+import numpy as np
 
 
 path = r"C:\Users\A02295870\Box\Thesis_sites"

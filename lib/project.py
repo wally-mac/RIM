@@ -229,6 +229,15 @@ class RSProject:
         self.add_dataset(parent_node, file_path, rs_lyr, 'Vector', replace)
         return file_path
 
+    def add_project_pdf(self, parent_node, rs_lyr, replace=False, att_filter=None):
+        log = Logger('add_project_vector')
+
+        file_path = os.path.join(os.path.dirname(self.xml_path), rs_lyr.rel_path)
+        file_dir = os.path.dirname(file_path)
+
+        self.add_dataset(parent_node, file_path, rs_lyr, 'PDF', replace)
+        return file_path
+
     def add_project_raster(self, parent_node, rs_lyr, replace=False):
         log = Logger('add_project_raster')
 
