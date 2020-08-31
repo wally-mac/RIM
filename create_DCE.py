@@ -117,6 +117,7 @@ def new_DCE(srs_template, project_path, AP_fold, DCE_fold, image_path, image_dat
 
         # thalwegs
         arcpy.CreateFeatureclass_management(os.path.join(map_path, DCE_fold), "thalwegs.shp", "POLYLINE", "", has_m, has_z, spatial_reference)
+        arcpy.AddField_management(os.path.join(map_path, DCE_fold, 'thalwegs.shp'), 'type', "TEXT")
 
     else:
         print("this DCE already exists")
