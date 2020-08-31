@@ -474,7 +474,7 @@ def calculate_metrics(project_path, RS_folder_name, DEM, site_name, DCE1_name, D
         breached_num = int(arcpy.GetCount_management(os.path.join(project_path, 'damsCount_lyr')).getOutput(0))
         print "number of breached dams =", breached_num
         # blown_out
-        arcpy.SelectLayerByAttribute_management(os.path.join(project_path, 'damsCount_lyr'), 'NEW_SELECTION', "dam_state = 'blown-out'")
+        arcpy.SelectLayerByAttribute_management(os.path.join(project_path, 'damsCount_lyr'), 'NEW_SELECTION', "dam_state = 'blown_out'")
         blown_out_num = int(arcpy.GetCount_management(os.path.join(project_path, 'damsCount_lyr')).getOutput(0))
         print "number of blown out dams =", blown_out_num
         # delete temporary dams layer
