@@ -8,6 +8,9 @@ import uuid
 from lib.project import RSProject, RSLayer
 from lib.util import safe_makedirs
 from lib.loghelper import Logger
+import numpy
+import csv
+import pandas as pd
 import time
 import datetime
 arcpy.CheckOutExtension('Spatial')
@@ -29,7 +32,7 @@ def make_folder(path_to_location, new_folder_name):
         os.mkdir(newFolder)
     return newFolder
 
-# RIM projecy creation functions
+# RIM project creation functions
 
 
 def make_project(project_path, srs_template, image_path, site_name, huc8, BRAT_path, VBET_path, DEM_path, hs_path, image_date, date_name, image_source, flow_stage, image_res, mapper):
@@ -91,6 +94,7 @@ def make_project(project_path, srs_template, image_path, site_name, huc8, BRAT_p
     }, RS01_node)
     # Create the InundationDCE container node and metadata
     DCE01_node = project.XMLBuilder.add_sub_element(realizations, 'InundationDCE', None, {
+        'Name': date_name,
         'id': 'DCE_01',
         'dateCreated': datetime.datetime.now().isoformat(),
         'guid': str(uuid.uuid1()),
