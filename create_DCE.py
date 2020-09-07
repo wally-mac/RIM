@@ -73,7 +73,7 @@ def new_DCE(srs_template, project_path, AP_fold, DCE_fold, image_path, image_dat
 
     def add_image(image_path, AP_folder):
         # put input imagery in folder
-        if not os.path.exists(os.path.join(AP_folder, 'imagery.tif')):
+        if not os.path.exists(os.path.join(AP_folder, 'imagery.png')):
             arcpy.CopyRaster_management(image_path, os.path.join(AP_folder, 'imagery.tif'))
         else:
             print("existing image already exists in this AP folder")

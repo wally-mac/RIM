@@ -23,7 +23,7 @@ arcpy.CheckOutExtension('Spatial')
 cfg = ModelConfig('http://xml.riverscapes.xyz/Projects/XSD/V1/Inundation.xsd')
 
 
-def calculate_metrics(project_path, RS_folder_name, DEM, site_name, DCE1_name, DCE1_date, DCE1_flow_stage, DCE1_active, DCE1_maintained, DCE2_name, DCE2_date, DCE2_flow_stage, DCE2_active, DCE2_maintained, DCE1_res, DCE2_res):
+def calculate_metrics(project_path, RS_folder_name, DEM, site_name, DCE1_name, DCE1_date, DCE1_flow_stage, DCE1_active, DCE1_maintained, DCE2_name, DCE2_date, DCE2_flow_stage, DCE2_active, DCE2_maintained, DCE1_res, DCE2_res, setting, huc8):
 
     # Add VB and VBCL to xml
     log = Logger('edit_xml')
@@ -688,10 +688,13 @@ def calculate_metrics(project_path, RS_folder_name, DEM, site_name, DCE1_name, D
     for DCE in DCE_list:
         arcpy.AddField_management(os.path.join(DCE, 'valley_bottom.shp'), 'sinAllTwg', 'DOUBLE')
         arcpy.AddField_management(os.path.join(DCE, 'valley_bottom.shp'), 'sinMainTwg', 'DOUBLE')
-        with arcpy.da.UpdateCursor(os.path.join(DCE, 'valley_bottom.shp'), ['len_vall', 'twgLenTot', 'twgLenMain', 'sinAllTwg', 'sinMainTwg']) as cursor:
+        arcpy.AddField_management(os.path.join(DCE, 'valley_bottom.shp'), 'setting', 'TEXT')
+        with arcpy.da.UpdateCursor(os.path.join(DCE, 'valley_bottom.shp'), ['len_vall', 'twgLenTot', 'twgLenMain', 'sinAllTwg', 'sinMainTwg', 'setting', 'huc8') as cursor:
             for row in cursor:
                 row[3] = row[1] / row[0]
                 row[4] = row[2] / row[0]
+                row[5] = setting
+                row[6] = huc8
                 cursor.updateRow(row)
 
     # Add data to csv

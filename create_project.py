@@ -138,7 +138,7 @@ def make_project(project_path, srs_template, image_path, site_name, huc8, BRAT_p
 
     def add_image(image_path, AP_folder):
         # put input imagery in folder
-        arcpy.CopyRaster_management(image_path, os.path.join(AP_folder, 'orthomosaic.tif'))
+        arcpy.CopyRaster_management(image_path, os.path.join(AP_folder, 'orthomosaic.png'))
     add_image(image_path, AP01_folder)
 
     # copy DEM, hillshade to project folder
