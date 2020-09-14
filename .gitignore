@@ -129,3 +129,6 @@ dmypy.json
 .pyre/
 *.pyc
 *.zip
+docs/About.md
+docs/Overview.md
+docs/Overview.md
