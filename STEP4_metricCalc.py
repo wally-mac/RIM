@@ -25,9 +25,12 @@ DEM = os.path.join(project_path, '01_Inputs', '02_Topo', 'DEM_01', 'DEM.tif')
 # site parameters
 site_name = "pole_hollow"
 huc8 = "16010203"
+setting = "classic"  # classic, steep, or floodplain
+
 # name of the folder of the desired DCEs for the analysis
 DCE1_name = "DCE_01"
 DCE2_name = 'DCE_02'
+
 # DCE 1 Parameters
 DCE1_date = "20190610"
 DCE1_flow_stage = 'moderate'
@@ -41,7 +44,6 @@ DCE2_active = 'NA'
 DCE2_maintained = 'NA'
 DCE2_res = '.47'
 
-setting = "classic"  # classic, steep, or floodplain
 
 calculate_metrics(project_path, RS_folder_name, DEM, site_name, DCE1_name, DCE1_date, DCE1_flow_stage, DCE1_active, DCE1_maintained, DCE2_name, DCE2_date, DCE2_flow_stage, DCE2_active, DCE2_maintained, DCE1_res, DCE2_res, setting, huc8)
 ################################

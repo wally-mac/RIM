@@ -12,8 +12,8 @@ from create_DCE import new_DCE
 # Inputs
 
 # path to a shapefile with the desired output coordinate system
-srs_template = r"C:\Users\A02295870\Box\Thesis_sites\16010203\RH_fork_mid\02_Mapping\RS_01\valley_bottom.shp"
 project_path = r"C:\Users\A02295870\Box\Thesis_sites\16010203\pole_hollow"
+srs_template = r"C:\Users\A02295870\Box\Thesis_sites\16010203\RH_fork_mid\02_Mapping\RS_01\valley_bottom.shp"
 # name for new image folder (if you are not adding an image, put "None")
 AP_fold = 'AP_02'
 image_path = r"C:\Users\A02295870\Box\Thesis_sites\16010203\pole_hollow\historic_imagery\google_earth_Aug2009.jpg"

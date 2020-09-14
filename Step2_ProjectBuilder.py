@@ -8,15 +8,16 @@ from create_project import make_project
 
 # Inputs
 
-# path to a shapefile with the desired output coordinate system
-srs_template = r"C:\Users\A02295870\Box\Thesis_sites\16010203\RH_fork_mid\02_Mapping\RS_01\valley_bottom.shp"
 # path to project folder
 project_path = r"C:\Users\A02295870\Box\Thesis_sites\16010203\spawn_c"
+# path to a shapefile with the desired output coordinate system
+srs_template = r"C:\Users\A02295870\Box\Thesis_sites\16010203\RH_fork_mid\02_Mapping\RS_01\valley_bottom.shp"
 image_path = r"C:\Users\A02295870\Box\0_ET_AL\NonProject\etal_Drone\2019\Inundation_sites\Utah\Spawn\spawn_b_c\06252019\spawn_c\Agisoft_09022019\GIS\orthomosaic.tif"
-BRAT_path = r"C:\Users\A02295870\Box\0_ET_AL\NonProject\etal_Drone\2019\Inundation_sites\Riverscapes_Context\16010203\BRAT\BRAT\BatchRun_03\Outputs\Output_01\02_Analyses\Combined_Capacity_Model.shp"
-VBET_path = r"C:\Users\A02295870\Box\0_ET_AL\NonProject\etal_Drone\2019\Inundation_sites\Riverscapes_Context\16010203\VBET\BatchRun_01\02_Analyses\Output_1\Provisional_ValleyBottom_Unedited.shp"
 DEM_path = r"C:\Users\A02295870\Box\0_ET_AL\NonProject\etal_Drone\2019\Inundation_sites\Riverscapes_Context\16010203\topography\dem.tif"
 hs_path = r"C:\Users\A02295870\Box\0_ET_AL\NonProject\etal_Drone\2019\Inundation_sites\Riverscapes_Context\16010203\topography\dem.tif"
+BRAT_path = r"C:\Users\A02295870\Box\0_ET_AL\NonProject\etal_Drone\2019\Inundation_sites\Riverscapes_Context\16010203\BRAT\BRAT\BatchRun_03\Outputs\Output_01\02_Analyses\Combined_Capacity_Model.shp"
+VBET_path = r"C:\Users\A02295870\Box\0_ET_AL\NonProject\etal_Drone\2019\Inundation_sites\Riverscapes_Context\16010203\VBET\BatchRun_01\02_Analyses\Output_1\Provisional_ValleyBottom_Unedited.shp"
+
 
 # Parameters
 
