@@ -129,6 +129,8 @@ dmypy.json
 .pyre/
 *.pyc
 *.zip
+
+# Website
 docs/About.md
 docs/Overview.md
-docs/Overview.md
+docs/styleguide.md
