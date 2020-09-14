@@ -10,11 +10,11 @@ weight: 1
 ![ValleyBottom]({{ site.baseurl }}/assets/images/oblique_valleyBottom-02.jpg)
 
 ##### Mapping
-During Step 2 an empty valley bottom shapefile was created in the **02_Mapping/RS_01 folder** of your project folder and is called valley_bottom.shp
+During [Step 2](https://riverscapes.github.io/inundation/Documentation/Step2_createproject.html) an empty valley bottom shapefile was created in the **02_Mapping/RS_01 folder** of your project folder and is called **valley_bottom.shp**
 ###### Useful resources and lines of evidence for identifying the valley bottom extent
 When mapping the valley bottom it is beneficial to use all available lines of evidence including observations made in the field, a DEM, aerial photos, google earth, contour maps, hillshades, etc. The upstream and downstream edge of your valley bottom polygon will determine the longitudinal extent of you project area.
 #### Valley bottom centerline
 ##### Mapping
-During Step 2 an empty valley bottom centerline shapefile was created in the **02_Mapping/RS_01 folder** of your project folder and is called vb_centerline.shp
+During [Step 2](https://riverscapes.github.io/inundation/Documentation/Step2_createproject.html) an empty valley bottom centerline shapefile was created in the **02_Mapping/RS_01 folder** of your project folder and is called **vb_centerline.shp**
 
 The valley bottom centerline can be manually digitized or created using the ArcGIS [Polygon to Centerline Tool](https://www.arcgis.com/home/item.html?id=bc642731870740aabf48134f90aa6165)
