@@ -5,7 +5,7 @@ weight: 1
 
 ## Riverscape Inundation Mapper inputs
 
-The next step is to run the Project Builder script. This script is designed to take the inputs and organize them and create a folder structure as well as an XML file for the project. This script will create empty shapefiles to map context features and your first Data Capture Event (DCE)
+The next step is to run the Project Builder script (Step2_ProjectBuilder.py). This script is designed to take the inputs and organize them and create a folder structure as well as an XML file for the project. This script will create empty shapefiles to map context features and your first Data Capture Event (DCE)
 
 ## Inputs
 ### Files
@@ -14,17 +14,19 @@ The next step is to run the Project Builder script. This script is designed to t
 - **image_path** - The path to an image raster of the site 
 - **DEM_path** - The path to the input DEM
 - **hs_path** - The path to a hillshade
-- **site_name** The name of the project
-- **huc8** - the 8 digit Hydrologic Unit Code
+- **BRAT_path** - The path to a BRAT output shapefile
+- **VBET_path** - The path to a VBET output shapefile
 
 ### Parameters
+#### Site or project parameters
 - **site_name** The name of the project
-- **huc8** - the 8 digit Hydrologic Unit Code
+- **huc** - the 8 digit Hydrologic Unit Code
 
-#### Metadata for the input imagery
-- **site_name** The name of the project
+#### Metadata and parameters describing the input imagery
 - **image_date** - The date the imagery was collected. Use format YYYYMMDD
-- **image_source** - The source of the imagery
+- **date_name** - The dispay name for the image (e.g. "June 2019")
+- **image_source** - The source of the imagery (e.g. drone, google_earth, NAIP)
+- **flow_stage** - The flow stage at the time of the imagery (e.g. baseflow, low, moderate, high)
 - **image_res** - The resolution of the imagery in meters
-- **flow_stage** - The flow stage at the time of the imagery (e.g. baseflow, low, medium, high)
+- **mapper** - The name of the person digitizing the features
 
