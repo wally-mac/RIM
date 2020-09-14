@@ -689,7 +689,8 @@ def calculate_metrics(project_path, RS_folder_name, DEM, site_name, DCE1_name, D
         arcpy.AddField_management(os.path.join(DCE, 'valley_bottom.shp'), 'sinAllTwg', 'DOUBLE')
         arcpy.AddField_management(os.path.join(DCE, 'valley_bottom.shp'), 'sinMainTwg', 'DOUBLE')
         arcpy.AddField_management(os.path.join(DCE, 'valley_bottom.shp'), 'setting', 'TEXT')
-        with arcpy.da.UpdateCursor(os.path.join(DCE, 'valley_bottom.shp'), ['len_vall', 'twgLenTot', 'twgLenMain', 'sinAllTwg', 'sinMainTwg', 'setting', 'huc8') as cursor:
+
+        with arcpy.da.UpdateCursor(os.path.join(DCE, 'valley_bottom.shp'), ['len_vall', 'twgLenTot', 'twgLenMain', 'sinAllTwg', 'sinMainTwg', 'setting', 'huc8']) as cursor:
             for row in cursor:
                 row[3] = row[1] / row[0]
                 row[4] = row[2] / row[0]
