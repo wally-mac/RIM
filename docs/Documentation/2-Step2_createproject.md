@@ -1,6 +1,6 @@
 ﻿---
 title: Step 2 - Project Builder
-weight: 1
+weight: 2
 ---
 
 ## Project Builder

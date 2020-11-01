@@ -1,6 +1,6 @@
 ﻿---
 title: Step 4 - Calculate Metrics
-weight: 1
+weight: 4
 ---
 
 ## Calculate metrics
