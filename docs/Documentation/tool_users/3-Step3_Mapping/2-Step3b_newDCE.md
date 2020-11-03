@@ -1,6 +1,6 @@
 ﻿---
 title: Step 3b - Create New DCE
-weight: 1
+weight: 3
 ---
 
 ## Create new DCE
