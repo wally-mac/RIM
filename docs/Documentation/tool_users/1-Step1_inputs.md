@@ -15,7 +15,7 @@ Potential sources of imagery include Unmanned Aerial Vehicle (UAV) orthomosaics,
 ### DEM
 We typically use [USGS National Elevation Dataset (NED)](https://viewer.nationalmap.gov/basic/) 1/3 arc second (~ 10 m) DEM data.
 
-Additional optional inputs are useful and provide additional context for valley bottom mapping and information about the local hydrology:
+The following ptional inputs are useful and provide additional context for valley bottom mapping and information about the local hydrology:
 - [VBET](http://rcat.riverscapes.xyz/Documentation/Version_1.0/VBET.html#toc-valley-bottom-extraction-tool-vbet-) output
 - [BRAT](https://brat.riverscapes.xyz/) output
 - hillshade

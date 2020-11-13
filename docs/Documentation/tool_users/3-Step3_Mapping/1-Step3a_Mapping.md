@@ -48,12 +48,28 @@ For each dam crest, split the dam into the length of the crest that is or is not
 - **inactive** - the portion of the dam that is not actively backing up water upstream of the dam
 
 ### Thalwegs
+To characterize more dynamic hydrogeomorphic attributes such as planform changes (e.g. multithreadedness and sinuosity) that potentially occur between survey dates we mapped the location and type of thalwegs in the riverscape at the time of each survey. We mapped 4 thalweg types adapted from the Kramer-Anderson et al. Geomorphic Unit Tool (GUT - http://gut.riverscapes.xyz/); main, anabranch, split, and braid.
+- **Main** – the thalweg that follows the deepest point of the primary anabranch
+- **Anabranch** – thalwegs that follow the deepest point of a fully formed (i.e. has an active channel bed) secondary anabranch that is longer than 2 ocularly estimated bankfull channel widths
+- **Split** – thalwegs that follow the deepest point of structurally forced sheetflow, or short secondary anabranches 
+- **Braid** – thalwegs within the primary anabranch that are not the main thalweg and are not structurally forced by large wood or beaver dams. These typically depart and return from the main thalweg or an anabranch thalweg. 
+
 
 #### Thalweg type
-
+Attribute thalwegs to the following types:
+- **Main** – the thalweg that follows the deepest point of the primary anabranch
+- **Anabranch** – thalwegs that follow the deepest point of a fully formed (i.e. has an active channel bed) secondary anabranch that is longer than 2 ocularly estimated bankfull channel widths
+- **Split** – thalwegs that follow the deepest point of structurally forced sheetflow, or short secondary anabranches 
+- **Braid** – thalwegs within the primary anabranch that are not the main thalweg and are not structurally forced by large wood or beaver dams. These typically depart and return from the main thalweg or an anabranch thalweg. 
 ### Inundation 
-
+Be sure to map inundation at a consistent zoom level (we typically use 1:250). To map inundation simply digitize a polygon around the wetted edge visible in the aerial imagery. Where vegetation or shadows obscure the waters edge, infer the wetted extent between visible boundaries. If possible, predict vegetated areas that will be difficult to see the inundation and spot check at the time of imagery collection.
 #### Inundation type
+
+Each inundation survey polygon was then broken into three flow type classes on a continuum from more lotic (free flowing) to more lentic (ponded, but still flowing). We defined these classes in Figure 5 as follows:
+- **Free flowing** – not obstructed by a channel-spanning structural element
+- **Overflow** – structurally-forced flow onto floodplain and/or otherwise expose in channel surfaces (e.g. bars)
+- **Ponded** – structurally-forced backwater ponding upstream of a channel-spanning structural-element
+
 
 ![InundationType]({{ site.baseurl }}/assets/images/07052020inundation_typespng-01.png)
 
