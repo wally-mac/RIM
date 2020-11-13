@@ -5,7 +5,7 @@ weight: 4
 
 ## Calculate metrics
 
-Run this script to calculate summary metrics from the features mapped in the DCEs
+Run ([this script](https://github.com/Riverscapes/inundation/blob/master/STEP4_metricCalc.py)) to calculate summary metrics from the features mapped in the DCEs
 
 ### Inputs:
 - **project_path** - The path to a folder where you want the project folder structure to be created
@@ -33,5 +33,8 @@ Run this script to calculate summary metrics from the features mapped in the DCE
 - **DCE2_maintained** - was there evidence of recent beaver dam maintenence at the site during the time of the imagery acquisition?
 - **DCE2_res** - the resolution of the input imagery in  meters
 
+## Output Metrics
+The following table includes all metric outputs
 
+![outputMetrics]({{ site.baseurl }}/assets/images/s1.png)
 

@@ -5,7 +5,7 @@ weight: 3
 
 ## Create new DCE
 
-Run the Step3b_newDCE.py script to create an additional data capture event. 
+Run the ([Step3b_newDCE.py](https://github.com/Riverscapes/inundation/blob/master/STEP3b_newDCE.py)) script to create an additional data capture event. 
 
 Examples for which you might want to create a 2nd, 3rd, etc DCE:
 - to map a different snapshot in time at the same site (e.g. using imagery with a different date)
