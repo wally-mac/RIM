@@ -23,7 +23,7 @@ arcpy.CheckOutExtension('Spatial')
 cfg = ModelConfig('http://xml.riverscapes.xyz/Projects/XSD/V1/Inundation.xsd')
 
 
-def calculate_metrics(project_path, RS_folder_name, DEM, site_name, DCE1_name, DCE1_date, DCE1_flow_stage, DCE1_active, DCE1_maintained, DCE2_name, DCE2_date, DCE2_flow_stage, DCE2_active, DCE2_maintained, DCE1_res, DCE2_res, setting, huc8):
+def calculate_metrics(project_path, RS_folder_name, DEM, mapper, site_name, DCE1_name, DCE1_date, DCE1_image_source, DCE2_image_source, DCE1_date_name, DCE2_date_name, DCE1_flow_stage, DCE1_active, DCE1_maintained, DCE2_name, DCE2_date, DCE2_flow_stage, DCE2_active, DCE2_maintained, DCE1_res, DCE2_res, setting, huc8):
 
     # Add VB and VBCL to xml
     log = Logger('build_xml')
@@ -47,7 +47,7 @@ def calculate_metrics(project_path, RS_folder_name, DEM, site_name, DCE1_name, D
         'CD01': RSLayer('Percent Valley Bottom Inundation', 'CD_totPct', 'PDF', '03_Analysis/CDs/tot_pct.pdf'),
         'CD02': RSLayer('Inundated Area', 'CD_area', 'PDF', '03_Analysis/CDs/area_types.pdf'),
         'CD03': RSLayer('Percent Valley Bottom Inundation by Type', 'CD_typePct', 'PDF', '03_Analysis/CDs/pct_types.pdf'),
-        'AP_01': RSLayer(date_name, 'AP_01', 'Raster', '01_Inputs/01_Imagery/AP_01/orthomosaic.png'),
+        'AP_01': RSLayer(DCE1_date_name, 'AP_01', 'Raster', '01_Inputs/01_Imagery/AP_01/orthomosaic.png'),
         'DEM': RSLayer('NED 10m DEM', 'DEM', 'DEM', '01_Inputs/02_Topo/DEM_01/DEM.tif'),
         'HILLSHADE': RSLayer('DEM Hillshade', 'HILLSHADE', 'Raster', '01_Inputs/02_Topo/DEM_01/hlsd.tif'),
         'BRAT': RSLayer('BRAT', 'BRAT', 'Vector', '01_Inputs/03_Context/BRAT_01/BRAT.shp'),
@@ -55,6 +55,11 @@ def calculate_metrics(project_path, RS_folder_name, DEM, site_name, DCE1_name, D
         'VB': RSLayer('Valley Bottom', 'VB_01', 'Vector', '02_Mapping/RS_01/valley_bottom.shp'),
         'VB_CL': RSLayer('VB Centerline', 'vbCL_01', 'Vector', '02_Mapping/RS_01/vb_centerline.shp'),
         'INUN': RSLayer('Inundation', 'DCE_01_inun', 'Vector', '03_Analysis/DCE_01/Shapefiles/inundation.shp'),
+        # RSLayer(name, id, tag, rel_path)
+        'AP_new': RSLayer(DCE2_date_name, 'AP_02', 'Raster', '01_Inputs/01_Imagery/AP_02/imagery.tif'),
+        'INUN_new': RSLayer('Inundation', 'DCE_01_inun', 'Vector', '03_Analysis/DCE_02/Shapefiles/inundation.shp'),
+        'DAM_CREST_new': RSLayer('Dam Crests', 'DCE_01_damcrests', 'Vector', '03_Analysis/DCE_02/Shapefiles/dam_crests.shp'),
+        'TWG_new': RSLayer('Thalwegs', 'DCE_01_thalwegs', 'Vector', '03_Analysis/DCE_02/Shapefiles/thalwegs.shp'),
         'DAM_CREST': RSLayer('Dam Crests', 'DCE_01_damcrests', 'Vector', '03_Analysis/DCE_01/Shapefiles/dam_crests.shp'),
         'TWG': RSLayer('Thalwegs', 'DCE_01_thalwegs', 'Vector', '03_Analysis/DCE_01/Shapefiles/thalwegs.shp')
     }
@@ -94,17 +99,17 @@ def calculate_metrics(project_path, RS_folder_name, DEM, site_name, DCE1_name, D
     }, RS01_node)
     # Create the InundationDCE container node and metadata
     DCE01_node = project.XMLBuilder.add_sub_element(realizations, 'InundationDCE', None, {
-        'Name': date_name,
+        'Name': DCE1_date_name,
         'id': 'DCE_01',
         'dateCreated': datetime.datetime.now().isoformat(),
         'guid': str(uuid.uuid1()),
         'productVersion': cfg.version
     })
     project.add_metadata({
-        'image_date': image_date,
-        'source': image_source,
-        'flow_stage': flow_stage,
-        'image_res': image_res,
+        'image_date': DCE1_date,
+        'source': DCE1_image_source,
+        'flow_stage': DCE1_flow_stage,
+        'image_res': DCE1_res,
         'mapper': mapper
     }, DCE01_node)
 
@@ -116,10 +121,10 @@ def calculate_metrics(project_path, RS_folder_name, DEM, site_name, DCE1_name, D
     project.add_project_raster(inputs, LayerTypes['AP_01'])
     AP01_node = project.XMLBuilder.find_by_id('AP_01')
     project.add_metadata({
-        'image_date': image_date,
-        'source': image_source,
-        'flow_stage': flow_stage,
-        'image_res': image_res,
+        'image_date': DCE1_date,
+        'source': DCE1_image_source,
+        'flow_stage': DCE1_flow_stage,
+        'image_res': DCE1_res,
     }, AP01_node)
     project.add_project_raster(inputs, LayerTypes['HILLSHADE'])
 
@@ -135,6 +140,44 @@ def calculate_metrics(project_path, RS_folder_name, DEM, site_name, DCE1_name, D
     project.add_project_vector(DCE01_node, LayerTypes['INUN'])
     project.add_project_vector(DCE01_node, LayerTypes['DAM_CREST'])
     project.add_project_vector(DCE01_node, LayerTypes['TWG'])
+
+    log = Logger('new_DCE')
+
+    # Add new AP to xml
+    inputs = project.XMLBuilder.find_by_id('inputs')
+    project.add_project_raster(inputs, LayerTypes['AP_new'])
+    # add new AP metadata
+    APnew_node = project.XMLBuilder.find_by_id('AP_02')
+    project.add_metadata({
+        'image_date': DCE2_date,
+        'source': DCE2_image_source,
+        'flow_stage': DCE2_flow_stage,
+        'image_res': DCE2_res,
+    }, APnew_node)
+
+    # Add new AP to xml
+    realizations = project.XMLBuilder.find_by_id('realizations')
+    # Create the InundationDCE container node and metadata
+    DCEnew_node = project.XMLBuilder.add_sub_element(realizations, 'InundationDCE', None, {
+        'id': 'DCE_02',
+        'Name': DCE2_date_name,
+        'dateCreated': datetime.datetime.now().isoformat(),
+        'guid': str(uuid.uuid1()),
+        'productVersion': cfg.version
+    })
+    project.add_metadata({
+        'image_date': DCE2_date,
+        'source': DCE2_image_source,
+        'flow_stage': DCE2_flow_stage,
+        'image_res': DCE2_res,
+        'mapper': mapper,
+        'rs_used': "RS_01"
+    }, DCEnew_node)
+
+    # Add DCE02 files to xml
+    project.add_project_vector(DCEnew_node, LayerTypes['INUN_new'])
+    project.add_project_vector(DCEnew_node, LayerTypes['DAM_CREST_new'])
+    project.add_project_vector(DCEnew_node, LayerTypes['TWG_new'])
 
     # Existing code
     DCE01 = project.XMLBuilder.find_by_id('DCE_01')
@@ -778,6 +821,7 @@ def calculate_metrics(project_path, RS_folder_name, DEM, site_name, DCE1_name, D
         arcpy.AddField_management(os.path.join(DCE, 'valley_bottom.shp'), 'sinAllTwg', 'DOUBLE')
         arcpy.AddField_management(os.path.join(DCE, 'valley_bottom.shp'), 'sinMainTwg', 'DOUBLE')
         arcpy.AddField_management(os.path.join(DCE, 'valley_bottom.shp'), 'setting', 'TEXT')
+        arcpy.AddField_management(os.path.join(DCE, 'valley_bottom.shp'), 'huc8', 'TEXT')
 
         with arcpy.da.UpdateCursor(os.path.join(DCE, 'valley_bottom.shp'), ['len_vall', 'twgLenTot', 'twgLenMain', 'sinAllTwg', 'sinMainTwg', 'setting', 'huc8']) as cursor:
             for row in cursor:

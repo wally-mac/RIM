@@ -27,20 +27,20 @@ cfg = ModelConfig('http://xml.riverscapes.xyz/Projects/XSD/V1/Inundation.xsd')
 
 def new_DCE(srs_template, project_path, AP_fold, DCE_fold, image_path, image_date, date_name, image_source, flow_stage, image_res, mapper):
 
-    LayerTypes = {
+    #    LayerTypes = {
         # RSLayer(name, id, tag, rel_path)
-        'AP_new': RSLayer(date_name, AP_fold, 'Raster', os.path.join('01_Inputs/01_Imagery', AP_fold, 'imagery.tif')),
-        'INUN_new': RSLayer('Inundation', 'DCE_01_inun', 'Vector', os.path.join('03_Analysis', DCE_fold, 'Shapefiles/inundation.shp')),
-        'DAM_CREST_new': RSLayer('Dam Crests', 'DCE_01_damcrests', 'Vector', os.path.join('03_Analysis', DCE_fold, 'Shapefiles/dam_crests.shp')),
-        'TWG_new': RSLayer('Thalwegs', 'DCE_01_thalwegs', 'Vector', os.path.join('03_Analysis', DCE_fold, 'Shapefiles/thalwegs.shp'))
-    }
+        # 'AP_new': RSLayer(date_name, AP_fold, 'Raster', os.path.join('01_Inputs/01_Imagery', AP_fold, 'imagery.tif')),
+        # 'INUN_new': RSLayer('Inundation', 'DCE_01_inun', 'Vector', os.path.join('03_Analysis', DCE_fold, 'Shapefiles/inundation.shp')),
+        # 'DAM_CREST_new': RSLayer('Dam Crests', 'DCE_01_damcrests', 'Vector', os.path.join('03_Analysis', DCE_fold, 'Shapefiles/dam_crests.shp')),
+        # 'TWG_new': RSLayer('Thalwegs', 'DCE_01_thalwegs', 'Vector', os.path.join('03_Analysis', DCE_fold, 'Shapefiles/thalwegs.shp'))
+    # }
 
-    log = Logger('edit_xml')
-    log.info('Loading the XML to make edits...')
+    #log = Logger('edit_xml')
+    #log.info('Loading the XML to make edits...')
     # Load up a new RSProject class
-    project = RSProject(cfg, project_path)
+    #project = RSProject(cfg, project_path)
 
-    log = Logger('new_DCE')
+    #log = Logger('new_DCE')
 
     # Set local variables
     has_m = "DISABLED"
@@ -79,18 +79,6 @@ def new_DCE(srs_template, project_path, AP_fold, DCE_fold, image_path, image_dat
             print("existing image already exists in this AP folder")
     add_image(image_path, AP_path)
 
-    # Add new AP to xml
-    inputs = project.XMLBuilder.find_by_id('inputs')
-    project.add_project_raster(inputs, LayerTypes['AP_new'])
-    # add new AP metadata
-    APnew_node = project.XMLBuilder.find_by_id(AP_fold)
-    project.add_metadata({
-        'image_date': image_date,
-        'source': image_source,
-        'flow_stage': flow_stage,
-        'image_res': image_res,
-    }, APnew_node)
-
     # set pathway to mapping folder
     map_path = os.path.join(project_path, '02_Mapping')
 
@@ -123,30 +111,6 @@ def new_DCE(srs_template, project_path, AP_fold, DCE_fold, image_path, image_dat
         print("this DCE already exists")
     log.info('updating xml with new DCE...')
 
-    # Add new AP to xml
-    realizations = project.XMLBuilder.find_by_id('realizations')
-    # Create the InundationDCE container node and metadata
-    DCEnew_node = project.XMLBuilder.add_sub_element(realizations, 'InundationDCE', None, {
-        'id': DCE_fold,
-        'Name': date_name,
-        'dateCreated': datetime.datetime.now().isoformat(),
-        'guid': str(uuid.uuid1()),
-        'productVersion': cfg.version
-    })
-    project.add_metadata({
-        'image_date': image_date,
-        'source': image_source,
-        'flow_stage': flow_stage,
-        'image_res': image_res,
-        'mapper': mapper,
-        'rs_used': "RS_01"
-    }, DCEnew_node)
-
-    # Add DCE01 files to xml
-    project.add_project_vector(DCEnew_node, LayerTypes['INUN_new'])
-    project.add_project_vector(DCEnew_node, LayerTypes['DAM_CREST_new'])
-    project.add_project_vector(DCEnew_node, LayerTypes['TWG_new'])
-
     # create a folder in Analysis for this DCE
     analysis_path = os.path.join(project_path, '03_Analysis')
     if not os.path.exists(os.path.join(analysis_path, DCE_fold)):
@@ -154,10 +118,6 @@ def new_DCE(srs_template, project_path, AP_fold, DCE_fold, image_path, image_dat
         DCEout = os.path.join(analysis_path, DCE_fold)
         if not os.path.exists(os.path.join(DCEout, 'shapefiles')):
             os.makedirs(os.path.join(DCEout, 'Shapefiles'))
-
-    log.info('Writing file')
-    project.XMLBuilder.write()
-    log.info('Done')
 
 
 def main():
