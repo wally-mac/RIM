@@ -1,39 +1,37 @@
-<?xml version="1.0" encoding="utf-8" ?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/Riverscapes/RaveAddIn/master/RaveAddIn/XML/XSD/project_explorer.xsd">
   <Name>Inundation Mapper</Name>
   <ProjectType>Inundation</ProjectType>
   <Node xpathlabel="Name">
     <Children>
-      <Node label="Output">
-        <Children>
-          <Repeater label="Change Detections" xpath="Realizations/CDs">
-            <Node xpathlabel="Name">
-              <Children>
-                <Node xpathlabel="Name" xpath="Vector[@id='in_change_01']" type="vector" symbology="Changes in inundation type" />
-                <Repeater xpath="PDF">
-                  <Node xpathlabel="Name" type="file" />
-                </Repeater>
-              </Children>
-            </Node>
-          </Repeater>
-        </Children>
-      </Node>
       <Node label="Mapping">
         <Children>
           <Repeater label="DCEs" xpath="Realizations/InundationDCE">
             <Node xpathlabel="Name">
               <Children>
-                <Node xpathlabel="Name" xpath="Vector[@id='DCE_01_thalwegs']" type="vector" symbology="thalwegs" />
+                <Node label="Channels">
+                  <Children>
+                    <Node label="Main Thalwegs" xpath="Vector[@id='DCE_01_thalwegs']" type="vector" symbology="Thalweg_main" />
+                    <Node label="All Thalwegs" xpath="Vector[@id='DCE_01_thalwegs']" type="vector" symbology="Thalwegs" />
+                  </Children>
+                </Node>
                 <Node label="Dam Crests">
                   <Children>
-                    <Node label="Dam state" xpath="Vector[@id='DCE_01_damcrests']" type="vector" symbology="dam_state" />
-                    <Node label="Crest type" xpath="Vector[@id='DCE_01_damcrests']" type="vector" symbology="crests_type" />
+                    <Node label="Dam State" xpath="Vector[@id='DCE_01_damcrests']" type="vector" symbology="dam_state" />
+                    <Node label="Crest Type" xpath="Vector[@id='DCE_01_damcrests']" type="vector" symbology="crests_type" />
                   </Children>
                 </Node>
                 <Node label="Inundation">
                   <Children>
                     <Node label="Inundation Types" xpath="Vector[@id='DCE_01_inun']" type="vector" symbology="inundation_types" />
                     <Node label="Wetted Extent" xpath="Vector[@id='DCE_01_inun']" type="vector" symbology="wetted_extent" />
+                    <Node label="Inundation Type Distribution" xpath="PDF" type="file" />
+                  </Children>
+                </Node>
+                <Node label="Error">
+                  <Children>
+                    <Node label="Max Inundation" xpath="Vector[@id='Max01']" type="vector" symbology="inundation_types" />
+                    <Node label="Min Inundation" xpath="Vector[@id='Min01']" type="vector" symbology="inundation_types" />
                   </Children>
                 </Node>
               </Children>
@@ -49,7 +47,7 @@
       </Node>
       <Node label="Inputs">
         <Children>
-          <Node label="Imagery">
+          <Node label="Basemap">
             <Children>
               <Node xpathlabel="Name" xpath="Inputs/Raster[@id='AP_01']" type="raster" symbology="ortho" />
               <Node xpathlabel="Name" xpath="Inputs/Raster[@id='AP_02']" type="raster" symbology="ortho" />
@@ -63,6 +61,14 @@
               <Node xpathlabel="Name" xpath="Inputs/Vector[@id='HILLSHADE']" type="vector" symbology="hillshade" />
             </Children>
           </Node>
+        </Children>
+      </Node>
+      <Node label="Summary Comparisons">
+        <Children>
+          <Repeater xpath="Realizations/InundationCD/PDF">
+            <Node xpathlabel="Name" type="file" />
+          </Repeater>
+          <Node label="Summary Metrics" xpath="Realizations/InundationCD/CSV" type="file" />
         </Children>
       </Node>
     </Children>
