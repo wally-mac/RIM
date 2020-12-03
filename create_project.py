@@ -43,7 +43,7 @@ def make_project(project_path, srs_template, image_path, site_name, huc8, BRAT_p
 
     LayerTypes = {
         # RSLayer(name, id, tag, rel_path)
-        'AP_01': RSLayer(date_name, 'AP_01', 'Raster', '01_Inputs/01_Imagery/AP_01/orthomosaic.tif'),
+        'AP_01': RSLayer(date_name, 'AP_01', 'Raster', '01_Inputs/01_Imagery/AP_01/orthomosaic.png'),
         'DEM': RSLayer('NED 10m DEM', 'DEM', 'DEM', '01_Inputs/02_Topo/DEM_01/DEM.tif'),
         'HILLSHADE': RSLayer('DEM Hillshade', 'HILLSHADE', 'Raster', '01_Inputs/02_Topo/DEM_01/hlsd.tif'),
         'BRAT': RSLayer('BRAT', 'BRAT', 'Vector', '01_Inputs/03_Context/BRAT_01/BRAT.shp'),
@@ -58,14 +58,13 @@ def make_project(project_path, srs_template, image_path, site_name, huc8, BRAT_p
     log = Logger('build_xml')
     log.info('Starting the build of the XML')
 
-    project_name = 'Inundation Mapper'
+    project_name = site_name
     project = RSProject(cfg, project_path.replace('\\', '/'))
     project.create(project_name, 'Inundation')
 
     # Add the root metadata
     project.add_metadata({
         'ModelVersion': cfg.version,
-        'date_created': str(int(time.time())),
         'HUC8': huc8,
         'InundationVersion': cfg.version,
         'site_name': site_name
