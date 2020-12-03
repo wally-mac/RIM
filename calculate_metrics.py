@@ -26,8 +26,8 @@ cfg = ModelConfig('http://xml.riverscapes.xyz/Projects/XSD/V1/Inundation.xsd')
 def calculate_metrics(project_path, RS_folder_name, DEM, site_name, DCE1_name, DCE1_date, DCE1_flow_stage, DCE1_active, DCE1_maintained, DCE2_name, DCE2_date, DCE2_flow_stage, DCE2_active, DCE2_maintained, DCE1_res, DCE2_res, setting, huc8):
 
     # Add VB and VBCL to xml
-    log = Logger('edit_xml')
-    log.info('Loading the XML to make edits...')
+    log = Logger('build_xml')
+    log.info('Starting the build of the XML')
     # Load up a new RSProject class
     project = RSProject(cfg, project_path)
 
@@ -47,7 +47,96 @@ def calculate_metrics(project_path, RS_folder_name, DEM, site_name, DCE1_name, D
         'CD01': RSLayer('Percent Valley Bottom Inundation', 'CD_totPct', 'PDF', '03_Analysis/CDs/tot_pct.pdf'),
         'CD02': RSLayer('Inundated Area', 'CD_area', 'PDF', '03_Analysis/CDs/area_types.pdf'),
         'CD03': RSLayer('Percent Valley Bottom Inundation by Type', 'CD_typePct', 'PDF', '03_Analysis/CDs/pct_types.pdf'),
+        'AP_01': RSLayer(date_name, 'AP_01', 'Raster', '01_Inputs/01_Imagery/AP_01/orthomosaic.png'),
+        'DEM': RSLayer('NED 10m DEM', 'DEM', 'DEM', '01_Inputs/02_Topo/DEM_01/DEM.tif'),
+        'HILLSHADE': RSLayer('DEM Hillshade', 'HILLSHADE', 'Raster', '01_Inputs/02_Topo/DEM_01/hlsd.tif'),
+        'BRAT': RSLayer('BRAT', 'BRAT', 'Vector', '01_Inputs/03_Context/BRAT_01/BRAT.shp'),
+        'VBET': RSLayer('VBET', 'VBET', 'Vector', '01_Inputs/03_Context/VBET_01/VBET.shp'),
+        'VB': RSLayer('Valley Bottom', 'VB_01', 'Vector', '02_Mapping/RS_01/valley_bottom.shp'),
+        'VB_CL': RSLayer('VB Centerline', 'vbCL_01', 'Vector', '02_Mapping/RS_01/vb_centerline.shp'),
+        'INUN': RSLayer('Inundation', 'DCE_01_inun', 'Vector', '03_Analysis/DCE_01/Shapefiles/inundation.shp'),
+        'DAM_CREST': RSLayer('Dam Crests', 'DCE_01_damcrests', 'Vector', '03_Analysis/DCE_01/Shapefiles/dam_crests.shp'),
+        'TWG': RSLayer('Thalwegs', 'DCE_01_thalwegs', 'Vector', '03_Analysis/DCE_01/Shapefiles/thalwegs.shp')
     }
+
+    project_name = site_name
+    project = RSProject(cfg, project_path.replace('\\', '/'))
+    project.create(project_name, 'Inundation')
+
+    # Add the root metadata
+    project.add_metadata({
+        'ModelVersion': cfg.version,
+        'HUC8': huc8,
+        'InundationVersion': cfg.version,
+        'site_name': site_name
+    })
+
+    # Create the inputs container node
+    inputs = project.XMLBuilder.add_sub_element(project.XMLBuilder.root, 'Inputs', None, {
+        'id': 'inputs'
+    })
+
+    # Create the realizations container node
+    realizations = project.XMLBuilder.add_sub_element(project.XMLBuilder.root, 'Realizations', None, {
+        'id': 'realizations'
+    })
+
+    # Create the InundationContext (vb and vb centerline) container node
+    RS01_node = project.XMLBuilder.add_sub_element(realizations, 'InundationContext', None, {
+        'id': 'RS_01',
+        'dateCreated': datetime.datetime.now().isoformat(),
+        'guid': str(uuid.uuid1()),
+        'productVersion': cfg.version,
+    })
+
+    project.add_metadata({
+        'mapper': mapper
+    }, RS01_node)
+    # Create the InundationDCE container node and metadata
+    DCE01_node = project.XMLBuilder.add_sub_element(realizations, 'InundationDCE', None, {
+        'Name': date_name,
+        'id': 'DCE_01',
+        'dateCreated': datetime.datetime.now().isoformat(),
+        'guid': str(uuid.uuid1()),
+        'productVersion': cfg.version
+    })
+    project.add_metadata({
+        'image_date': image_date,
+        'source': image_source,
+        'flow_stage': flow_stage,
+        'image_res': image_res,
+        'mapper': mapper
+    }, DCE01_node)
+
+    log = Logger('build_xml')
+    log.info('adding inputs to xml...')
+
+    # add the input rasters to xml
+    project.add_project_raster(inputs, LayerTypes['DEM'])
+    project.add_project_raster(inputs, LayerTypes['AP_01'])
+    AP01_node = project.XMLBuilder.find_by_id('AP_01')
+    project.add_metadata({
+        'image_date': image_date,
+        'source': image_source,
+        'flow_stage': flow_stage,
+        'image_res': image_res,
+    }, AP01_node)
+    project.add_project_raster(inputs, LayerTypes['HILLSHADE'])
+
+    # add the input vectors to xml
+    project.add_project_vector(inputs, LayerTypes['BRAT'])
+    project.add_project_vector(inputs, LayerTypes['VBET'])
+
+    # Add RS01 files to xml
+    project.add_project_vector(RS01_node, LayerTypes['VB'])
+    project.add_project_vector(RS01_node, LayerTypes['VB_CL'])
+
+    # Add DCE01 files to xml
+    project.add_project_vector(DCE01_node, LayerTypes['INUN'])
+    project.add_project_vector(DCE01_node, LayerTypes['DAM_CREST'])
+    project.add_project_vector(DCE01_node, LayerTypes['TWG'])
+
+    # Existing code
     DCE01 = project.XMLBuilder.find_by_id('DCE_01')
     project.add_project_vector(DCE01, LayerTypes['VB01'])
     project.add_project_vector(DCE01, LayerTypes['VB_CL01'])
