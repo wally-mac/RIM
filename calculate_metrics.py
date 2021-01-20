@@ -73,7 +73,8 @@ def calculate_metrics(project_path, RS_folder_name, DEM, mapper, project_name, s
         'ModelVersion': cfg.version,
         'HUC8': huc8,
         'InundationVersion': cfg.version,
-        'site_name': site_name
+        'site_name': site_name,
+        'mapper': mapper
     })
 
     # Create the inputs container node
@@ -91,10 +92,10 @@ def calculate_metrics(project_path, RS_folder_name, DEM, mapper, project_name, s
         'guid': str(uuid.uuid1()),
         'productVersion': cfg.version,
     })
+    project.XMLBuilder.add_sub_element(RS01_node, 'Name', 'Site Extent and Centerline')
+    RS01_inputs_node = project.XMLBuilder.add_sub_element(RS01_node, 'Inputs', None)
+    project.XMLBuilder.add_sub_element(RS01_node, 'Outputs', None)
 
-    project.add_metadata({
-        'mapper': mapper
-    }, RS01_node)
     # Create the InundationDCE container node and metadata
     DCE01_node = project.XMLBuilder.add_sub_element(realizations, 'InundationDCE', None, {
         'id': 'DCE_01',
@@ -103,13 +104,8 @@ def calculate_metrics(project_path, RS_folder_name, DEM, mapper, project_name, s
         'productVersion': cfg.version
     })
     project.XMLBuilder.add_sub_element(DCE01_node, 'Name', DCE1_date_name)
-    project.add_metadata({
-        'image_date': DCE1_date,
-        'source': DCE1_image_source,
-        'flow_stage': DCE1_flow_stage,
-        'image_res': DCE1_res,
-        'mapper': mapper
-    }, DCE01_node)
+    DCE01_inputs_node = project.XMLBuilder.add_sub_element(DCE01_node, 'Inputs', None)
+    DCE01_outputs_node = project.XMLBuilder.add_sub_element(DCE01_node, 'Outputs', None)
 
     log = Logger('build_xml')
     log.info('adding inputs to xml...')
@@ -124,6 +120,7 @@ def calculate_metrics(project_path, RS_folder_name, DEM, mapper, project_name, s
         'flow_stage': DCE1_flow_stage,
         'image_res': DCE1_res,
     }, AP01_node)
+
     project.add_project_raster(inputs, LayerTypes['HILLSHADE'])
 
     # add the input vectors to xml
@@ -131,13 +128,13 @@ def calculate_metrics(project_path, RS_folder_name, DEM, mapper, project_name, s
     project.add_project_vector(inputs, LayerTypes['VBET'])
 
     # Add RS01 files to xml
-    project.add_project_vector(RS01_node, LayerTypes['VB'])
-    project.add_project_vector(RS01_node, LayerTypes['VB_CL'])
+    project.add_project_vector(RS01_inputs_node, LayerTypes['VB'])
+    project.add_project_vector(RS01_inputs_node, LayerTypes['VB_CL'])
 
     # Add DCE01 files to xml
-    project.add_project_vector(DCE01_node, LayerTypes['INUN'])
-    project.add_project_vector(DCE01_node, LayerTypes['DAM_CREST'])
-    project.add_project_vector(DCE01_node, LayerTypes['TWG'])
+    project.add_project_vector(DCE01_inputs_node, LayerTypes['INUN'])
+    project.add_project_vector(DCE01_inputs_node, LayerTypes['DAM_CREST'])
+    project.add_project_vector(DCE01_inputs_node, LayerTypes['TWG'])
 
     log = Logger('new_DCE')
 
@@ -160,48 +157,42 @@ def calculate_metrics(project_path, RS_folder_name, DEM, mapper, project_name, s
         'productVersion': cfg.version
     })
     project.XMLBuilder.add_sub_element(DCEnew_node, 'Name', DCE2_date_name)
-    project.add_metadata({
-        'image_date': DCE2_date,
-        'source': DCE2_image_source,
-        'flow_stage': DCE2_flow_stage,
-        'image_res': DCE2_res,
-        'mapper': mapper,
-        'rs_used': "RS_01"
-    }, DCEnew_node)
+    DCEnew_inputs_node = project.XMLBuilder.add_sub_element(DCEnew_node, 'Inputs', None)
+    DCEnew_outputs_node = project.XMLBuilder.add_sub_element(DCEnew_node, 'Outputs', None)
 
     # Add DCE02 files to xml
-    project.add_project_vector(DCEnew_node, LayerTypes['INUN_new'])
-    project.add_project_vector(DCEnew_node, LayerTypes['DAM_CREST_new'])
-    project.add_project_vector(DCEnew_node, LayerTypes['TWG_new'])
+    project.add_project_vector(DCEnew_inputs_node, LayerTypes['INUN_new'])
+    project.add_project_vector(DCEnew_inputs_node, LayerTypes['DAM_CREST_new'])
+    project.add_project_vector(DCEnew_inputs_node, LayerTypes['TWG_new'])
 
     # Existing code
-    DCE01 = project.XMLBuilder.find_by_id('DCE_01')
-    project.add_project_vector(DCE01, LayerTypes['VB01'])
-    project.add_project_vector(DCE01, LayerTypes['VB_CL01'])
-    project.add_project_vector(DCE01, LayerTypes['Min01'])
-    project.add_project_vector(DCE01, LayerTypes['Max01'])
-    project.add_project_pdf(DCE01, LayerTypes['PIE01'])
+    project.add_project_vector(DCE01_inputs_node, LayerTypes['VB01'])
+    project.add_project_vector(DCE01_inputs_node, LayerTypes['VB_CL01'])
+    project.add_project_vector(DCE01_inputs_node, LayerTypes['Min01'])
+    project.add_project_vector(DCE01_inputs_node, LayerTypes['Max01'])
+    project.add_project_pdf(DCE01_outputs_node, LayerTypes['PIE01'])
 
-    DCE02 = project.XMLBuilder.find_by_id('DCE_02')
-    project.add_project_vector(DCE02, LayerTypes['VB02'])
-    project.add_project_vector(DCE02, LayerTypes['VB_CL02'])
-    project.add_project_vector(DCE02, LayerTypes['Min02'])
-    project.add_project_vector(DCE02, LayerTypes['Max02'])
-    project.add_project_pdf(DCE02, LayerTypes['PIE02'])
+    project.add_project_vector(DCEnew_inputs_node, LayerTypes['VB02'])
+    project.add_project_vector(DCEnew_inputs_node, LayerTypes['VB_CL02'])
+    project.add_project_vector(DCEnew_inputs_node, LayerTypes['Min02'])
+    project.add_project_vector(DCEnew_inputs_node, LayerTypes['Max02'])
+    project.add_project_pdf(DCEnew_outputs_node, LayerTypes['PIE02'])
 
-    CD0102 = project.XMLBuilder.add_sub_element(realizations, 'InundationCD', None, {
+    CD01_node = project.XMLBuilder.add_sub_element(realizations, 'InundationCD', None, {
         'id': 'DCE_0102CD',
         'dateCreated': datetime.datetime.now().isoformat(),
         'guid': str(uuid.uuid1()),
         'productVersion': cfg.version
     })
-    project.add_metadata({
-        'DCEs': 'DCE01 and DCE02',
-    }, CD0102)
-
-    project.add_project_pdf(CD0102, LayerTypes['CD01'])
-    project.add_project_pdf(CD0102, LayerTypes['CD02'])
-    project.add_project_pdf(CD0102, LayerTypes['CD03'])
+    project.XMLBuilder.add_sub_element(CD01_node, 'Name', 'DCE Comparison')
+    CD01_inputs_node = project.XMLBuilder.add_sub_element(CD01_node, 'Inputs', None)
+    project.XMLBuilder.add_sub_element(CD01_inputs_node, 'DCE1', DCE1_date_name)
+    project.XMLBuilder.add_sub_element(CD01_inputs_node, 'DCE2', DCE2_date_name)
+    # Add CD output pie charts and csv
+    CD01_outputs_node = project.XMLBuilder.add_sub_element(CD01_node, 'Outputs', None)
+    project.add_project_pdf(CD01_outputs_node, LayerTypes['CD01'])
+    project.add_project_pdf(CD01_outputs_node, LayerTypes['CD02'])
+    project.add_project_pdf(CD01_outputs_node, LayerTypes['CD03'])
 
     log = Logger('set paths')
 
