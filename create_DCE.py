@@ -40,7 +40,7 @@ def new_DCE(srs_template, project_path, AP_fold, DCE_fold, image_path):
     # Load up a new RSProject class
     #project = RSProject(cfg, project_path)
 
-    #log = Logger('new_DCE')
+    log = Logger('new_DCE')
 
     # Set local variables
     has_m = "DISABLED"
