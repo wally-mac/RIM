@@ -102,6 +102,7 @@ def calculate_metrics(project_path, RS_folder_name, DEM, mapper, project_name, s
         'guid': str(uuid.uuid1()),
         'productVersion': cfg.version
     })
+    project.XMLBuilder.add_sub_element(DCE01_node, 'Name', DCE1_date_name)
     project.add_metadata({
         'image_date': DCE1_date,
         'source': DCE1_image_source,
@@ -158,6 +159,7 @@ def calculate_metrics(project_path, RS_folder_name, DEM, mapper, project_name, s
         'guid': str(uuid.uuid1()),
         'productVersion': cfg.version
     })
+    project.XMLBuilder.add_sub_element(DCEnew_node, 'Name', DCE2_date_name)
     project.add_metadata({
         'image_date': DCE2_date,
         'source': DCE2_image_source,
@@ -183,8 +185,8 @@ def calculate_metrics(project_path, RS_folder_name, DEM, mapper, project_name, s
     DCE02 = project.XMLBuilder.find_by_id('DCE_02')
     project.add_project_vector(DCE02, LayerTypes['VB02'])
     project.add_project_vector(DCE02, LayerTypes['VB_CL02'])
-    project.add_project_vector(DCE02, LayerTypes['Min01'])
-    project.add_project_vector(DCE02, LayerTypes['Max01'])
+    project.add_project_vector(DCE02, LayerTypes['Min02'])
+    project.add_project_vector(DCE02, LayerTypes['Max02'])
     project.add_project_pdf(DCE02, LayerTypes['PIE02'])
 
     CD0102 = project.XMLBuilder.add_sub_element(realizations, 'InundationCD', None, {
