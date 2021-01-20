@@ -78,12 +78,10 @@ def calculate_metrics(project_path, RS_folder_name, DEM, mapper, project_name, s
 
     # Create the inputs container node
     inputs = project.XMLBuilder.add_sub_element(project.XMLBuilder.root, 'Inputs', None, {
-        'id': 'inputs'
     })
 
     # Create the realizations container node
     realizations = project.XMLBuilder.add_sub_element(project.XMLBuilder.root, 'Realizations', None, {
-        'id': 'realizations'
     })
 
     # Create the InundationContext (vb and vb centerline) container node
@@ -98,8 +96,7 @@ def calculate_metrics(project_path, RS_folder_name, DEM, mapper, project_name, s
         'mapper': mapper
     }, RS01_node)
     # Create the InundationDCE container node and metadata
-    DCE01_node = project.XMLBuilder.add_sub_element(realizations, 'InundationDCE', None, {
-        'Name': DCE1_date_name,
+    DCE01_node = project.XMLBuilder.add_sub_element(realizations, DCE1_date_name, 'InundationDCE', None, {
         'id': 'DCE_01',
         'dateCreated': datetime.datetime.now().isoformat(),
         'guid': str(uuid.uuid1()),
@@ -144,7 +141,6 @@ def calculate_metrics(project_path, RS_folder_name, DEM, mapper, project_name, s
     log = Logger('new_DCE')
 
     # Add new AP to xml
-    inputs = project.XMLBuilder.find_by_id('inputs')
     project.add_project_raster(inputs, LayerTypes['AP_new'])
     # add new AP metadata
     APnew_node = project.XMLBuilder.find_by_id('AP_02')
@@ -155,12 +151,9 @@ def calculate_metrics(project_path, RS_folder_name, DEM, mapper, project_name, s
         'image_res': DCE2_res,
     }, APnew_node)
 
-    # Add new AP to xml
-    realizations = project.XMLBuilder.find_by_id('realizations')
     # Create the InundationDCE container node and metadata
-    DCEnew_node = project.XMLBuilder.add_sub_element(realizations, 'InundationDCE', None, {
+    DCEnew_node = project.XMLBuilder.add_sub_element(realizations, DCE2_date_name, 'InundationDCE', None, {
         'id': 'DCE_02',
-        'Name': DCE2_date_name,
         'dateCreated': datetime.datetime.now().isoformat(),
         'guid': str(uuid.uuid1()),
         'productVersion': cfg.version
@@ -197,7 +190,6 @@ def calculate_metrics(project_path, RS_folder_name, DEM, mapper, project_name, s
     realizations = project.XMLBuilder.find_by_id('realizations')
     CD0102 = project.XMLBuilder.add_sub_element(realizations, 'InundationCD', None, {
         'id': 'DCE_0102CD',
-        'Name': "DCE_01 vs DCE_02",
         'dateCreated': datetime.datetime.now().isoformat(),
         'guid': str(uuid.uuid1()),
         'productVersion': cfg.version
