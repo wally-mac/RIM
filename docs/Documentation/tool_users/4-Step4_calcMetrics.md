@@ -13,7 +13,8 @@ Run ([this script](https://github.com/Riverscapes/inundation/blob/master/STEP4_m
 - **DEM** - The path to the input DEM
 
 #### Site or project parameters
-- **site_name** The name of the project
+- **project_name** A readable name of the site
+- **site_name** The shorthand name of the site
 - **huc8** - the 8 digit Hydrologic Unit Code
 - **setting** - the dominant beaver dam building opportunity present ("classic", "steep", or "floodplain")
 

@@ -23,7 +23,7 @@ arcpy.CheckOutExtension('Spatial')
 cfg = ModelConfig('http://xml.riverscapes.xyz/Projects/XSD/V1/Inundation.xsd')
 
 
-def calculate_metrics(project_path, RS_folder_name, DEM, mapper, site_name, DCE1_name, DCE1_date, DCE1_image_source, DCE2_image_source, DCE1_date_name, DCE2_date_name, DCE1_flow_stage, DCE1_active, DCE1_maintained, DCE2_name, DCE2_date, DCE2_flow_stage, DCE2_active, DCE2_maintained, DCE1_res, DCE2_res, setting, huc8):
+def calculate_metrics(project_path, RS_folder_name, DEM, mapper, project_name, site_name, DCE1_name, DCE1_date, DCE1_image_source, DCE2_image_source, DCE1_date_name, DCE2_date_name, DCE1_flow_stage, DCE1_active, DCE1_maintained, DCE2_name, DCE2_date, DCE2_flow_stage, DCE2_active, DCE2_maintained, DCE1_res, DCE2_res, setting, huc8):
 
     # Add VB and VBCL to xml
     log = Logger('build_xml')
@@ -31,7 +31,7 @@ def calculate_metrics(project_path, RS_folder_name, DEM, mapper, site_name, DCE1
     # Load up a new RSProject class
     project = RSProject(cfg, project_path)
 
-    DCEs = [DCE1_name, DCE2_name]
+    # DCEs = [DCE1_name, DCE2_name]
     LayerTypes = {
         # RSLayer(name, id, tag, rel_path)
         'VB01': RSLayer('Valley Bottom', 'VB_01', 'Vector', '03_Analysis/DCE_01/Shapefiles/valley_bottom.shp'),
@@ -64,7 +64,7 @@ def calculate_metrics(project_path, RS_folder_name, DEM, mapper, site_name, DCE1
         'TWG': RSLayer('Thalwegs', 'DCE_01_thalwegs', 'Vector', '03_Analysis/DCE_01/Shapefiles/thalwegs.shp')
     }
 
-    project_name = site_name
+    project_name = project_name
     project = RSProject(cfg, project_path.replace('\\', '/'))
     project.create(project_name, 'Inundation')
 
@@ -821,7 +821,7 @@ def calculate_metrics(project_path, RS_folder_name, DEM, mapper, site_name, DCE1
         arcpy.AddField_management(os.path.join(DCE, 'valley_bottom.shp'), 'sinAllTwg', 'DOUBLE')
         arcpy.AddField_management(os.path.join(DCE, 'valley_bottom.shp'), 'sinMainTwg', 'DOUBLE')
         arcpy.AddField_management(os.path.join(DCE, 'valley_bottom.shp'), 'setting', 'TEXT')
-        arcpy.AddField_management(os.path.join(DCE, 'valley_bottom.shp'), 'huc8', 'TEXT')
+        # arcpy.AddField_management(os.path.join(DCE, 'valley_bottom.shp'), 'huc8', 'TEXT')
 
         with arcpy.da.UpdateCursor(os.path.join(DCE, 'valley_bottom.shp'), ['len_vall', 'twgLenTot', 'twgLenMain', 'sinAllTwg', 'sinMainTwg', 'setting', 'huc8']) as cursor:
             for row in cursor:
