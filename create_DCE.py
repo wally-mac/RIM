@@ -25,7 +25,7 @@ cfg = ModelConfig('http://xml.riverscapes.xyz/Projects/XSD/V1/Inundation.xsd')
 # function for create files
 
 
-def new_DCE(srs_template, project_path, AP_fold, DCE_fold, image_path, image_date, date_name, image_source, flow_stage, image_res, mapper):
+def new_DCE(srs_template, project_path, AP_fold, DCE_fold, image_path):
 
     #    LayerTypes = {
         # RSLayer(name, id, tag, rel_path)
