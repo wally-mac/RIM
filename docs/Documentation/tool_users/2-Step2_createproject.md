@@ -5,7 +5,7 @@ weight: 2
 
 ## Project Builder
 
-The next step is to run the ([Project Builder script](https://github.com/Riverscapes/inundation/blob/master/Step2_ProjectBuilder.py)). This script is designed to take the inputs and organize them and create a folder structure as well as an XML file for the project. This script will create empty shapefiles to map context features and your first Data Capture Event (DCE)
+The next step is to run the ([Project Builder script](https://github.com/Riverscapes/inundation/blob/master/Step2_ProjectBuilder.py)). This script is designed to take the inputs and organize them into a consistent project folder structure. This script will create empty shapefiles to map context features and your first Data Capture Event (DCE)
 
 ## Inputs
 ### Files
