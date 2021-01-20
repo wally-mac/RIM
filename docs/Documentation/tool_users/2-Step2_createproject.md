@@ -22,11 +22,4 @@ The next step is to run the ([Project Builder script](https://github.com/Riversc
 - **site_name** The name of the project
 - **huc** - the 8 digit Hydrologic Unit Code
 
-#### Metadata and parameters describing the input imagery
-- **image_date** - The date the imagery was collected. Use format YYYYMMDD
-- **date_name** - The dispay name for the image (e.g. "June 2019")
-- **image_source** - The source of the imagery (e.g. drone, google_earth, NAIP)
-- **flow_stage** - The flow stage at the time of the imagery (e.g. baseflow, low, moderate, high)
-- **image_res** - The resolution of the imagery in meters
-- **mapper** - The name of the person digitizing the features
 

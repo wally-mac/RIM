@@ -35,7 +35,7 @@ def make_folder(path_to_location, new_folder_name):
 # RIM project creation functions
 
 
-def make_project(project_path, srs_template, image_path, site_name, huc8, BRAT_path, VBET_path, DEM_path, hs_path, image_date, date_name, image_source, flow_stage, image_res, mapper):
+def make_project(project_path, srs_template, image_path, site_name, huc, BRAT_path, VBET_path, DEM_path, hs_path):
     """
     Creates project folders
     :param project_path: where we want project to be located
@@ -117,11 +117,11 @@ def make_project(project_path, srs_template, image_path, site_name, huc8, BRAT_p
     if not os.path.exists(os.path.join(RS01_folder, "valley_bottom.shp")):
         arcpy.CreateFeatureclass_management(RS01_folder, "valley_bottom.shp", "POLYGON", "", "DISABLED", "DISABLED", spatial_reference)
         arcpy.AddField_management(os.path.join(RS01_folder, 'valley_bottom.shp'), 'site_name', "TEXT")
-        arcpy.AddField_management(os.path.join(RS01_folder, 'valley_bottom.shp'), 'huc8', "DOUBLE")
-        with arcpy.da.UpdateCursor(os.path.join(RS01_folder, 'valley_bottom.shp'), ['site_name', 'huc8']) as cursor:
+        arcpy.AddField_management(os.path.join(RS01_folder, 'valley_bottom.shp'), 'huc', "DOUBLE")
+        with arcpy.da.UpdateCursor(os.path.join(RS01_folder, 'valley_bottom.shp'), ['site_name', 'huc']) as cursor:
             for row in cursor:
                 row[0] = site_name
-                row[1] = huc8
+                row[1] = huc
                 cursor.updateRow(row)
     # valley bottom centerline
     if not os.path.exists(os.path.join(RS01_folder, "vb_centerline.shp")):

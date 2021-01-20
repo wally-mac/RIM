@@ -9,34 +9,26 @@ from create_project import make_project
 # Inputs
 
 # path to project folder
-project_path = r"C:\Users\A02295870\Box\Thesis_sites\16010203\spawn_c"
+project_path = r"C:\Users\A02295870\Box\Thesis_sites\16010203\spawn_trib_final"
 # path to a shapefile with the desired output coordinate system
-srs_template = r"C:\Users\A02295870\Box\Thesis_sites\16010203\RH_fork_mid\02_Mapping\RS_01\valley_bottom.shp"
-image_path = r"C:\Users\A02295870\Box\0_ET_AL\NonProject\etal_Drone\2019\Inundation_sites\Utah\Spawn\spawn_b_c\06252019\spawn_c\Agisoft_09022019\GIS\orthomosaic.tif"
-DEM_path = r"C:\Users\A02295870\Box\0_ET_AL\NonProject\etal_Drone\2019\Inundation_sites\Riverscapes_Context\16010203\topography\dem.tif"
-hs_path = r"C:\Users\A02295870\Box\0_ET_AL\NonProject\etal_Drone\2019\Inundation_sites\Riverscapes_Context\16010203\topography\dem.tif"
-BRAT_path = r"C:\Users\A02295870\Box\0_ET_AL\NonProject\etal_Drone\2019\Inundation_sites\Riverscapes_Context\16010203\BRAT\BRAT\BatchRun_03\Outputs\Output_01\02_Analyses\Combined_Capacity_Model.shp"
-VBET_path = r"C:\Users\A02295870\Box\0_ET_AL\NonProject\etal_Drone\2019\Inundation_sites\Riverscapes_Context\16010203\VBET\BatchRun_01\02_Analyses\Output_1\Provisional_ValleyBottom_Unedited.shp"
+srs_template = r"C:\Users\A02295870\Box\Thesis_sites\16010203\spawn_trib\01_Inputs\03_Context\BRAT_01\BRAT.shp"
+image_path = r"C:\Users\A02295870\Box\Thesis_sites\16010203\temple_trib_a\01_Inputs\01_Imagery\AP_01\orthomosaic.png"
+DEM_path = r"C:\Users\A02295870\Box\Thesis_sites\16010203\spawn_trib\01_Inputs\02_Topo\DEM_01\DEM.tif"
+hs_path = r"C:\Users\A02295870\Box\Thesis_sites\16010203\spawn_trib\01_Inputs\02_Topo\DEM_01\hlsd.tif"
+BRAT_path = r"C:\Users\A02295870\Box\Thesis_sites\16010203\spawn_trib\01_Inputs\03_Context\BRAT_01\BRAT.shp"
+VBET_path = r"C:\Users\A02295870\Box\Thesis_sites\16010203\spawn_trib\01_Inputs\03_Context\VBET_01\VBET.shp"
 
 
 # Parameters
 
 # site parameters
-site_name = "spawn_c"
+site_name = "spawn_trib_final"
 huc = '16010203'
-
-# image and DCE 01 metadata
-image_date = "20190625"  # use format YYYYMMDD
-date_name = "June 2019"  # what you want the display name for the image to be
-image_source = "drone"  # e.g. drone, google_earth, NAIP
-flow_stage = "moderate"  # flow stage at the time of the imagery (e.g. baseflow, low, medium, high)
-image_res = '.02'  # resolution of the imagery in meters
-mapper = 'Karen Bartelt'
 
 ##############################
 
 # create project folders and empty mapping shapefiles for first DCE
-make_project(project_path, srs_template, image_path, site_name, huc, BRAT_path, VBET_path, DEM_path, hs_path, image_date, date_name, image_source, flow_stage, image_res, mapper)
+make_project(project_path, srs_template, image_path, site_name, huc, BRAT_path, VBET_path, DEM_path, hs_path)
 
 
 ##########################
