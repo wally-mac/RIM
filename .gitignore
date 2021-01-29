@@ -135,3 +135,8 @@ docs/About.md
 docs/Overview.md
 docs/styleguide.md
 docs/styleguide.md
+hydraulic_test.py
+organize_inputs.py
+project_raster.py
+settings.py
+XML_DEMO.py
