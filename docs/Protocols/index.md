@@ -65,4 +65,24 @@ Dam state refers to the condition of the dam and whether it was intact, breached
 #### Map thalwegs or centerlines
 To characterize more dynamic hydrogeomorphic attributes such as planform changes (e.g., multi-threadedness and sinuosity) that potentially occur between survey dates, map the location and type of thalwegs in the basemap. If the true thalweg or deepest part of the channel cannot be destinguished from the basemap imagery, then map the centerline of the flow area instead. Digitize the main chananel and overflow channels, including fully formed secondary channels or sheetflow.
 
+![thalwegs]({{ site.baseurl }}/assets/images/thalwegs2_tiny.png)
+
 #### Attribute Thalweg or Centerline Type
+
+Each thalweg or centerline type should be determined based on the following definitions that were adapted from the definitions used for the [Geomorphic Unit Tool (GUT)] (http://gut.riverscapes.xyz/)
+
+- **Main**: the thalweg that follows the primary anabranch
+- **Anabranch**: thalwegs that follow a fully formed (i.e. has an active channel bed) secondary anabranch that is longer than an estimated 2 bankfull widths
+- **Split**: thalwegs that follow structurally forced sheetflow areas or short secondary anabranches
+- **Braid**: thalwegs within the primary anabranch that are not the main thalweg and are not structurally forced by large wood or beaver dams. These typically depart and return from the main thalweg
+
+#### Map Inundation and Attribute Inundation Type
+Digitize the wetted extent from the basemap image and characterize inundation type as free flowing, ponded, or overflow based on the definitions shown in the image below.
+
+![inun_types]({{ site.baseurl }}/assets/images/inun_types_tiny.png)
+
+### Calculate Metrics
+
+Use RIM to calculate summary metrics based on the features you mapped
+
+![metrics]({{ site.baseurl }}/assets/images/metrics_tiny.png)
