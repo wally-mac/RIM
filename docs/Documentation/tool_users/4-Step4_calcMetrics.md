@@ -5,7 +5,7 @@ weight: 4
 
 ## Calculate metrics
 
-Run ([this script](https://github.com/Riverscapes/inundation/blob/master/STEP4_metricCalc.py)) to calculate summary metrics from the features mapped in the DCEs
+Run [this script](https://github.com/Riverscapes/inundation/blob/master/STEP4_metricCalc.py) to calculate summary metrics from the features mapped in the DCEs
 
 ### Inputs:
 - **project_path** - The path to a folder where you want the project folder structure to be created
