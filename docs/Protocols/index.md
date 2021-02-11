@@ -13,4 +13,4 @@ For each site, the protocol can be broken into 3 main steps:
 - Mapping Features
 - Calculating Metrics
 
-![flow_chart_tiny]({{ site.baseurl }}/assets/images/flow_chart_tiny.png)
+![flow_chart]({{ site.baseurl }}/assets/images/flow_chart_tiny.png)
