@@ -71,5 +71,5 @@ Each inundation survey polygon was then broken into three flow type classes on a
 - **Ponded** – structurally-forced backwater ponding upstream of a channel-spanning structural-element
 
 
-![InundationType]({{ site.baseurl }}/assets/images/07052020inundation_typespng-01.png)
+![InundationType]({{ site.baseurl }}/assets/images/inun_types_tiny.png)
 
