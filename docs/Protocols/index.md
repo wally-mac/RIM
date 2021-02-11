@@ -81,7 +81,7 @@ Digitize the wetted extent from the basemap image and characterize inundation ty
 
 ![inun_types]({{ site.baseurl }}/assets/images/inun_types_tiny.png)
 
-### Calculate Metrics
+## Calculate Metrics
 
 Use RIM to calculate summary metrics based on the features you mapped
 
