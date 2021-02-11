@@ -62,7 +62,7 @@ For each digitized dam crest you will determine two categorical attributes that 
 
 Dam state refers to the condition of the dam and whether it was intact, breached, or blown out at the time of the survey based on definitions by Hafen et al. (2020). For the crest type attribute you will determine the length of the crest that was actively ponding flow at the time of the survey.
 
-#### Map thalwegs or centerlines
+#### Map Thalwegs or Centerlines
 To characterize more dynamic hydrogeomorphic attributes such as planform changes (e.g., multi-threadedness and sinuosity) that potentially occur between survey dates, map the location and type of thalwegs in the basemap. If the true thalweg or deepest part of the channel cannot be destinguished from the basemap imagery, then map the centerline of the flow area instead. Digitize the main chananel and overflow channels, including fully formed secondary channels or sheetflow.
 
 ![thalwegs]({{ site.baseurl }}/assets/images/thalwegs2_tiny.png)
