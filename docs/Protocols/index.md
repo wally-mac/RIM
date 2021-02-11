@@ -17,9 +17,9 @@ For each site, the protocol can be broken into 3 main steps:
 
 ## Imagery Acquisition
 
-1. Use Drone deploy (or similar software) to ([create a flight plan](https://support.dronedeploy.com/docs/desktopplanning)) covering the full length and lateral extent of the site or project area
+1. Use Drone deploy (or similar software) to [create a flight plan](https://support.dronedeploy.com/docs/desktopplanning) covering the full length and lateral extent of the site or project area
 2. Field visit to collect imagery
-3. Follow the instructions ([here](https://www.agisoft.com/pdf/PS_1.3%20-Tutorial%20(BL)%20-%20Orthophoto,%20DEM%20(GCPs).pdf)) to upload and process the drone photos and generate a 2cm orthomosaic
+3. Follow the instructions [here](https://www.agisoft.com/pdf/PS_1.3%20-Tutorial%20(BL)%20-%20Orthophoto,%20DEM%20(GCPs).pdf) to upload and process the drone photos and generate a 2cm orthomosaic
 
 ## Map Features
 
