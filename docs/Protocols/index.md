@@ -45,9 +45,13 @@ Manually clean up the centerline and make sure it is merged to be a single featu
 
 ### Map and Attribute Structurally Forced Features
 
+![mapFeatures]({{ site.baseurl }}/assets/images/mapFeatures_tiny.png)
+
 #### Map Dam Crests
 
 Beaver dam crests represent the top of the dam, and beavers tend to construct them at a constant elevation, such that when the dam is maintained and full, water spills over the contour of the crest evenly. Digitize the beaver dam crest for each beaver dam by tracing the polyline representing a contour at the crest elevation of the dam (note, if topography is available, these dam crests should connect to cells of equal elevation on the digital elevation model at each end of the crest).
+
+![dams]({{ site.baseurl }}/assets/images/dams_tiny.png)
 
 #### Attribute "dam state" and "crest type"
 
