@@ -19,5 +19,5 @@ Examples for which you might want to create a 2nd, 3rd, etc DCE:
 - **image_path** - The path to an image raster  
 - **DCE_fold** - The name for the folder that will contain the new DCE shapefiles. Use DCE_01, DCE_02, DCE_03, etc.
 
-After you run this step return to step 3a to map the features in your 2nd DCE. While context features may occasionially change between DCEs, typically the only features you will re-map are the DCE features.
+After you run this step return to [Step 3a](http://rim.riverscapes.xyz/Documentation/tool_users/3-Step3_Mapping/1-Step3a_Mapping.htmlhttp://rim.riverscapes.xyz/Documentation/tool_users/3-Step3_Mapping/1-Step3a_Mapping.html) to map the features in your 2nd DCE. While context features may occasionially change between DCEs, typically the only features you will re-map are the DCE features.
 

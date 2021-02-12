@@ -3,4 +3,9 @@ title: Viewing RIM Projects
 weight: 1
 ---
 
-These steps take you through the necessary steps to run the RIM tool.
+## Download RAVE
+Follow the instructions [here](http://rave.riverscapes.xyz/) to install the RAVE toolbar for ArcGIS
+## Download RIM Project
+
+## Exploring RIM Projects in RAVE
+

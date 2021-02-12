@@ -12,12 +12,12 @@ weight: 3
 ![ValleyBottom]({{ site.baseurl }}/assets/images/oblique_valleyBottom-02.jpg)
 
 ##### Mapping
-During [Step 2](https://riverscapes.github.io/inundation/Documentation/Step2_createproject.html) an empty valley bottom shapefile was created in the **02_Mapping/RS_01 folder** of your project folder and is called **valley_bottom.shp**
+During [Step 2](http://rim.riverscapes.xyz/Documentation/tool_users/2-Step2_createproject.html) an empty valley bottom shapefile was created in the **02_Mapping/RS_01 folder** of your project folder and is called **valley_bottom.shp**
 ###### Useful resources and lines of evidence for identifying the valley bottom extent
 When mapping the valley bottom it is beneficial to use all available lines of evidence including observations made in the field, a DEM, aerial photos, google earth, contour maps, hillshades, etc. The upstream and downstream edge of your valley bottom polygon will determine the longitudinal extent of you project area.
 ### Valley bottom centerline
 ##### Mapping
-During [Step 2](https://riverscapes.github.io/inundation/Documentation/Step2_createproject.html) an empty valley bottom centerline shapefile was created in the **02_Mapping/RS_01 folder** of your project folder and is called **vb_centerline.shp**
+During [Step 2](http://rim.riverscapes.xyz/Documentation/tool_users/2-Step2_createproject.html) an empty valley bottom centerline shapefile was created in the **02_Mapping/RS_01 folder** of your project folder and is called **vb_centerline.shp**
 
 The valley bottom centerline can be manually digitized or created using the ArcGIS [Polygon to Centerline Tool](https://www.arcgis.com/home/item.html?id=bc642731870740aabf48134f90aa6165)
 
@@ -26,7 +26,7 @@ The valley bottom centerline can be manually digitized or created using the ArcG
 The Data Capture Event features to map are the structure or beaver dam crests, thalwegs, and the inundation types. These features are a snapshot in time and should be mapped seperately for each different image or time period of interest.
 
 ### Dam or structure crests
-During [Step 2](https://riverscapes.github.io/inundation/Documentation/Step2_createproject.html) an empty structures shapefile was created in the **02_Mapping/DCE_01 folder** of your project folder and is called **dam_crests.shp**
+During [Step 2](http://rim.riverscapes.xyz/Documentation/tool_users/2-Step2_createproject.html) an empty structures shapefile was created in the **02_Mapping/DCE_01 folder** of your project folder and is called **dam_crests.shp**
 
 For each beaver dam you will trace the crest of the beaver dam and will determine whether the dam is intact, breached, or blown out. You will then give each dam a unique dam ID and then determine the portion or length of the dam that is or is not actively structurally forcing flow at the time the image was taken.
 #### Dam state
